@@ -1,33 +1,27 @@
 #ifndef ENEMYMISSILE_H
 #define ENEMYMISSILE_H
 
+#include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
+#include <vector>
 
 class EnemyMissile
 {
 public:
-    // Constructor
-    EnemyMissile(sf::Vector2f initialPosition, sf::Vector2f initialVelocity);
+    // Constructor to initialize the missile
+    EnemyMissile(sf::Vector2f startPosition, sf::Vector2f targetDirection);
 
-    // Destructor
-    ~EnemyMissile();
-
-    // Update function to move and update the missile
+    // Update method to move the missile
     void update(float deltaTime);
 
-    // Function to check if the missile is alive
-    bool isAlive() const;
-
-    // Function to get the position of the missile
-    sf::Vector2f getPosition() const;
-
-    // Function to draw the missile
-    void draw(sf::RenderWindow &window);
+    // Draw method to render the missile
+    void draw(sf::RenderWindow &window) const;
+    sf::Clock fireTimer;
 
 private:
-    sf::CircleShape missileShape;
-    sf::Vector2f velocity;
-    bool alive;
+    sf::RectangleShape missileShape; // The visual representation of the missile
+    float velocity;                  // The missile's velocity
+    sf::Vector2f targetDirection;    // The direction vector towards the target
 };
 
 #endif // ENEMYMISSILE_H

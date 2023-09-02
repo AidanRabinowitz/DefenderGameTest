@@ -1,27 +1,24 @@
 #include "EnemyLander.h"
-#include "EnemyMissile.h"
-#include <SFML/System.hpp>
-#include <SFML/System/Vector2.hpp>
-#include <iostream> // For debugging
-#include <cmath>
-#include <cstdlib> // Include this for rand()
 
-EnemyLander::EnemyLander(sf::Vector2f position)
-    : minDistance(100.f), fireCooldown(2.0f), fireTimer(0.0f), velocity(0.f, 0.f), movingUp(true) // Initialize velocity and movingUp
+EnemyLander::EnemyLander(sf::Vector2f position, float fireRate, std::vector<sf::RectangleShape> &missiles)
+    : minDistance(100.f), fireRate(fireRate), fireTimer(), movingUp(true), enemyMissiles(missiles)
 {
-    // Initialize the position with the given position
     landerShape.setSize(sf::Vector2f(30.f, 30.f));
     landerShape.setFillColor(sf::Color::Red);
     landerShape.setPosition(position);
-
-    // Initialize velocity with random values
-    velocity.x = static_cast<float>(rand()) / RAND_MAX * 100.f - 50.f; // Random horizontal velocity
-    velocity.y = static_cast<float>(rand()) / RAND_MAX * 100.f - 50.f; // Random vertical velocity
 }
 
-void EnemyLander::update(float deltaTime, sf::Vector2f playerShipPosition, std::vector<EnemyMissile> &missiles)
+void EnemyLander::update(float deltaTime, sf::Vector2f playerShipPosition, std::vector<sf::RectangleShape> &enemyMissiles)
 {
-    if (movingUp && landerShape.getPosition().y <= 0.f)
+    if (fireTimer.getElapsedTime().asSeconds() >= fireRate)
+    {
+        missileFire();
+        fireTimer.restart();
+    }
+
+    float horizontalSpeed = 100.f;
+
+    if (movingUp && landerShape.getPosition().y <= minDistance)
     {
         movingUp = false;
     }
@@ -32,20 +29,11 @@ void EnemyLander::update(float deltaTime, sf::Vector2f playerShipPosition, std::
 
     if (movingUp)
     {
-        landerShape.move(sf::Vector2f(0.f, -velocity.y * deltaTime)); // Move up
+        landerShape.move(sf::Vector2f(0.f, -horizontalSpeed * deltaTime));
     }
     else
     {
-        landerShape.move(sf::Vector2f(0.f, velocity.y * deltaTime)); // Move down
-    }
-
-    fireTimer += deltaTime;
-    if (fireTimer >= fireCooldown)
-    {
-        // Fire a missile towards the player's ship
-        sf::Vector2f targetPosition = playerShipPosition; // Update this with your target logic
-        missileFire(targetPosition, missiles);
-        fireTimer = 0.0f; // Reset the timer
+        landerShape.move(sf::Vector2f(0.f, horizontalSpeed * deltaTime));
     }
 }
 
@@ -54,11 +42,12 @@ void EnemyLander::draw(sf::RenderWindow &window) const
     window.draw(landerShape);
 }
 
-void EnemyLander::missileFire(const sf::Vector2f &targetPosition, std::vector<EnemyMissile> &missiles)
+void EnemyLander::missileFire()
 {
-    // Create a missile instance and pass it the target position
-    EnemyMissile missile(landerShape.getPosition(), targetPosition);
+    // Create a missile instance starting from the lander's position
+    sf::RectangleShape missile(sf::Vector2f(10.f, 10.f));
+    missile.setFillColor(sf::Color::Blue);
+    missile.setPosition(landerShape.getPosition());
 
-    // Add the missile to the vector
-    missiles.push_back(missile);
+    enemyMissiles.push_back(missile);
 }

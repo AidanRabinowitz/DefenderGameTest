@@ -10,9 +10,17 @@ int main()
 	sf::RenderWindow window(sf::VideoMode(800, 600), "Defender");
 
 	PlayerShip playerShip(sf::Vector2f(400.f, 550.f));
+
 	std::vector<PlayerLaser> playerLasers;
+	std::vector<sf::RectangleShape> enemyMissiles; // Update to use sf::RectangleShape
+
 	std::vector<EnemyLander> enemyLanders;
-	std::vector<EnemyMissile> enemyMissiles;
+
+	// Create and add EnemyLander objects to the enemyLanders vector
+	enemyLanders.push_back(EnemyLander(sf::Vector2f(400.f, 100.f), 2.0f, enemyMissiles)); // Adjust fireRate as needed
+	enemyLanders.push_back(EnemyLander(sf::Vector2f(500.f, 100.f), 2.0f, enemyMissiles)); // Adjust fireRate as needed
+	// Add more as needed
+
 	bool gameStarted = false;
 	bool quitConfirmation = false; // To track if the quit confirmation dialog is shown
 
@@ -63,6 +71,8 @@ int main()
 			}
 			float deltaTime = 0.016f; // Adjust this as needed
 			playerShip.update(deltaTime);
+
+			// Update and draw enemy landers
 			for (size_t i = 0; i < enemyLanders.size(); ++i)
 			{
 				enemyLanders[i].update(deltaTime, playerShip.getPosition(), enemyMissiles);
@@ -74,9 +84,12 @@ int main()
 			// Update and draw enemy missiles
 			for (size_t i = 0; i < enemyMissiles.size(); ++i)
 			{
-				enemyMissiles[i].update(deltaTime);
-				enemyMissiles[i].draw(window);
+				// Update the position of the enemy missiles
+				enemyMissiles[i].move(sf::Vector2f(1.f, 0.f)); // Adjust the movement as needed
+				// Draw the enemy missiles
+				window.draw(enemyMissiles[i]);
 			}
+
 			for (size_t i = 0; i < playerLasers.size(); ++i)
 			{
 				playerLasers[i].update(deltaTime);
@@ -98,6 +111,7 @@ int main()
 			{
 				laser.draw(window);
 			}
+			// Draw enemy landers
 			for (const EnemyLander &lander : enemyLanders)
 			{
 				lander.draw(window);
@@ -111,15 +125,17 @@ int main()
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Y))
 			{
 				quitConfirmation = false; // Hide the confirmation dialog
-				gameStarted = false;	  // Go back to start screen
+				gameStarted = false;	  // Go back to the start screen
 			}
 			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::N))
 			{
 				quitConfirmation = false; // Hide the confirmation dialog
 			}
+			!gameStarted; // Toggle the gameStarted state
 		}
 		else
 		{
+
 			window.clear(sf::Color::Black);
 			window.draw(startMessage);
 		}

@@ -1,55 +1,33 @@
 #include "EnemyMissile.h"
+#include <SFML/System.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics.hpp>
+#include <iostream> // For debugging
+#include <cmath>
 
-// Constructor
-EnemyMissile::EnemyMissile(sf::Vector2f initialPosition, sf::Vector2f initialVelocity)
-    : missileShape(10.0f) // Set the radius of the circle
+EnemyMissile::EnemyMissile(sf::Vector2f startPosition, sf::Vector2f targetDirection)
+    : velocity(5000.f), targetDirection(targetDirection)
 {
-    missileShape.setPosition(initialPosition);
-    velocity = initialVelocity;
-    alive = true;
+    // Initialize the missile's position and appearance
+    missileShape.setSize(sf::Vector2f(22.f, 22.f));
+    missileShape.setFillColor(sf::Color::Green);
+    missileShape.setPosition(startPosition);
+
+    // Normalize the target direction vector
+    float length = std::sqrt(targetDirection.x * targetDirection.x + targetDirection.y * targetDirection.y);
+    if (length != 0)
+    {
+        targetDirection /= length;
+    }
 }
 
-// Destructor
-EnemyMissile::~EnemyMissile()
-{
-    // Destructor implementation, if needed
-}
-
-// Update function to move and update the missile
 void EnemyMissile::update(float deltaTime)
 {
-    if (alive)
-    {
-        missileShape.setPosition(missileShape.getPosition() + velocity * deltaTime);
-
-        // Check if the missile is out of bounds or other conditions to set it as not alive
-        // For example, you can add code here to check if the missile is out of the window bounds.
-        // If it is, set alive to false.
-
-        // Example condition to set the missile as not alive:
-        // if (missileShape.getPosition().y > windowSize.y) {
-        //     alive = false;
-        // }
-    }
+    // Move the missile towards the target direction
+    missileShape.move(velocity * targetDirection * deltaTime);
 }
 
-// Function to check if the missile is alive
-bool EnemyMissile::isAlive() const
+void EnemyMissile::draw(sf::RenderWindow &window) const
 {
-    return alive;
-}
-
-// Function to get the position of the missile
-sf::Vector2f EnemyMissile::getPosition() const
-{
-    return missileShape.getPosition();
-}
-
-// Function to draw the missile
-void EnemyMissile::draw(sf::RenderWindow &window)
-{
-    if (alive)
-    {
-        window.draw(missileShape);
-    }
+    window.draw(missileShape);
 }
