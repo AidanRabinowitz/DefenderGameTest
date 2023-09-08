@@ -8,6 +8,8 @@
 #include <cmath>
 #include <iostream>
 #include "Lander.h"
+#include "Missile.h"
+#include "Laser.h"
 
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
@@ -25,45 +27,6 @@ bool isSplashScreenVisible = true; // Initial splash screen visibility
 bool isPauseScreenVisible = false; // Flag to control the pause screen
 bool isGameOver = false;		   // Flag to indicate if the game is over
 
-struct Missile
-{
-	sf::RectangleShape shape;
-	sf::Vector2f velocity;
-};
-
-struct Laser
-{
-	sf::RectangleShape shape;
-	sf::Vector2f velocity;
-	bool isFired;
-};
-
-// void spawnLander(std::vector<Lander> &landers)
-// {
-// 	Lander lander;
-// 	lander.shape.setSize(sf::Vector2f(30, 30));
-// 	lander.shape.setFillColor(sf::Color::Red);
-// 	lander.shape.setPosition(rand() % (WINDOW_WIDTH - 30), 0);
-// 	lander.velocity.x = LANDER_SPEED;
-// 	lander.velocity.y = LANDER_SPEED;
-// 	lander.isDestroyed() = false;
-// 	landers.push_back(lander);
-// }
-
-void fireMissile(std::vector<Missile> &missiles, const sf::Vector2f &position, const sf::Vector2f &target)
-{
-	Missile missile;
-	missile.shape.setSize(sf::Vector2f(5, 20));
-	missile.shape.setFillColor(sf::Color::Yellow);
-	missile.shape.setPosition(position.x + 12, position.y + 30);
-
-	sf::Vector2f direction = target - missile.shape.getPosition();
-	float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-
-	missile.velocity = direction / length * MISSILE_SPEED;
-
-	missiles.push_back(missile);
-}
 void resetGame(sf::RectangleShape &player, std::vector<Lander> &landers, std::vector<Missile> &missiles)
 {
 	// Reset player position
@@ -92,7 +55,7 @@ int main()
 	srand(static_cast<unsigned>(time(0))); // Seed random number generator
 
 	sf::Font font;
-	if (!font.loadFromFile("C:/SoftwareIIGame-2/game-source-code/resources/sansation.ttf"))
+	if (!font.loadFromFile("resources/sansation.ttf"))
 	{
 		// Handle font loading error
 	}
@@ -172,7 +135,7 @@ int main()
 						laser.shape.setFillColor(sf::Color::Cyan);
 						laser.shape.setPosition(player.getPosition().x + 22, player.getPosition().y);
 						laser.velocity.x = LASER_SPEED;
-						laser.isFired = true;
+						laser.setFired(true);
 						lasers.push_back(laser);
 					}
 				}
@@ -191,8 +154,10 @@ int main()
 			// Spawn Landers
 			if (spawnTimer.getElapsedTime().asMilliseconds() > SPAWN_INTERVAL)
 			{
-				landers.push_back(Lander());		   // Spawn a new lander
-				landers.back().spawn(window, landers); // Initialize it
+				// Randomly generate a position for the lander, away from the player
+				sf::Vector2f landerSpawnPosition(rand() % (WINDOW_WIDTH - 30), -30); // Adjust as needed
+				landers.push_back(Lander(player.getPosition()));
+				landers.back().shape.setPosition(landerSpawnPosition);
 				spawnTimer.restart();
 			}
 
@@ -201,17 +166,38 @@ int main()
 			{
 				if (missileTimer.getElapsedTime().asMilliseconds() > MISSILE_INTERVAL)
 				{
-					fireMissile(missiles, landers[i].shape.getPosition(), player.getPosition());
-					missileTimer.restart();
+					for (size_t i = 0; i < landers.size(); i++)
+					{
+						if (missileTimer.getElapsedTime().asMilliseconds() > MISSILE_INTERVAL)
+						{
+							missiles.push_back(Missile(landers[i].getSpawnPosition(), player.getPosition()));
+							missileTimer.restart();
+						}
+					}
 				}
 			}
 
+			// Move Landers
+			// for (size_t i = 0; i < landers.size(); i++)
+			// {
+			// 	if (!landers[i].isDestroyed())
+			// 	{
+			// 		landers[i].shape.move(landers[i].velocity);
+			// 	}
+
+			// 	// Remove Landers that go out of bounds
+			// 	if (landers[i].shape.getPosition().y > WINDOW_HEIGHT)
+			// 	{
+			// 		landers.erase(landers.begin() + i);
+			// 		i--;
+			// 	}
+			// }
 			// Move Landers
 			for (size_t i = 0; i < landers.size(); i++)
 			{
 				if (!landers[i].isDestroyed())
 				{
-					landers[i].shape.move(landers[i].velocity);
+					landers[i].shape.move(0, LANDER_SPEED); // Move downward
 				}
 
 				// Remove Landers that go out of bounds
@@ -222,10 +208,11 @@ int main()
 				}
 			}
 
-			// Move Missiles
+			// Move and draw missiles
 			for (size_t i = 0; i < missiles.size(); i++)
 			{
-				missiles[i].shape.move(missiles[i].velocity);
+				missiles[i].move();
+				missiles[i].draw(window);
 
 				// Check for collision with the player's ship
 				if (missiles[i].shape.getGlobalBounds().intersects(player.getGlobalBounds()))
@@ -233,15 +220,7 @@ int main()
 					// Player is hit, show "You Died" screen
 					isGameOver = true;
 				}
-				for (size_t i = 0; i < landers.size(); i++)
-				{
-					if (!landers[i].isDestroyed() && player.getGlobalBounds().intersects(landers[i].shape.getGlobalBounds()))
-					{
-						// Player is hit by a lander, show "Game Over" screen
-						isGameOver = true;
-						break; // No need to check further collisions
-					}
-				}
+
 				// Remove Missiles that go out of bounds
 				if (missiles[i].shape.getPosition().y > WINDOW_HEIGHT)
 				{
@@ -250,7 +229,7 @@ int main()
 				}
 			}
 
-			// Move Lasers
+						// Move Lasers
 			for (size_t i = 0; i < lasers.size(); i++)
 			{
 				lasers[i].shape.move(lasers[i].velocity);
@@ -263,19 +242,23 @@ int main()
 				}
 			}
 
-			// Check for collision between lasers and landers
-			for (size_t i = 0; i < lasers.size(); i++)
+			// Check for collision between player and landers
+			for (size_t i = 0; i < landers.size(); i++)
 			{
-				for (size_t j = 0; j < landers.size(); j++)
+				if (!landers[i].isDestroyed() && player.getGlobalBounds().intersects(landers[i].shape.getGlobalBounds()))
 				{
-					if (!landers[j].isDestroyed() && lasers[i].shape.getGlobalBounds().intersects(landers[j].shape.getGlobalBounds()))
-					{
-						landers[j].isDestroyed() = true;
-						lasers.erase(lasers.begin() + i);
-						i--;
-						score += 10; // Increase the score when a lander is destroyed
-						break;		 // No need to check further lasers for this lander
-					}
+					isGameOver = true;
+					break;
+				}
+			}
+
+			// Check for collision between player and missiles
+			for (size_t i = 0; i < missiles.size(); i++)
+			{
+				if (missiles[i].shape.getGlobalBounds().intersects(player.getGlobalBounds()))
+				{
+					isGameOver = true;
+					break;
 				}
 			}
 		}

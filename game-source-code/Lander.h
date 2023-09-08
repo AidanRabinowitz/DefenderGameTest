@@ -6,7 +6,7 @@
 class Lander
 {
 public:
-    Lander();
+    Lander(const sf::Vector2f &playerPos);
     void spawn(sf::RenderWindow &window, std::vector<Lander> &landers);
     void move();
     void draw(sf::RenderWindow &window);
@@ -17,8 +17,12 @@ public:
     sf::Vector2f velocity;
     sf::Clock missileTimer;
     bool destroyed;
+    sf::Vector2f getSpawnPosition() const; // Getter for spawn position
+    sf::Clock fireRateClock;               // Add this member variable
+    sf::Vector2f playerPosition;
 
 private:
+    sf::Vector2f spawnPosition; // Store the spawn position for each lander
 };
 
 #endif // LANDER_H
