@@ -1,12 +1,13 @@
 #include "Missile.h"
+#include "Lander.h"
 #include <cmath>
 #define MISSILE_SPEED 8 // Replace with your desired speed
 
-Missile::Missile(const sf::Vector2f &position, const sf::Vector2f &target)
+Missile::Missile(sf::Vector2f initialPosition, sf::Vector2f targetPosition) : target(targetPosition)
 {
-    shape.setSize(sf::Vector2f(5, 20));
-    shape.setFillColor(sf::Color::Yellow);
-    shape.setPosition(position.x + 12, position.y + 30);
+    shape.setSize(sf::Vector2f(3, 15));
+    shape.setFillColor(sf::Color::Red);
+    shape.setPosition(initialPosition); // Set the initial position here
 
     sf::Vector2f direction = target - shape.getPosition();
     float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);

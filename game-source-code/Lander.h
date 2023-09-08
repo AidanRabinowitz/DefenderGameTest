@@ -15,7 +15,7 @@ public:
     void destroy();
     sf::RectangleShape shape;
     sf::Vector2f velocity;
-    sf::Clock missileTimer;
+    sf::Clock missileFireTimer; // Timer for missile firing
     bool destroyed;
     sf::Vector2f getSpawnPosition() const; // Getter for spawn position
     sf::Clock fireRateClock;               // Add this member variable

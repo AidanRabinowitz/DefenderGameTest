@@ -6,13 +6,14 @@
 class Missile
 {
 public:
-    Missile(const sf::Vector2f &position, const sf::Vector2f &target);
+    Missile(sf::Vector2f initialPosition, sf::Vector2f targetPosition);
     void move();
     void draw(sf::RenderWindow &window);
     sf::RectangleShape shape;
     sf::Vector2f velocity;
 
 private:
+    sf::Vector2f target; // Add the target member variable
 };
 
 #endif // MISSILE_H

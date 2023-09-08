@@ -229,7 +229,7 @@ int main()
 				}
 			}
 
-						// Move Lasers
+			// Move Lasers
 			for (size_t i = 0; i < lasers.size(); i++)
 			{
 				lasers[i].shape.move(lasers[i].velocity);
@@ -241,7 +241,31 @@ int main()
 					i--;
 				}
 			}
+			std::vector<int> lasersToRemove;
 
+			for (size_t i = 0; i < lasers.size(); i++)
+			{
+				for (size_t j = 0; j < landers.size(); j++)
+				{
+					if (!landers[j].isDestroyed() && lasers[i].shape.getGlobalBounds().intersects(landers[j].shape.getGlobalBounds()))
+					{
+						// Mark the lander for destruction
+						landers[j].destroy();
+
+						// Add the index of the laser to be removed
+						lasersToRemove.push_back(i);
+
+						score += 10; // Increase the score when a lander is destroyed
+						break;		 // No need to check further lasers for this lander
+					}
+				}
+			}
+
+			// Remove lasers that collided with landers
+			for (int i = static_cast<int>(lasersToRemove.size()) - 1; i >= 0; i--)
+			{
+				lasers.erase(lasers.begin() + lasersToRemove[i]);
+			}
 			// Check for collision between player and landers
 			for (size_t i = 0; i < landers.size(); i++)
 			{
@@ -251,7 +275,6 @@ int main()
 					break;
 				}
 			}
-
 			// Check for collision between player and missiles
 			for (size_t i = 0; i < missiles.size(); i++)
 			{

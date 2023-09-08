@@ -11,7 +11,7 @@ std::vector<Missile> missiles; // Definition of the 'missiles' vector
 
 Lander::Lander(const sf::Vector2f &playerPos) : destroyed(false), playerPosition(playerPos)
 {
-
+    missileFireTimer.restart();
     shape.setSize(sf::Vector2f(30, 30));
     shape.setFillColor(sf::Color::Red);
     // Set the spawn position to a random position away from the player
@@ -45,17 +45,22 @@ sf::Vector2f playerPosition; // Assuming you have a player position variable
 void Lander::move()
 {
     // Set a constant horizontal velocity for leftward movement
-    velocity.x = -LANDER_SPEED; // Adjust LANDER_SPEED as needed
+    if (missileFireTimer.getElapsedTime().asMilliseconds() > MISSILE_INTERVAL)
+    {
+        missiles.push_back(Missile(shape.getPosition(), playerPosition)); // Pass the lander's position as initial position
+        missileFireTimer.restart();                                       // Reset the fire rate timer
+    }
+    velocity.y = -LANDER_SPEED; // Adjust LANDER_SPEED as needed
 
     // Update the position of the lander based on its velocity
     shape.move(velocity);
 
     // Fire missiles at the specified fire rate
     // Fire missiles at the specified fire rate towards the player's position
-    if (fireRateClock.getElapsedTime().asMilliseconds() > MISSILE_INTERVAL)
+    if (missileFireTimer.getElapsedTime().asMilliseconds() > MISSILE_INTERVAL)
     {
         missiles.push_back(Missile(shape.getPosition(), playerPosition));
-        fireRateClock.restart(); // Reset the fire rate timer
+        missileFireTimer.restart(); // Reset the fire rate timer
     }
 
     // You can add additional logic here to handle screen boundaries or other behaviors
