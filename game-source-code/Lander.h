@@ -20,6 +20,7 @@ public:
     sf::Vector2f getSpawnPosition() const; // Getter for spawn position
     sf::Clock fireRateClock;               // Add this member variable
     sf::Vector2f playerPosition;
+    sf::Vector2f getPosition() const;
 
 private:
     sf::Vector2f spawnPosition; // Store the spawn position for each lander

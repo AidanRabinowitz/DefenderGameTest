@@ -170,7 +170,7 @@ int main()
 					{
 						if (missileTimer.getElapsedTime().asMilliseconds() > MISSILE_INTERVAL)
 						{
-							missiles.push_back(Missile(landers[i].getSpawnPosition(), player.getPosition()));
+							missiles.push_back(Missile(landers[i].getPosition(), player.getPosition()));
 							missileTimer.restart();
 						}
 					}

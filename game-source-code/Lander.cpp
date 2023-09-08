@@ -34,9 +34,9 @@ void Lander::spawn(sf::RenderWindow &window, std::vector<Lander> &landers)
     landers.push_back(lander);
 }
 
-sf::Vector2f Lander::getSpawnPosition() const
+sf::Vector2f Lander::getPosition() const
 {
-    return spawnPosition;
+    return shape.getPosition(); // Return the current position of the lander
 }
 
 // Define the missing variables
