@@ -1,6 +1,6 @@
 #ifndef MISSILE_H
 #define MISSILE_H
-
+#include "Lander.h"
 #include <SFML/Graphics.hpp>
 
 class Missile

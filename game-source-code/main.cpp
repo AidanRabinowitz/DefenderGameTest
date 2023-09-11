@@ -108,6 +108,11 @@ int main()
 				isGameOver = false;
 				gameStarted = true;
 				isSplashScreenVisible = false;
+				if (score > highScore)
+				{
+					highScore = score;
+				}
+				score = 0; // Reset the score
 				resetGame(player, landers, missiles);
 			}
 			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::N))
@@ -168,31 +173,15 @@ int main()
 				{
 					for (size_t i = 0; i < landers.size(); i++)
 					{
-						if (missileTimer.getElapsedTime().asMilliseconds() > MISSILE_INTERVAL)
+						if (!landers[i].isDestroyed())
 						{
 							missiles.push_back(Missile(landers[i].getPosition(), player.getPosition()));
-							missileTimer.restart();
 						}
 					}
+					missileTimer.restart();
 				}
 			}
 
-			// Move Landers
-			// for (size_t i = 0; i < landers.size(); i++)
-			// {
-			// 	if (!landers[i].isDestroyed())
-			// 	{
-			// 		landers[i].shape.move(landers[i].velocity);
-			// 	}
-
-			// 	// Remove Landers that go out of bounds
-			// 	if (landers[i].shape.getPosition().y > WINDOW_HEIGHT)
-			// 	{
-			// 		landers.erase(landers.begin() + i);
-			// 		i--;
-			// 	}
-			// }
-			// Move Landers
 			for (size_t i = 0; i < landers.size(); i++)
 			{
 				if (!landers[i].isDestroyed())
@@ -204,6 +193,8 @@ int main()
 				if (landers[i].shape.getPosition().y > WINDOW_HEIGHT)
 				{
 					landers.erase(landers.begin() + i);
+					i--;
+					missiles.erase(missiles.begin() + i);
 					i--;
 				}
 			}
@@ -312,6 +303,7 @@ int main()
 		}
 
 		// Display and update the score
+		// Create a text object for the current score
 		sf::Text scoreText;
 		scoreText.setFont(font);
 		scoreText.setCharacterSize(24);
@@ -319,7 +311,17 @@ int main()
 		scoreText.setPosition(10, 10);
 		scoreText.setString("Score: " + std::to_string(score)); // Display the score
 
+		// Create a text object for the high score
+		sf::Text highScoreText;
+		highScoreText.setFont(font);
+		highScoreText.setCharacterSize(24);
+		highScoreText.setFillColor(sf::Color::White);
+		highScoreText.setPosition(10, 40); // Adjust the vertical position for the high score
+		highScoreText.setString("Highscore: " + std::to_string(highScore));
+
+		// Draw both score and high score text objects
 		window.draw(scoreText);
+		window.draw(highScoreText);
 
 		// Display the splash screen
 		if (!gameStarted && !isPauseScreenVisible && !isGameOver)
@@ -372,6 +374,5 @@ int main()
 		// Display everything on the window
 		window.display();
 	}
-
 	return 0;
 }
