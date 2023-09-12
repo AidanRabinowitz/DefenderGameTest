@@ -7,7 +7,7 @@ class Laser
 {
 public:
     Laser();
-    void fire(sf::Vector2f startPosition);
+    void fire(sf::Vector2f startPosition, sf::Vector2f mousePosition);
     void move();
     void draw(sf::RenderWindow &window);
     bool isFired() const;

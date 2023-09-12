@@ -6,7 +6,6 @@ Player::Player(float x, float y, float speed, int width, int height)
     // shape.setSize(sf::Vector2f(50, 50));
     // shape.setFillColor(sf::Color::Green);
     // shape.setPosition(x, y);
-    texture.loadFromFile("resources/landerShip.png");
     playerSprite.setTexture(texture);
     playerSprite.scale(sf::Vector2f(0.1, 0.1));
 }

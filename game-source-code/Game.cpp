@@ -5,12 +5,14 @@ Game::Game()
       quitConfirmation(false), isSplashScreenVisible(true),
       isPauseScreenVisible(false), isGameOver(false)
 {
-    // Initialize the player
-    // player.setSize(sf::Vector2f(50, 50));
-    // player.setFillColor(sf::Color::Green);
-    // player.setPosition(WINDOW_WIDTH / 2 - 25, WINDOW_HEIGHT - 60);
+    // Load background texture
+    if (!backgroundTexture.loadFromFile("resources/background.jpg"))
+    {
+        // Handle loading error
+    }
 
-    // Load font and other resources here
+    // Set the background sprite
+    backgroundSprite.setTexture(backgroundTexture);
     if (!font.loadFromFile("resources/sansation.ttf"))
     {
         // Handle font loading error
@@ -45,7 +47,23 @@ void Game::resetGame()
 void Game::handleInput(sf::RenderWindow &window)
 {
     sf::Event event;
+    sf::Vector2f mousePosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+    sf::Vector2f playerCenter = player.getPosition() + sf::Vector2f(player.getGlobalBounds().width / 2, player.getGlobalBounds().height / 2);
 
+    if (mousePosition.x > playerCenter.x)
+    {
+        // Mouse is to the right of the player
+        player.setScale(0.1f, 0.1f); // Set scale normally
+        // Fire laser to the right
+        // Add your code for firing the laser to the right
+    }
+    else
+    {
+        // Mouse is to the left of the player
+        player.setScale(-0.1f, 0.1f); // Flip horizontally by setting X scale to negative
+        // Fire laser to the left
+        // Add your code for firing the laser to the left
+    }
     // Handle input for starting the game
     if (!gameStarted && !isPauseScreenVisible && !isGameOver)
     {
@@ -115,15 +133,19 @@ void Game::handleInput(sf::RenderWindow &window)
         {
             window.close();
         }
+
         if (event.type == sf::Event::MouseButtonPressed)
         {
+
             if (event.mouseButton.button == sf::Mouse::Left)
             {
+
                 Laser laser;
                 laser.shape.setSize(sf::Vector2f(5, 20));
                 laser.shape.setFillColor(sf::Color::Cyan);
                 laser.shape.setPosition(player.getPosition().x + 22, player.getPosition().y);
-                laser.velocity.x = LASER_SPEED;
+                laser.velocity.x = (mousePosition.x < playerCenter.x) ? LASER_SPEED : -LASER_SPEED;
+
                 laser.setFired(true);
                 lasers.push_back(laser);
             }
@@ -263,6 +285,8 @@ void Game::render(sf::RenderWindow &window)
 {
     // Render game elements here
     window.clear();
+    window.draw(backgroundSprite);
+
     window.draw(player);
 
     // Draw Landers

@@ -23,9 +23,10 @@ private:
     bool isSplashScreenVisible;
     bool isPauseScreenVisible;
     bool isGameOver;
-    sf::Texture landerTexture; // Add a texture for landers
+    sf::Texture landerTexture;     // Add a texture for landers
+    sf::Texture backgroundTexture; // Add a texture for the background
+    sf::Sprite backgroundSprite;   // Add a sprite for the background
 
-    // sf::RectangleShape player;
     sf::Sprite player;
     sf::Texture playerTexture;
     // Player player;
