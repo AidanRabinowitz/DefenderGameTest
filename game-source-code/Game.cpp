@@ -1,5 +1,8 @@
 #include "game.h"
 
+//sf::Sprite splashBackground;
+//sf::Texture splashBackgroundTexture;
+
 Game::Game()
     : score(0), highScore(0), gameStarted(false),
       quitConfirmation(false), isSplashScreenVisible(true),
@@ -15,6 +18,11 @@ Game::Game()
     {
         // Handle font loading error
     }
+
+   // if (!splashBackgroundTexture.loadFromFile("resources/background.png"))
+    //{
+        // Handle the error if the image fails to load
+    //}
 
     srand(static_cast<unsigned>(time(0))); // Seed random number generator
 }
@@ -260,6 +268,7 @@ void Game::render(sf::RenderWindow &window)
 {
     // Render game elements here
     window.clear();
+   // window.draw(splashBackground);
     window.draw(player);
 
     // Draw Landers
@@ -308,10 +317,11 @@ void Game::render(sf::RenderWindow &window)
     {
         sf::Text splashText;
         splashText.setFont(font);
-        splashText.setCharacterSize(32);
+        splashText.setCharacterSize(30);
         splashText.setFillColor(sf::Color::White);
-        splashText.setPosition(200, 200);
-        splashText.setString("Press Space to Start");
+        splashText.setPosition(200, 400);
+        splashText.setString(" Instructions:\n- Use A/D/W/S to move\n- Left-click to shoot\n- Press Space to start");
+
 
         sf::Text highScoreText;
         highScoreText.setFont(font);
