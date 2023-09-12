@@ -12,22 +12,28 @@ std::vector<Missile> missiles; // Definition of the 'missiles' vector
 Lander::Lander(const sf::Vector2f &playerPos) : destroyed(false), playerPosition(playerPos)
 {
     missileFireTimer.restart();
-    shape.setSize(sf::Vector2f(30, 30));
-    shape.setFillColor(sf::Color::Red);
+    // shape.setSize(sf::Vector2f(30, 30));
+    // shape.setFillColor(sf::Color::Red);
     // Set the spawn position to a random position away from the player
     spawnPosition = sf::Vector2f(rand() % (WINDOW_WIDTH - 30), -30);
-    shape.setPosition(spawnPosition);
+    landerSprite.setPosition(spawnPosition);
     velocity.x = LANDER_SPEED;
     velocity.y = LANDER_SPEED;
     fireRateClock.restart(); // Initialize the fire rate clock
+    landerTexture.loadFromFile("resources/landerShip.png");
+    landerSprite.setTexture(landerTexture);
+    landerSprite.scale(sf::Vector2f(0.1, 0.1));
 }
 
 void Lander::spawn(sf::RenderWindow &window, std::vector<Lander> &landers)
 {
     Lander lander(playerPosition);
-    lander.shape.setSize(sf::Vector2f(30, 30));
-    lander.shape.setFillColor(sf::Color::Red);
-    lander.shape.setPosition(rand() % (WINDOW_WIDTH - 30), 0);
+    // lander.shape.setSize(sf::Vector2f(30, 30));
+    // lander.shape.setFillColor(sf::Color::Red);
+    lander.landerSprite.setPosition(rand() % (WINDOW_WIDTH - 30), 0);
+    // texture.loadFromFile("resources/landerShip.png");
+    // landerSprite.setTexture(texture);
+    // landerSprite.scale(sf::Vector2f(0.1, 0.1));
     lander.velocity.x = LANDER_SPEED;
     lander.velocity.y = LANDER_SPEED;
     lander.isDestroyed() = false;
@@ -36,7 +42,7 @@ void Lander::spawn(sf::RenderWindow &window, std::vector<Lander> &landers)
 
 sf::Vector2f Lander::getPosition() const
 {
-    return shape.getPosition(); // Return the current position of the lander
+    return landerSprite.getPosition(); // Return the current position of the lander
 }
 
 // Define the missing variables
@@ -47,19 +53,19 @@ void Lander::move()
     // Set a constant horizontal velocity for leftward movement
     if (missileFireTimer.getElapsedTime().asMilliseconds() > MISSILE_INTERVAL)
     {
-        missiles.push_back(Missile(shape.getPosition(), playerPosition)); // Pass the lander's position as initial position
-        missileFireTimer.restart();                                       // Reset the fire rate timer
+        missiles.push_back(Missile(landerSprite.getPosition(), playerPosition)); // Pass the lander's position as initial position
+        missileFireTimer.restart();                                              // Reset the fire rate timer
     }
     velocity.y = -LANDER_SPEED; // Adjust LANDER_SPEED as needed
 
     // Update the position of the lander based on its velocity
-    shape.move(velocity);
+    landerSprite.move(velocity);
 
     // Fire missiles at the specified fire rate
     // Fire missiles at the specified fire rate towards the player's position
     if (missileFireTimer.getElapsedTime().asMilliseconds() > MISSILE_INTERVAL)
     {
-        missiles.push_back(Missile(shape.getPosition(), playerPosition));
+        missiles.push_back(Missile(landerSprite.getPosition(), playerPosition));
         missileFireTimer.restart(); // Reset the fire rate timer
     }
 
@@ -70,7 +76,7 @@ void Lander::draw(sf::RenderWindow &window)
 {
     if (!destroyed)
     {
-        window.draw(shape);
+        window.draw(landerSprite);
     }
 }
 

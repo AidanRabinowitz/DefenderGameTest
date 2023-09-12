@@ -1,5 +1,5 @@
-// #ifndef GAME_CONSTANTS_H
-// #define GAME_CONSTANTS_H
+#ifndef GAME_CONSTANTS_H
+#define GAME_CONSTANTS_H
 
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
@@ -16,4 +16,4 @@ const int MISSILE_INTERVAL = 1000; // Fire a missile every 1 second
 // bool isSplashScreenVisible = true; // Initial splash screen visibility
 // bool isPauseScreenVisible = false; // Flag to control the pause screen
 // bool isGameOver = false;           // Flag to indicate if the game is over
-// #endif                             // GAME_CONSTANTS_H
+#endif // GAME_CONSTANTS_H

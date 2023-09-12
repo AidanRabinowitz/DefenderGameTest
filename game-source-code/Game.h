@@ -7,6 +7,7 @@
 #include "Lander.h"
 #include "Missile.h"
 #include "Laser.h"
+// #include
 class Game
 {
 public:
@@ -22,8 +23,12 @@ private:
     bool isSplashScreenVisible;
     bool isPauseScreenVisible;
     bool isGameOver;
+    sf::Texture landerTexture; // Add a texture for landers
 
-    sf::RectangleShape player;
+    // sf::RectangleShape player;
+    sf::Sprite player;
+    sf::Texture playerTexture;
+    // Player player;
     std::vector<Lander> landers;
     std::vector<Missile> missiles;
     std::vector<Laser> lasers;

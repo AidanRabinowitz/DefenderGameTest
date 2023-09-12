@@ -16,9 +16,10 @@ public:
     sf::Vector2f getPosition() const;
     // Add this method declaration to the Player class
     void resetPosition();
+    sf::Sprite playerSprite;
+    sf::Texture texture;
 
 private:
-    sf::RectangleShape shape;
     float playerSpeed;
     int windowWidth;
     int windowHeight;

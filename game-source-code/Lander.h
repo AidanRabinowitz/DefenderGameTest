@@ -13,12 +13,14 @@ public:
     bool &isDestroyed();             // Return a reference to the destroyed flag.
     const bool &isDestroyed() const; // For const objects.
     void destroy();
-    sf::RectangleShape shape;
+    sf::Sprite landerSprite;
+    sf::Texture landerTexture;
+
     sf::Vector2f velocity;
     sf::Clock missileFireTimer; // Timer for missile firing
     bool destroyed;
-    sf::Vector2f getSpawnPosition() const; // Getter for spawn position
-    sf::Clock fireRateClock;               // Add this member variable
+    // sf::Vector2f getSpawnPosition() const; // Getter for spawn position
+    sf::Clock fireRateClock; // Add this member variable
     sf::Vector2f playerPosition;
     sf::Vector2f getPosition() const;
 

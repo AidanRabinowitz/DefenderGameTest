@@ -1,21 +1,25 @@
 #include "game.h"
-
+#include "Player.h"
 Game::Game()
     : score(0), highScore(0), gameStarted(false),
       quitConfirmation(false), isSplashScreenVisible(true),
       isPauseScreenVisible(false), isGameOver(false)
 {
     // Initialize the player
-    player.setSize(sf::Vector2f(50, 50));
-    player.setFillColor(sf::Color::Green);
-    player.setPosition(WINDOW_WIDTH / 2 - 25, WINDOW_HEIGHT - 60);
+    // player.setSize(sf::Vector2f(50, 50));
+    // player.setFillColor(sf::Color::Green);
+    // player.setPosition(WINDOW_WIDTH / 2 - 25, WINDOW_HEIGHT - 60);
 
     // Load font and other resources here
     if (!font.loadFromFile("resources/sansation.ttf"))
     {
         // Handle font loading error
     }
+    landerTexture.loadFromFile("resources/landerShip.png");
 
+    playerTexture.loadFromFile("resources/playerShip.png");
+    player.setTexture(playerTexture);
+    player.scale(sf::Vector2f(0.1, 0.1));
     srand(static_cast<unsigned>(time(0))); // Seed random number generator
 }
 
@@ -152,23 +156,22 @@ void Game::update()
     {
         // Game-specific update logic
 
-        // Player movement
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && player.getPosition().x > 0)
-            player.move(-PLAYER_SPEED, 0);
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && player.getPosition().x < WINDOW_WIDTH - 50)
-            player.move(PLAYER_SPEED, 0);
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && player.getPosition().y > 0)
-            player.move(0, -PLAYER_SPEED);
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && player.getPosition().y < WINDOW_HEIGHT - 50)
-            player.move(0, PLAYER_SPEED);
-
+        // Spawn Landers
         // Spawn Landers
         if (spawnTimer.getElapsedTime().asMilliseconds() > SPAWN_INTERVAL)
         {
             // Randomly generate a position for the lander, away from the player
             sf::Vector2f landerSpawnPosition(rand() % (WINDOW_WIDTH - 30), -30); // Adjust as needed
-            landers.push_back(Lander(player.getPosition()));
-            landers.back().shape.setPosition(landerSpawnPosition);
+            Lander newLander(player.getPosition());                              // Create a new Lander
+
+            // Set the sprite and texture for the new Lander
+            newLander.landerSprite.setTexture(landerTexture);
+            newLander.landerSprite.setScale(sf::Vector2f(0.1, 0.1)); // Adjust scale as needed
+            newLander.landerSprite.setPosition(landerSpawnPosition);
+
+            // Add the new Lander to the vector
+            landers.push_back(newLander);
+
             spawnTimer.restart();
         }
 
@@ -192,11 +195,11 @@ void Game::update()
         {
             if (!landers[i].isDestroyed())
             {
-                landers[i].shape.move(0, LANDER_SPEED); // Move downward
+                landers[i].landerSprite.move(0, LANDER_SPEED); // Move downward
             }
 
             // Remove Landers that go out of bounds
-            if (landers[i].shape.getPosition().y > WINDOW_HEIGHT)
+            if (landers[i].landerSprite.getPosition().y > WINDOW_HEIGHT)
             {
                 landers.erase(landers.begin() + i);
                 i--;
@@ -222,7 +225,7 @@ void Game::update()
         {
             for (size_t j = 0; j < landers.size(); j++)
             {
-                if (!landers[j].isDestroyed() && lasers[i].shape.getGlobalBounds().intersects(landers[j].shape.getGlobalBounds()))
+                if (!landers[j].isDestroyed() && lasers[i].shape.getGlobalBounds().intersects(landers[j].landerSprite.getGlobalBounds()))
                 {
                     // Laser hit a lander
                     score += 10;          // Increment the score (adjust as needed)
@@ -237,7 +240,7 @@ void Game::update()
         // Check for collision between player and landers
         for (size_t i = 0; i < landers.size(); i++)
         {
-            if (!landers[i].isDestroyed() && player.getGlobalBounds().intersects(landers[i].shape.getGlobalBounds()))
+            if (!landers[i].isDestroyed() && player.getGlobalBounds().intersects(landers[i].landerSprite.getGlobalBounds()))
             {
                 isGameOver = true;
                 break;
@@ -267,7 +270,7 @@ void Game::render(sf::RenderWindow &window)
     {
         if (!lander.isDestroyed())
         {
-            window.draw(lander.shape);
+            window.draw(lander.landerSprite);
         }
     }
 

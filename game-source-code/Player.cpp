@@ -3,59 +3,62 @@
 Player::Player(float x, float y, float speed, int width, int height)
     : playerSpeed(speed), windowWidth(width), windowHeight(height)
 {
-    shape.setSize(sf::Vector2f(50, 50));
-    shape.setFillColor(sf::Color::Green);
-    shape.setPosition(x, y);
+    // shape.setSize(sf::Vector2f(50, 50));
+    // shape.setFillColor(sf::Color::Green);
+    // shape.setPosition(x, y);
+    texture.loadFromFile("resources/landerShip.png");
+    playerSprite.setTexture(texture);
+    playerSprite.scale(sf::Vector2f(0.1, 0.1));
 }
 
 void Player::moveLeft()
 {
-    if (shape.getPosition().x > 0)
+    if (playerSprite.getPosition().x > 0)
     {
-        shape.move(-playerSpeed, 0);
+        playerSprite.move(-playerSpeed, 0);
     }
 }
 
 void Player::moveRight()
 {
-    if (shape.getPosition().x < windowWidth - 50)
+    if (playerSprite.getPosition().x < windowWidth - 50)
     {
-        shape.move(playerSpeed, 0);
+        playerSprite.move(playerSpeed, 0);
     }
 }
 
 void Player::moveUp()
 {
-    if (shape.getPosition().y > 0)
+    if (playerSprite.getPosition().y > 0)
     {
-        shape.move(0, -playerSpeed);
+        playerSprite.move(0, -playerSpeed);
     }
 }
 
 void Player::moveDown()
 {
-    if (shape.getPosition().y < windowHeight - 50)
+    if (playerSprite.getPosition().y < windowHeight - 50)
     {
-        shape.move(0, playerSpeed);
+        playerSprite.move(0, playerSpeed);
     }
 }
 
 void Player::draw(sf::RenderWindow &window)
 {
-    window.draw(shape);
+    window.draw(playerSprite);
 }
 
 sf::FloatRect Player::getGlobalBounds() const
 {
-    return shape.getGlobalBounds();
+    return playerSprite.getGlobalBounds();
 }
 
 sf::Vector2f Player::getPosition() const
 {
-    return shape.getPosition();
+    return playerSprite.getPosition();
 }
 
 void Player::resetPosition()
 {
-    shape.setPosition(windowWidth / 2 - 25, windowHeight - 60);
+    playerSprite.setPosition(windowWidth / 2 - 25, windowHeight - 60);
 }
