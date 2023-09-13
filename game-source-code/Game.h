@@ -16,12 +16,15 @@ public:
     void run(sf::RenderWindow &window);
 
 private:
+    int previousLevelScore;
+    int level;
     int score;
     int highScore;
     bool gameStarted;
     bool quitConfirmation;
     bool isSplashScreenVisible;
     bool isPauseScreenVisible;
+    bool isWinScreenVisible;
     bool isGameOver;
     sf::Texture landerTexture;     // Add a texture for landers
     sf::Texture backgroundTexture; // Add a texture for the background

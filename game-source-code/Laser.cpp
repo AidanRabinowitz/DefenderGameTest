@@ -30,8 +30,6 @@ void Laser::fire(sf::Vector2f startPosition, sf::Vector2f mousePosition)
 
 void Laser::move()
 {
-    // Add your movement logic here
-    // Example:
     if (fired)
     {
         shape.move(velocity);

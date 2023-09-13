@@ -1,7 +1,6 @@
 #include "Missile.h"
-#include "Lander.h"
 #include <cmath>
-#define MISSILE_SPEED 8 // Replace with your desired speed
+#define MISSILE_SPEED 4 // Replace with your desired speed
 
 Missile::Missile(sf::Vector2f initialPosition, sf::Vector2f targetPosition) : target(targetPosition)
 {

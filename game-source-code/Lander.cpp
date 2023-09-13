@@ -1,96 +1,59 @@
 #include "Lander.h"
-#include "Missile.h"
-#include "GameConstants.h"
-#include <SFML/Graphics.hpp>
-#include <vector>
-#include <cstdlib> // for rand
-
-// Define the missing constants
-#define MISSILE_INTERVAL 1000  // Fire a missile every 1 second
-std::vector<Missile> missiles; // Definition of the 'missiles' vector
-
-Lander::Lander(const sf::Vector2f &playerPos) : destroyed(false), playerPosition(playerPos)
+#include <iostream>
+Lander::Lander()
+    : destroyed(false)
 {
-    missileFireTimer.restart();
-    // shape.setSize(sf::Vector2f(30, 30));
-    // shape.setFillColor(sf::Color::Red);
-    // Set the spawn position to a random position away from the player
-    spawnPosition = sf::Vector2f(rand() % (WINDOW_WIDTH - 30), -30);
-    landerSprite.setPosition(spawnPosition);
-    velocity.x = LANDER_SPEED;
-    velocity.y = LANDER_SPEED;
-    fireRateClock.restart(); // Initialize the fire rate clock
-    landerTexture.loadFromFile("resources/landerShip.png");
+    if (!landerTexture.loadFromFile("resources/landerShip.png"))
+    {
+        std::cerr << "Failed to load lander texture!" << std::endl;
+    }
     landerSprite.setTexture(landerTexture);
-    landerSprite.scale(sf::Vector2f(0.1, 0.1));
+    landerSprite.setScale(sf::Vector2f(0.1f, 0.1f));
+    // Set the initial position and other properties for the lander as needed
 }
 
-void Lander::spawn(sf::RenderWindow &window, std::vector<Lander> &landers)
+void Lander::reset()
 {
-    Lander lander(playerPosition);
-    // lander.shape.setSize(sf::Vector2f(30, 30));
-    // lander.shape.setFillColor(sf::Color::Red);
-    lander.landerSprite.setPosition(rand() % (WINDOW_WIDTH - 30), 0);
-    // texture.loadFromFile("resources/landerShip.png");
-    // landerSprite.setTexture(texture);
-    // landerSprite.scale(sf::Vector2f(0.1, 0.1));
-    lander.velocity.x = LANDER_SPEED;
-    lander.velocity.y = LANDER_SPEED;
-    lander.isDestroyed() = false;
-    landers.push_back(lander);
+    // Reset the lander's position and any other properties as needed
+    destroyed = false;
 }
 
-sf::Vector2f Lander::getPosition() const
+void Lander::update()
 {
-    return landerSprite.getPosition(); // Return the current position of the lander
-}
-
-// Define the missing variables
-sf::Vector2f playerPosition; // Assuming you have a player position variable
-
-void Lander::move()
-{
-    // Set a constant horizontal velocity for leftward movement
-    if (missileFireTimer.getElapsedTime().asMilliseconds() > MISSILE_INTERVAL)
+    // Update the lander's position and behavior here
+    if (!destroyed)
     {
-        missiles.push_back(Missile(landerSprite.getPosition(), playerPosition)); // Pass the lander's position as initial position
-        missileFireTimer.restart();                                              // Reset the fire rate timer
+        // Move the lander
+        landerSprite.move(0, LANDER_SPEED); // Adjust the speed as needed
     }
-    velocity.y = -LANDER_SPEED; // Adjust LANDER_SPEED as needed
-
-    // Update the position of the lander based on its velocity
-    landerSprite.move(velocity);
-
-    // Fire missiles at the specified fire rate
-    // Fire missiles at the specified fire rate towards the player's position
-    if (missileFireTimer.getElapsedTime().asMilliseconds() > MISSILE_INTERVAL)
-    {
-        missiles.push_back(Missile(landerSprite.getPosition(), playerPosition));
-        missileFireTimer.restart(); // Reset the fire rate timer
-    }
-
-    // You can add additional logic here to handle screen boundaries or other behaviors
+    // You can add more logic for lander behavior here
 }
 
-void Lander::draw(sf::RenderWindow &window)
+void Lander::render(sf::RenderWindow &window)
 {
+    // Render the lander on the window
     if (!destroyed)
     {
         window.draw(landerSprite);
     }
 }
 
-bool &Lander::isDestroyed()
+sf::Sprite &Lander::getSprite()
+{
+    return landerSprite;
+}
+
+bool Lander::isDestroyed() const
 {
     return destroyed;
 }
-
-const bool &Lander::isDestroyed() const
+// Implement the getPosition member function in the Lander class
+sf::Vector2f Lander::getPosition() const
 {
-    return destroyed;
+    return landerSprite.getPosition();
 }
-
 void Lander::destroy()
 {
     destroyed = true;
+    // Add any other logic for handling the destruction of the lander
 }

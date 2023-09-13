@@ -1,31 +1,27 @@
-#ifndef LANDER_H
-#define LANDER_H
-#include "Missile.h"
+#pragma once
+
 #include <SFML/Graphics.hpp>
+#include "GameConstants.h" // Include your game constants here
 
 class Lander
 {
 public:
-    Lander(const sf::Vector2f &playerPos);
-    void spawn(sf::RenderWindow &window, std::vector<Lander> &landers);
-    void move();
-    void draw(sf::RenderWindow &window);
-    bool &isDestroyed();             // Return a reference to the destroyed flag.
-    const bool &isDestroyed() const; // For const objects.
-    void destroy();
-    sf::Sprite landerSprite;
-    sf::Texture landerTexture;
+    Lander();
 
-    sf::Vector2f velocity;
-    sf::Clock missileFireTimer; // Timer for missile firing
-    bool destroyed;
-    // sf::Vector2f getSpawnPosition() const; // Getter for spawn position
-    sf::Clock fireRateClock; // Add this member variable
-    sf::Vector2f playerPosition;
+    // You can add more member functions as needed
+    void reset();
+    void update();
+    void render(sf::RenderWindow &window);
     sf::Vector2f getPosition() const;
 
-private:
-    sf::Vector2f spawnPosition; // Store the spawn position for each lander
-};
+    // Getter functions
+    sf::Sprite &getSprite();
+    bool isDestroyed() const;
+    sf::Sprite landerSprite;
+    sf::Texture landerTexture;
+    void destroy();
 
-#endif // LANDER_H
+private:
+    bool destroyed;
+    // Add any other private members as needed
+};

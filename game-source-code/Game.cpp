@@ -1,15 +1,12 @@
 #include "game.h"
-#include "Player.h"
+// #include "Player.h"
 Game::Game()
     : score(0), highScore(0), gameStarted(false),
       quitConfirmation(false), isSplashScreenVisible(true),
-      isPauseScreenVisible(false), isGameOver(false)
+      isPauseScreenVisible(false), isWinScreenVisible(false), isGameOver(false), level(1), previousLevelScore(0) //, isGamePaused(false)
 {
     // Load background texture
-    if (!backgroundTexture.loadFromFile("resources/background.jpg"))
-    {
-        // Handle loading error
-    }
+    backgroundTexture.loadFromFile("resources/background.jpg");
 
     // Set the background sprite
     backgroundSprite.setTexture(backgroundTexture);
@@ -17,11 +14,18 @@ Game::Game()
     {
         // Handle font loading error
     }
-    landerTexture.loadFromFile("resources/landerShip.png");
-
+    // Initialize landers
+    for (int i = 0; i < MAX_LANDERS; ++i)
+    {
+        Lander newLander;
+        // Set the position or other properties of newLander as needed
+        landers.push_back(newLander);
+    }
     playerTexture.loadFromFile("resources/playerShip.png");
     player.setTexture(playerTexture);
     player.scale(sf::Vector2f(0.1, 0.1));
+    player.setPosition(WINDOW_WIDTH / 2 - 25, WINDOW_HEIGHT - 60);
+    // Player player();
     srand(static_cast<unsigned>(time(0))); // Seed random number generator
 }
 
@@ -65,7 +69,7 @@ void Game::handleInput(sf::RenderWindow &window)
         // Add your code for firing the laser to the left
     }
     // Handle input for starting the game
-    if (!gameStarted && !isPauseScreenVisible && !isGameOver)
+    if (!gameStarted && !isPauseScreenVisible && !isGameOver && !isWinScreenVisible)
     {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
         {
@@ -75,8 +79,15 @@ void Game::handleInput(sf::RenderWindow &window)
         }
     }
     // Handle input for pausing the game
-    else if (gameStarted && !isPauseScreenVisible && !isGameOver)
+    else if (gameStarted && !isPauseScreenVisible && !isGameOver && !isWinScreenVisible)
     {
+        // Check if the player has won
+        int oldScore = score;
+        if (score >= previousLevelScore + 100)
+        {
+            isWinScreenVisible = true;
+        }
+
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
         {
             isPauseScreenVisible = true;
@@ -101,6 +112,37 @@ void Game::handleInput(sf::RenderWindow &window)
         }
     }
     // Handle input for game over screen
+    else if (isWinScreenVisible)
+    {
+        gameStarted = false;
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Y))
+        {
+            isWinScreenVisible = false;
+            gameStarted = true;
+
+            // Increment the level
+            level++;
+            // Update the previousLevelScore for the next level
+            previousLevelScore = score;
+            gameStarted = true;
+            // Continue the game without resetting the score
+            // You can add logic to reset other game elements for the new level if needed
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::N))
+        {
+            // Start a new game
+            isWinScreenVisible = false;
+            // gameStarted = false;
+            isSplashScreenVisible = true;
+            resetGame();
+            // Reset the score if the player chooses to start a new game
+            score = 0;
+            // Reset the previousLevelScore for a new game
+            previousLevelScore = 0;
+            level = 1;
+        }
+    }
     else if (isGameOver)
     {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Y))
@@ -113,6 +155,8 @@ void Game::handleInput(sf::RenderWindow &window)
                 highScore = score;
             }
             score = 0; // Reset the score
+            previousLevelScore = 0;
+            level = 1;
             resetGame();
         }
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::N))
@@ -144,7 +188,7 @@ void Game::handleInput(sf::RenderWindow &window)
                 laser.shape.setSize(sf::Vector2f(5, 20));
                 laser.shape.setFillColor(sf::Color::Cyan);
                 laser.shape.setPosition(player.getPosition().x + 22, player.getPosition().y);
-                laser.velocity.x = (mousePosition.x < playerCenter.x) ? LASER_SPEED : -LASER_SPEED;
+                laser.velocity.x = (mousePosition.x > playerCenter.x) ? LASER_SPEED : -LASER_SPEED;
 
                 laser.setFired(true);
                 lasers.push_back(laser);
@@ -174,29 +218,26 @@ void Game::handleInput(sf::RenderWindow &window)
 void Game::update()
 {
     // Update game logic here
+
     if (gameStarted && !isPauseScreenVisible && !isGameOver)
     {
         // Game-specific update logic
 
         // Spawn Landers
-        // Spawn Landers
         if (spawnTimer.getElapsedTime().asMilliseconds() > SPAWN_INTERVAL)
         {
-            // Randomly generate a position for the lander, away from the player
-            sf::Vector2f landerSpawnPosition(rand() % (WINDOW_WIDTH - 30), -30); // Adjust as needed
-            Lander newLander(player.getPosition());                              // Create a new Lander
+            // Create a new lander
+            Lander newLander;
 
-            // Set the sprite and texture for the new Lander
-            newLander.landerSprite.setTexture(landerTexture);
-            newLander.landerSprite.setScale(sf::Vector2f(0.1, 0.1)); // Adjust scale as needed
-            newLander.landerSprite.setPosition(landerSpawnPosition);
+            // Set the lander's position to a random location along the X-axis
+            float xPos = static_cast<float>(rand() % static_cast<int>(WINDOW_WIDTH - newLander.getSprite().getGlobalBounds().width));
+            newLander.getSprite().setPosition(sf::Vector2f(xPos, -newLander.getSprite().getGlobalBounds().height));
 
-            // Add the new Lander to the vector
+            // Add the new lander to the list
             landers.push_back(newLander);
 
             spawnTimer.restart();
         }
-
         // Fire Missiles from Landers towards the player's ship
         for (size_t i = 0; i < landers.size(); i++)
         {
@@ -247,7 +288,7 @@ void Game::update()
         {
             for (size_t j = 0; j < landers.size(); j++)
             {
-                if (!landers[j].isDestroyed() && lasers[i].shape.getGlobalBounds().intersects(landers[j].landerSprite.getGlobalBounds()))
+                if (!landers[j].isDestroyed() && lasers[i].shape.getGlobalBounds().intersects(landers[j].getSprite().getGlobalBounds()))
                 {
                     // Laser hit a lander
                     score += 10;          // Increment the score (adjust as needed)
@@ -290,7 +331,7 @@ void Game::render(sf::RenderWindow &window)
     window.draw(player);
 
     // Draw Landers
-    for (const auto &lander : landers)
+    for (auto &lander : landers)
     {
         if (!lander.isDestroyed())
         {
@@ -331,21 +372,19 @@ void Game::render(sf::RenderWindow &window)
     window.draw(highScoreText);
 
     // Display the splash screen
-    if (!gameStarted && !isPauseScreenVisible && !isGameOver)
+    if (!gameStarted && !isPauseScreenVisible && !isGameOver && !isWinScreenVisible)
     {
         sf::Text splashText;
         splashText.setFont(font);
         splashText.setCharacterSize(32);
         splashText.setFillColor(sf::Color::White);
         splashText.setPosition(200, 200);
-        splashText.setString("Press Space to Start");
-
-        sf::Text highScoreText;
-        highScoreText.setFont(font);
-        highScoreText.setCharacterSize(24);
-        highScoreText.setFillColor(sf::Color::White);
-        highScoreText.setPosition(200, 300);
-        highScoreText.setString("Highscore: " + std::to_string(highScore));
+        splashText.setString("Press Space to Start \n "
+                             " \n WASD keys to move \n "
+                             " \n Left mouseclick to fire  \n "
+                             " \n Hover mouse left or right of \n "
+                             " \n player to change direction \n "
+                             " \n esc to pause");
 
         window.draw(splashText);
         window.draw(highScoreText);
@@ -362,6 +401,17 @@ void Game::render(sf::RenderWindow &window)
         pauseText.setString("Are you sure you want to quit?\nY for yes, N for no");
 
         window.draw(pauseText);
+    }
+    if (isWinScreenVisible)
+    {
+        sf::Text winText;
+        winText.setFont(font);
+        winText.setCharacterSize(32);
+        winText.setFillColor(sf::Color::White);
+        winText.setPosition(200, 200);
+        winText.setString("You killed 10 landers! YOU WIN!\nProceed to level " + std::to_string(level + 1) + "?\nY for yes, N for no");
+
+        window.draw(winText);
     }
 
     // Display the game over screen
