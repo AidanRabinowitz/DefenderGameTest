@@ -1,5 +1,5 @@
 #include "game.h"
-// #include "Player.h"
+
 Game::Game()
     : score(0), highScore(0), gameStarted(false),
       quitConfirmation(false), isSplashScreenVisible(true),
@@ -7,7 +7,6 @@ Game::Game()
 {
     // Load background texture
     backgroundTexture.loadFromFile("resources/background.jpg");
-
     // Set the background sprite
     backgroundSprite.setTexture(backgroundTexture);
     if (!font.loadFromFile("resources/sansation.ttf"))
@@ -22,8 +21,10 @@ Game::Game()
         landers.push_back(newLander);
     }
     playerTexture.loadFromFile("resources/playerShip.png");
+    landerTexture.loadFromFile("resources/landerShip.png");
+
     player.setTexture(playerTexture);
-    player.scale(sf::Vector2f(0.1, 0.1));
+    player.setScale(sf::Vector2f(0.1, 0.1));
     player.setPosition(WINDOW_WIDTH / 2 - 25, WINDOW_HEIGHT - 60);
     // Player player();
     srand(static_cast<unsigned>(time(0))); // Seed random number generator
@@ -53,18 +54,20 @@ void Game::handleInput(sf::RenderWindow &window)
     sf::Event event;
     sf::Vector2f mousePosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     sf::Vector2f playerCenter = player.getPosition() + sf::Vector2f(player.getGlobalBounds().width / 2, player.getGlobalBounds().height / 2);
+    sf::Vector2f scale(0.1f, 0.1f); // Set scale factors for X and Y uniformly
 
     if (mousePosition.x > playerCenter.x)
     {
         // Mouse is to the right of the player
-        player.setScale(0.1f, 0.1f); // Set scale normally
+        player.setScale(scale); // Set scale normally
         // Fire laser to the right
         // Add your code for firing the laser to the right
     }
     else
     {
         // Mouse is to the left of the player
-        player.setScale(-0.1f, 0.1f); // Flip horizontally by setting X scale to negative
+
+        player.setScale(-scale); // Flip horizontally by setting X scale to negative
         // Fire laser to the left
         // Add your code for firing the laser to the left
     }
@@ -197,6 +200,8 @@ void Game::handleInput(sf::RenderWindow &window)
     }
 
     // Player movement
+
+    // Only handle player movement if the game has started
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && player.getPosition().x > 0)
     {
         player.move(-PLAYER_SPEED, 0);
@@ -230,8 +235,11 @@ void Game::update()
             Lander newLander;
 
             // Set the lander's position to a random location along the X-axis
-            float xPos = static_cast<float>(rand() % static_cast<int>(WINDOW_WIDTH - newLander.getSprite().getGlobalBounds().width));
-            newLander.getSprite().setPosition(sf::Vector2f(xPos, -newLander.getSprite().getGlobalBounds().height));
+            float xPos = static_cast<float>(rand() % static_cast<int>(WINDOW_WIDTH - newLander.landerSprite.getGlobalBounds().width));
+            newLander.landerSprite.setPosition(sf::Vector2f(xPos, -newLander.landerSprite.getGlobalBounds().height));
+
+            // Set the sprite and texture for the new Lander
+            newLander.landerSprite.setTexture(landerTexture);
 
             // Add the new lander to the list
             landers.push_back(newLander);
@@ -327,15 +335,16 @@ void Game::render(sf::RenderWindow &window)
     // Render game elements here
     window.clear();
     window.draw(backgroundSprite);
+    player.render(window);
 
     window.draw(player);
 
-    // Draw Landers
+    // Draw Landers using the render function from Lander
     for (auto &lander : landers)
     {
         if (!lander.isDestroyed())
         {
-            window.draw(lander.landerSprite);
+            lander.render(window);
         }
     }
 
