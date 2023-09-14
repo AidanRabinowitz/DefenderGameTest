@@ -10,11 +10,10 @@ int main()
 	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Defender-like Game");
 	window.setFramerateLimit(60);
 
-	Game game; // Create a Game object
+	Game game;
 
 	while (window.isOpen())
 	{
-		// Run the game loop using the Game class
 		game.run(window);
 	}
 

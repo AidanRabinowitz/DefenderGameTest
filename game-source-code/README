@@ -1,1 +1,1 @@
-This directory must contain all of the source code for the game, and the resources directory.
+The game in version 1.0 works so that a player can move around and shoot lasers at landers, which in turn, fire missiles at the player. Missiles destroy the player upon collision, when a prompt screen appears asking the player to continue or not. If the player does not continue, pressing "N", the game will end and the window will close.
