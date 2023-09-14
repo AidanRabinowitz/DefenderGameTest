@@ -7,9 +7,8 @@
 TEST_CASE("Player movement")
 {
     Player player;
-    sf::Texture texture; // You need to create a texture or use a mocked one
+    sf::Texture texture;
 
-    // Initialize the player with the texture
     player.setTexture(texture);
 
     SUBCASE("Moving up (W key)")
@@ -54,21 +53,13 @@ TEST_CASE("Laser firing")
 
     SUBCASE("Mouse click fires laser")
     {
-        sf::Vector2f startPosition(100, 100); // Set your desired starting position
-
-        // Simulate a mouse click event
+        sf::Vector2f startPosition(100, 100);
         sf::Event event;
         event.type = sf::Event::MouseButtonPressed;
         event.mouseButton.button = sf::Mouse::Left;
-
-        // Call the Laser::fire method with the mouse position
         sf::Vector2f mousePosition(200, 200); // Set your desired mouse position
         laser.fire(startPosition, mousePosition);
-
-        // Update the laser
         laser.move();
-
-        // Check if the laser was fired
         CHECK(laser.isFired() == true);
     }
 }
@@ -79,65 +70,23 @@ TEST_CASE("Lander behavior")
     {
         Lander lander;
         sf::Vector2f initialPosition(100, 100); // Set your desired initial position
-
         lander.reset();
         lander.getSprite().setPosition(initialPosition);
-
-        // Check if the lander was spawned at the initial position
-        CHECK(lander.getPosition() == initialPosition);
-
-        // Move the lander
-        lander.update();
-
-        // Check if the lander has moved (position changed)
+        CHECK(lander.getPosition() == initialPosition); // Check if the lander was spawned at the initial position
+        lander.update();                                // Move the lander
         CHECK(lander.getPosition() != initialPosition);
     }
 
     SUBCASE("Lander destruction")
     {
         Lander lander;
-
-        // Initially, the lander should not be destroyed
-        CHECK_FALSE(lander.isDestroyed());
-
-        // Destroy the lander
+        CHECK_FALSE(lander.isDestroyed()); // Initially, the lander should not be destroyed
         lander.destroy();
-
-        // Check if the lander is destroyed
         CHECK(lander.isDestroyed());
     }
 }
 TEST_CASE("Collision tests")
 {
-    // SUBCASE("Player and Lander collision")
-    // {
-    //     Player player;
-    //     Lander lander;
-
-    //     // Set the player's position
-    //     player.setPosition(100, 100);
-    //     lander.getPosition() = player.getPosition();
-    //     // Reset the lander's position (assuming it's out of collision by default)
-    //     lander.reset();
-    //     lander.update();
-
-    //     // Check if there is a collision between the player and lander
-    //     CHECK(player.getGlobalBounds().intersects(lander.getSprite().getGlobalBounds()));
-    // }
-
-    // SUBCASE("Missile and Player collision")
-    // {
-    //     Missile missile(sf::Vector2f(100, 100), sf::Vector2f(101, 101)); // Set missile and player positions to overlap (collision)
-    //     Player player;
-    //     player.setPosition(100, 100);
-
-    //     // Set the position of the missile's shape
-    //     missile.shape.setPosition(100, 100);
-
-    //     // Check if there is a collision between the missile and player
-    //     CHECK(missile.shape.getGlobalBounds().intersects(player.getGlobalBounds()));
-    // }
-
     SUBCASE("Laser and Lander collision")
     {
         Laser laser;

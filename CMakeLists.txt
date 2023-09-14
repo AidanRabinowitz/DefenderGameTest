@@ -8,7 +8,7 @@ project(elen3009-project)
 set(SRC_PATH "${CMAKE_SOURCE_DIR}/game-source-code") # path to game source code folder
 set(MAIN_CPP "main.cpp") # your cpp file that runs your game and contains the entry point main() function
 set(GAME_EXE_NAME "game") # name of the game executable
-set(TESTS_EXE_NAME "${PROJECT_NAME}tests")
+set(TESTS_EXE_NAME "tests")
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin") # the output directory for the executables
 set(WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}) # working directory for exe's so relative paths are correct when running from within VS Code
 get_filename_component(COMPILER_PATH ${CMAKE_CXX_COMPILER} DIRECTORY) # extract the path to the C++ compiler being used

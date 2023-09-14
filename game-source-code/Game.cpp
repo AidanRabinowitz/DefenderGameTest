@@ -1,5 +1,5 @@
 #include "game.h"
-
+#include <iostream>
 Game::Game()
     : score(0), highScore(0), gameStarted(false),
       quitConfirmation(false), isSplashScreenVisible(true),
@@ -11,7 +11,7 @@ Game::Game()
     backgroundSprite.setTexture(backgroundTexture);
     if (!font.loadFromFile("resources/sansation.ttf"))
     {
-        // Handle font loading error
+        std::cout << "Loading font error" << std::endl;
     }
     // Initialize landers
     landerTexture.loadFromFile("resources/landerShip.png");
@@ -21,7 +21,6 @@ Game::Game()
     player.setTexture(playerTexture);
     player.setScale(sf::Vector2f(0.1, 0.1));
     player.setPosition(WINDOW_WIDTH / 2 - 25, WINDOW_HEIGHT - 60);
-    // Player player();
     srand(static_cast<unsigned>(time(0))); // Seed random number generator
 }
 
@@ -50,7 +49,7 @@ void Game::handleInput(sf::RenderWindow &window)
     sf::Vector2f mousePosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     sf::Vector2f playerCenter = player.getPosition() + sf::Vector2f(player.getGlobalBounds().width / 2, player.getGlobalBounds().height / 2);
     sf::Vector2f rightScale(0.1f, 0.1f); // Set scale factors for X and Y uniformly
-    sf::Vector2f leftScale(-0.1f, 0.1f); // Set scale factors for X and Y uniformly
+    sf::Vector2f leftScale(-0.1f, 0.1f); // Swap direction
 
     if (mousePosition.x > playerCenter.x)
     {
@@ -323,7 +322,6 @@ void Game::render(sf::RenderWindow &window) // Rendering the game shapes and spr
     }
 
     // Display and update the score
-    // Create a text object for the current score
     sf::Text scoreText;
     scoreText.setFont(font);
     scoreText.setCharacterSize(24);

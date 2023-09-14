@@ -9,24 +9,21 @@ Lander::Lander()
     }
     landerSprite.setTexture(landerTexture);
     landerSprite.setScale(sf::Vector2f(0.1f, 0.1f));
-    // Set the initial position and other properties for the lander as needed
+    // Set the initial position and other properties for the lander
 }
 
 void Lander::reset()
 {
-    // Reset the lander's position and any other properties as needed
     destroyed = false;
 }
 
 void Lander::update()
 {
-    // Update the lander's position and behavior here
     if (!destroyed)
     {
         // Move the lander
         landerSprite.move(0, LANDER_SPEED); // Adjust the speed as needed
     }
-    // You can add more logic for lander behavior here
 }
 
 void Lander::render(sf::RenderWindow &window)
@@ -47,7 +44,6 @@ bool Lander::isDestroyed() const
 {
     return destroyed;
 }
-// Implement the getPosition member function in the Lander class
 sf::Vector2f Lander::getPosition() const
 {
     return landerSprite.getPosition();
@@ -55,5 +51,4 @@ sf::Vector2f Lander::getPosition() const
 void Lander::destroy()
 {
     destroyed = true;
-    // Add any other logic for handling the destruction of the lander
 }

@@ -19,10 +19,9 @@ void Laser::fire(sf::Vector2f startPosition, sf::Vector2f mousePosition)
     // Calculate the direction vector from the laser's position to the mouse position
     sf::Vector2f direction = mousePosition - startPosition;
 
-    // Normalize the direction vector (convert it to a unit vector)
     direction = mousePosition;
 
-    // Set the velocity based on the direction vector, casting LASER_SPEED to float
+    // Set the velocity based on the direction vector
     velocity = direction * static_cast<float>(LASER_SPEED);
 
     // Adjust the laser's rotation if needed (e.g., using shape.setRotation())

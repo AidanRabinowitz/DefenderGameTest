@@ -28,23 +28,17 @@ private:
     bool isPauseScreenVisible;
     bool isWinScreenVisible;
     bool isGameOver;
-    sf::Texture landerTexture;     // Add a texture for landers
-    sf::Texture backgroundTexture; // Add a texture for the background
-    sf::Sprite backgroundSprite;   // Add a sprite for the background
+    sf::Texture landerTexture;
+    sf::Texture backgroundTexture;
+    sf::Sprite backgroundSprite;
     Player player;
-
-    // sf::Sprite player;
     sf::Texture playerTexture;
-    // Player player;
     std::vector<Lander> landers;
     std::vector<Missile> missiles;
     std::vector<Laser> lasers;
-
     sf::Clock spawnTimer;
     sf::Clock missileTimer;
-
     sf::Font font;
-
     void resetGame();
     void handleInput(sf::RenderWindow &window);
     void update();
