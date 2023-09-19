@@ -2,7 +2,7 @@
 #define PLAYER_H
 
 #include <SFML/Graphics.hpp>
-
+#include "Humanoid.h"
 class Player : public sf::Sprite
 {
 public:
@@ -14,6 +14,7 @@ public:
     void render(sf::RenderWindow &window) const;
     const sf::Vector2f &getPosition() const;
     const sf::FloatRect getGlobalBounds() const;
+    bool isTouchingHumanoid(const Humanoid &humanoid) const;
 
 private:
     sf::Sprite sprite;
