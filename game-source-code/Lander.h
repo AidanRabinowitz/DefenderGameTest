@@ -11,6 +11,7 @@ public:
     Lander();
     void reset();
     void update();
+    //void update(const std::vector<Laser>& lasers, const sf::Sprite& humanoidSprite);
     void render(sf::RenderWindow &window);
     sf::Vector2f getPosition() const;
     sf::Sprite &getSprite();

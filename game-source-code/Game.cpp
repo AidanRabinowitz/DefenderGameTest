@@ -13,6 +13,8 @@ Game::Game()
     {
         std::cout << "Loading font error" << std::endl;
     }
+    // Initialize the humanoid object (you can adjust the position and properties as needed)
+   
     // Initialize landers
     landerTexture.loadFromFile("resources/landerShip.png");
     humanoidTexture.loadFromFile("resources/humanoid.png");
@@ -304,7 +306,13 @@ void Game::update()
                 break;
             }
         }
+
     }
+
+   //  for (auto &lander : landers)
+   // {
+    //lander.update(lasers, humanoid.getSprite()); // Pass lasers and humanoidSprite
+   // }
 }
 
 void Game::render(sf::RenderWindow &window) // Rendering the game shapes and sprites

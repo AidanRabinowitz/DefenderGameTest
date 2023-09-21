@@ -19,11 +19,13 @@ public:
     sf::Sprite humanoidSprite;
     bool isDestroyed() const;
 
+    //  function for destruction
     void destroy();
     sf::Vector2f getPosition() const;
     void setPosition(const sf::Vector2f &newPosition);
     void moveHumanoidUp();
     sf::Sprite &getSprite();
+    
 
 private:
     sf::Texture humanoidTexture;

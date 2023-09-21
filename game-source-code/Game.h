@@ -25,6 +25,8 @@ private:
     Humanoid *targetHumanoid;
     bool isLanderAttached;
 
+  //  Humanoid humanoid; // Add this line to create a Humanoid object
+
     // Add this function to find the nearest humanoid
     Humanoid *findNearestHumanoid();
     int previousLevelScore;

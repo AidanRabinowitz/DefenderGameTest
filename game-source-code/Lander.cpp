@@ -1,4 +1,5 @@
 #include "Lander.h"
+#include "Laser.h" // Include the Laser class header
 #include <iostream>
 Lander::Lander()
     : destroyed(false)
@@ -23,6 +24,24 @@ void Lander::update()
     {
         // Move the lander
         landerSprite.move(0, LANDER_SPEED); // Adjust the speed as needed
+
+               // Check for collisions with lasers
+      //  if (isAttached())
+     //   {
+            // Only check for collisions if the lander is attached to a humanoid
+     //     for (auto &laser : lasers)
+    //{
+    //    if (laser.isTouching(humanoidSprite.getGlobalBounds()))
+     //   {
+            // Laser hit the humanoid
+            // Destroy the humanoid
+      //      attachedHumanoid->destroy();
+
+            // Detach the humanoid from the lander
+     //       attachedHumanoid = nullptr;
+     //   }
+    //}
+      //  }
     }
 }
 

@@ -9,6 +9,13 @@ Laser::Laser() : fired(false)
     velocity.x = LASER_SPEED;
     velocity.y = 0; // Laser should not move vertically
 }
+//bool Laser::isTouching(const sf::FloatRect &bounds) const
+//{
+    // Add your collision detection logic here
+    // For example, you can use sf::FloatRect::intersects or other collision detection methods.
+    // Return true if there's a collision, otherwise return false.
+    // You'll need to define how collision is determined based on your game's requirements.
+//}
 
 // In Laser::fire
 void Laser::fire(sf::Vector2f startPosition, sf::Vector2f mousePosition)

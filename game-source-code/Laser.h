@@ -15,6 +15,7 @@ public:
     sf::RectangleShape shape;
     sf::Vector2f velocity;
     bool fired;
+//     bool isTouching(const sf::FloatRect &bounds) const;
 
 private:
 };
