@@ -15,9 +15,20 @@ public:
     const sf::Vector2f &getPosition() const;
     const sf::FloatRect getGlobalBounds() const;
     bool isTouchingHumanoid(const Humanoid &humanoid) const;
+    void renderFuelBar(sf::RenderWindow &window) const; // Add this function to render the fuel bar
+    void consumeFuel(float deltaTime);
+    float getCurrentFuel() const;
+    float getTotalFuel() const;
+    bool hasFuel() const; // Add this function to check if there is fuel
+    bool descending;      // Flag to indicate whether the player is descending
+    void resetCurrentFuel();
 
 private:
-    sf::Sprite sprite;
+    sf::Texture playerTexture;
+    float totalFuel;
+    float currentFuel;
+    float fuelConsumptionRate; // Fuel consumption rate per second
+    sf::Sprite playerSprite;
 };
 
 #endif // PLAYER_H
