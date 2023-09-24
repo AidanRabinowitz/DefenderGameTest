@@ -10,12 +10,11 @@ public:
     Fuels();
     void update();
     void render(sf::RenderWindow &window) const;
-    bool isTouching(const sf::FloatRect &bounds);
+    bool checkCollisionWithPlayer(const Player &player);
     bool isDestroyed() const;
     void destroy();
     sf::Vector2f getPosition() const;
     void setPosition(const sf::Vector2f &newPosition);
-
     sf::Texture fuelsTexture;
     sf::Sprite fuelsSprite;
 

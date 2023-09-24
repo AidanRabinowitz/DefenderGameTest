@@ -30,10 +30,16 @@ void Fuels::render(sf::RenderWindow &window) const
     window.draw(fuelsSprite);
 }
 
-bool Fuels::isTouching(const sf::FloatRect &bounds)
+// Inside Fuels class
+bool Fuels::checkCollisionWithPlayer(const Player &player)
 {
-    // Check if the fuel's sprite is touching the given bounds (e.g., fuel's bounding box, player's bounding box)
-    return fuelsSprite.getGlobalBounds().intersects(bounds);
+    if (fuelsSprite.getGlobalBounds().intersects(player.getGlobalBounds()))
+    {
+        // Collision with player detected
+        destroy();
+        return true;
+    }
+    return false;
 }
 
 bool Fuels::isDestroyed() const

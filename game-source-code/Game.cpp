@@ -235,6 +235,22 @@ void Game::update()
             fuels.push_back(fuelCan);
             fuelSpawnTimer.restart();
         }
+        for (auto it = fuels.begin(); it != fuels.end();)
+        {
+            if (it->checkCollisionWithPlayer(player))
+            {
+                // Collision with fuel detected, remove the fuel
+                it = fuels.erase(it);
+                // Reset player's current fuel to 100.0f
+                player.resetCurrentFuel();
+                // Reset the fuel bar
+                fuelBar.resetFuelBar();
+            }
+            else
+            {
+                ++it;
+            }
+        }
         // moveLandersTowardsHumanoids();
         fuelBar.setFuel(player.getCurrentFuel(), player.getTotalFuel());
         // fuelBar.update();
