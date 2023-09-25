@@ -9,6 +9,6 @@ const auto LANDER_SPEED = 2.0f;
 const auto SPAWN_INTERVAL = 2000;           // Spawn a new Lander every 2 seconds
 const auto HUMANOID_SPAWN_INTERVAL = 20000; // Spawn a new Humanoid every 10 seconds
 const auto MISSILE_INTERVAL = 2000;         // Fire a missile every 1 second
-const auto FUEL_SPAWN_INTERVAL = 1000;      // Adjust the time interval as needed
+const auto FUEL_SPAWN_INTERVAL = 5000;      // Adjust the time interval as needed
 
 #endif // GAME_CONSTANTS_H

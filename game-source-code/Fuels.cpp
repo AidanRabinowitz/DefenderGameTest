@@ -17,9 +17,6 @@ bool Fuels::checkCollision(const sf::FloatRect &playerBounds)
 }
 void Fuels::update()
 {
-    // Update the position based on velocity, if needed
-    // You can add collision detection logic here, e.g., check for collisions with other objects
-
     // Update the sprite's position
     fuelsSprite.setPosition(position);
 }
@@ -62,5 +59,3 @@ void Fuels::setPosition(const sf::Vector2f &newPosition)
     position = newPosition;
     fuelsSprite.setPosition(position);
 }
-
-// Additional member functions specific to Fuels class, if needed

@@ -6,7 +6,7 @@ Player::Player()
     playerTexture.loadFromFile("resources/playerShip.png");
     totalFuel = 100.0f;
     currentFuel = 100.0f;
-    fuelConsumptionRate = 50.0f;
+    fuelConsumptionRate = 10.0f;
     playerSprite.setTexture(playerTexture);
     playerSprite.setScale(sf::Vector2f(0.1, 0.1));
     playerSprite.setPosition(WINDOW_WIDTH / 2 - 25, WINDOW_HEIGHT - 60);

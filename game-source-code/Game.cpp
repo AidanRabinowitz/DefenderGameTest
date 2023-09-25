@@ -39,7 +39,7 @@ void Game::resetGame()
     missiles.clear();
     lasers.clear();
     humanoids.clear(); // Clear the list of humanoids
-    fuelBar.resetFuelBar();
+    fuelBar.reset();
     player.resetCurrentFuel();
     fuels.clear();
 }
@@ -244,7 +244,7 @@ void Game::update()
                 // Reset player's current fuel to 100.0f
                 player.resetCurrentFuel();
                 // Reset the fuel bar
-                fuelBar.resetFuelBar();
+                fuelBar.reset();
             }
             else
             {
@@ -252,7 +252,7 @@ void Game::update()
             }
         }
         // moveLandersTowardsHumanoids();
-        fuelBar.setFuel(player.getCurrentFuel(), player.getTotalFuel());
+        fuelBar.setFuel(player.getCurrentFuel());
         // fuelBar.update();
         float deltaTime = frameClock.restart().asSeconds();
         player.consumeFuel(deltaTime);
