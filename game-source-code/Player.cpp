@@ -1,61 +1,41 @@
 #include "Player.h"
 
-Player::Player(float x, float y, float speed, int width, int height)
-    : playerSpeed(speed), windowWidth(width), windowHeight(height)
+Player::Player()
 {
-    shape.setSize(sf::Vector2f(50, 50));
-    shape.setFillColor(sf::Color::Green);
-    shape.setPosition(x, y);
+    // Initialize the player's properties as needed
 }
 
-void Player::moveLeft()
+void Player::setPosition(float x, float y)
 {
-    if (shape.getPosition().x > 0)
-    {
-        shape.move(-playerSpeed, 0);
-    }
+    sprite.setPosition(x, y);
 }
 
-void Player::moveRight()
+void Player::move(float offsetX, float offsetY)
 {
-    if (shape.getPosition().x < windowWidth - 50)
-    {
-        shape.move(playerSpeed, 0);
-    }
+    sprite.move(offsetX, offsetY);
 }
 
-void Player::moveUp()
+void Player::setTexture(const sf::Texture &texture)
 {
-    if (shape.getPosition().y > 0)
-    {
-        shape.move(0, -playerSpeed);
-    }
+    sprite.setTexture(texture);
 }
 
-void Player::moveDown()
+void Player::setScale(const sf::Vector2f &factors)
 {
-    if (shape.getPosition().y < windowHeight - 50)
-    {
-        shape.move(0, playerSpeed);
-    }
+    sprite.setScale(factors);
 }
 
-void Player::draw(sf::RenderWindow &window)
+void Player::render(sf::RenderWindow &window) const
 {
-    window.draw(shape);
+    window.draw(sprite);
 }
 
-sf::FloatRect Player::getGlobalBounds() const
+const sf::Vector2f &Player::getPosition() const
 {
-    return shape.getGlobalBounds();
+    return sprite.getPosition();
 }
 
-sf::Vector2f Player::getPosition() const
+const sf::FloatRect Player::getGlobalBounds() const
 {
-    return shape.getPosition();
-}
-
-void Player::resetPosition()
-{
-    shape.setPosition(windowWidth / 2 - 25, windowHeight - 60);
+    return sprite.getGlobalBounds();
 }

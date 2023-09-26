@@ -1,29 +1,26 @@
 #include "game.h"
-
-//sf::Sprite splashBackground;
-//sf::Texture splashBackgroundTexture;
-
+#include <iostream>
 Game::Game()
     : score(0), highScore(0), gameStarted(false),
       quitConfirmation(false), isSplashScreenVisible(true),
-      isPauseScreenVisible(false), isGameOver(false)
+      isPauseScreenVisible(false), isWinScreenVisible(false), isGameOver(false), level(1), previousLevelScore(0) //, isGamePaused(false)
 {
-    // Initialize the player
-    player.setSize(sf::Vector2f(50, 50));
-    player.setFillColor(sf::Color::Green);
-    player.setPosition(WINDOW_WIDTH / 2 - 25, WINDOW_HEIGHT - 60);
-
-    // Load font and other resources here
+    // Load background texture
+    backgroundTexture.loadFromFile("resources/background.jpg");
+    // Set the background sprite
+    backgroundSprite.setTexture(backgroundTexture);
     if (!font.loadFromFile("resources/sansation.ttf"))
     {
-        // Handle font loading error
+        std::cout << "Loading font error" << std::endl;
     }
+    // Initialize landers
+    landerTexture.loadFromFile("resources/landerShip.png");
 
-   // if (!splashBackgroundTexture.loadFromFile("resources/background.png"))
-    //{
-        // Handle the error if the image fails to load
-    //}
+    playerTexture.loadFromFile("resources/playerShip.png");
 
+    player.setTexture(playerTexture);
+    player.setScale(sf::Vector2f(0.1, 0.1));
+    player.setPosition(WINDOW_WIDTH / 2 - 25, WINDOW_HEIGHT - 60);
     srand(static_cast<unsigned>(time(0))); // Seed random number generator
 }
 
@@ -49,9 +46,21 @@ void Game::resetGame()
 void Game::handleInput(sf::RenderWindow &window)
 {
     sf::Event event;
+    sf::Vector2f mousePosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+    sf::Vector2f playerCenter = player.getPosition() + sf::Vector2f(player.getGlobalBounds().width / 2, player.getGlobalBounds().height / 2);
+    sf::Vector2f rightScale(0.1f, 0.1f); // Set scale factors for X and Y uniformly
+    sf::Vector2f leftScale(-0.1f, 0.1f); // Swap direction
 
-    // Handle input for starting the game
-    if (!gameStarted && !isPauseScreenVisible && !isGameOver)
+    if (mousePosition.x > playerCenter.x)
+    {
+        player.setScale(rightScale); // Fire laser to the right
+    }
+    else
+    {
+        player.setScale(leftScale); // Flip horizontally by setting X scale to negative
+    }
+
+    if (!gameStarted && !isPauseScreenVisible && !isGameOver && !isWinScreenVisible)
     {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
         {
@@ -60,15 +69,22 @@ void Game::handleInput(sf::RenderWindow &window)
             score = 0; // Reset the score when the game starts
         }
     }
-    // Handle input for pausing the game
-    else if (gameStarted && !isPauseScreenVisible && !isGameOver)
+
+    else if (gameStarted && !isPauseScreenVisible && !isGameOver && !isWinScreenVisible)
     {
+        int oldScore = score; // Check if the player has won, ending the game, unless another level is chosen.
+
+        if (score >= previousLevelScore + 100)
+        {
+            isWinScreenVisible = true;
+        }
+
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
         {
             isPauseScreenVisible = true;
         }
     }
-    // Handle input for quit confirmation screen
+
     else if (isPauseScreenVisible)
     {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Y))
@@ -77,9 +93,10 @@ void Game::handleInput(sf::RenderWindow &window)
             gameStarted = false;
             if (score > highScore)
             {
-                highScore = score;
+                highScore = score; // Save the highscore
             }
-            score = 0; // Reset the score
+            score = 0;
+            resetGame();
         }
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::N))
         {
@@ -87,6 +104,29 @@ void Game::handleInput(sf::RenderWindow &window)
         }
     }
     // Handle input for game over screen
+    else if (isWinScreenVisible)
+    {
+        gameStarted = false;
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Y)) // Continue the next level
+        {
+            isWinScreenVisible = false;
+            gameStarted = true;
+            level++;
+            previousLevelScore = score;
+            gameStarted = true;
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::N)) // Restart a new game
+
+        {
+            isWinScreenVisible = false;
+            isSplashScreenVisible = true;
+            resetGame();
+            score = 0;
+            previousLevelScore = 0;
+            level = 1;
+        }
+    }
     else if (isGameOver)
     {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Y))
@@ -98,7 +138,9 @@ void Game::handleInput(sf::RenderWindow &window)
             {
                 highScore = score;
             }
-            score = 0; // Reset the score
+            score = 0;
+            previousLevelScore = 0;
+            level = 1;
             resetGame();
         }
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::N))
@@ -110,31 +152,31 @@ void Game::handleInput(sf::RenderWindow &window)
         }
     }
 
-    // Game-specific input handling
-    // ...
-
     while (window.pollEvent(event))
     {
         if (event.type == sf::Event::Closed)
         {
             window.close();
         }
+
         if (event.type == sf::Event::MouseButtonPressed)
         {
+
             if (event.mouseButton.button == sf::Mouse::Left)
             {
+
                 Laser laser;
                 laser.shape.setSize(sf::Vector2f(5, 20));
                 laser.shape.setFillColor(sf::Color::Cyan);
                 laser.shape.setPosition(player.getPosition().x + 22, player.getPosition().y);
-                laser.velocity.x = LASER_SPEED;
+                laser.velocity.x = (mousePosition.x > playerCenter.x) ? LASER_SPEED : -LASER_SPEED;
+
                 laser.setFired(true);
                 lasers.push_back(laser);
             }
         }
     }
 
-    // Player movement
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && player.getPosition().x > 0)
     {
         player.move(-PLAYER_SPEED, 0);
@@ -155,32 +197,20 @@ void Game::handleInput(sf::RenderWindow &window)
 
 void Game::update()
 {
-    // Update game logic here
     if (gameStarted && !isPauseScreenVisible && !isGameOver)
     {
-        // Game-specific update logic
-
-        // Player movement
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && player.getPosition().x > 0)
-            player.move(-PLAYER_SPEED, 0);
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && player.getPosition().x < WINDOW_WIDTH - 50)
-            player.move(PLAYER_SPEED, 0);
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && player.getPosition().y > 0)
-            player.move(0, -PLAYER_SPEED);
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && player.getPosition().y < WINDOW_HEIGHT - 50)
-            player.move(0, PLAYER_SPEED);
-
-        // Spawn Landers
-        if (spawnTimer.getElapsedTime().asMilliseconds() > SPAWN_INTERVAL)
+        if (spawnTimer.getElapsedTime().asMilliseconds() > SPAWN_INTERVAL) // Spawn Landers
         {
-            // Randomly generate a position for the lander, away from the player
-            sf::Vector2f landerSpawnPosition(rand() % (WINDOW_WIDTH - 30), -30); // Adjust as needed
-            landers.push_back(Lander(player.getPosition()));
-            landers.back().shape.setPosition(landerSpawnPosition);
+            Lander newLander;
+
+            // Set the lander's position to a random location along the X-axis
+            float xPos = static_cast<float>(rand() % static_cast<int>(WINDOW_WIDTH - newLander.landerSprite.getGlobalBounds().width));
+            newLander.landerSprite.setPosition(sf::Vector2f(xPos, -newLander.landerSprite.getGlobalBounds().height));
+            newLander.landerSprite.setTexture(landerTexture);
+            landers.push_back(newLander);
             spawnTimer.restart();
         }
-
-        // Fire Missiles from Landers towards the player's ship
+        // Fire Missiles from Landers towards the player's ship after the desired interval
         for (size_t i = 0; i < landers.size(); i++)
         {
             if (missileTimer.getElapsedTime().asMilliseconds() > MISSILE_INTERVAL)
@@ -200,11 +230,11 @@ void Game::update()
         {
             if (!landers[i].isDestroyed())
             {
-                landers[i].shape.move(0, LANDER_SPEED); // Move downward
+                landers[i].landerSprite.move(0, LANDER_SPEED); // Move downward
             }
 
             // Remove Landers that go out of bounds
-            if (landers[i].shape.getPosition().y > WINDOW_HEIGHT)
+            if (landers[i].landerSprite.getPosition().y > WINDOW_HEIGHT)
             {
                 landers.erase(landers.begin() + i);
                 i--;
@@ -227,30 +257,36 @@ void Game::update()
 
         // Check for collision between lasers and landers
         for (size_t i = 0; i < lasers.size(); i++)
+{
+    for (size_t j = 0; j < landers.size(); j++)
+    {
+        if (!landers[j].isDestroyed() && lasers[i].shape.getGlobalBounds().intersects(landers[j].getSprite().getGlobalBounds()))
         {
-            for (size_t j = 0; j < landers.size(); j++)
+            if (landers[j].isCarryingHumanoid())
             {
-                if (!landers[j].isDestroyed() && lasers[i].shape.getGlobalBounds().intersects(landers[j].shape.getGlobalBounds()))
-                {
-                    // Laser hit a lander
-                    score += 10;          // Increment the score (adjust as needed)
-                    landers[j].destroy(); // Mark the lander as destroyed
-                    lasers.erase(lasers.begin() + i);
-                    i--;   // Adjust the index after removal
-                    break; // Exit the inner loop when a collision occurs
-                }
+                // Player shot a lander carrying a humanoid
+                humanoidVec.push_back(*landers[j].getAbductedHumanoid()); // Add the humanoid to the list
             }
+            score += 10;
+            landers[j].destroy();
+            lasers.erase(lasers.begin() + i);
+            i--;   // Adjust the index after removal
+            break; // Exit the inner loop when a collision occurs
         }
+    }
+}
 
         // Check for collision between player and landers
         for (size_t i = 0; i < landers.size(); i++)
         {
-            if (!landers[i].isDestroyed() && player.getGlobalBounds().intersects(landers[i].shape.getGlobalBounds()))
+            if (!landers[i].isDestroyed() && player.getGlobalBounds().intersects(landers[i].landerSprite.getGlobalBounds()))
             {
                 isGameOver = true;
                 break;
             }
         }
+
+        //Check for collision between humanoid and landers
 
         // Check for collision between player and missiles
         for (size_t i = 0; i < missiles.size(); i++)
@@ -261,22 +297,63 @@ void Game::update()
                 break;
             }
         }
+
+        //Test Zone
+
+          //Check for collision between humanoid and landers
+        for (size_t i = 0; i < landers.size(); i++)
+        {
+            if (!landers[i].isDestroyed() && testHumanoid.humanoidSprite.getGlobalBounds().intersects(landers[i].landerSprite.getGlobalBounds()))
+            {
+                testHumanoid.isKidnapped = true;
+                landers[i].attachToHumanoid(&testHumanoid);
+            }
+        }
+        
+          // Check for collision between player and rescued humanoids
+        for (size_t i = 0; i < humanoidVec.size(); i++)
+        {
+             if (player.getGlobalBounds().intersects(humanoidVec[i].getSprite().getGlobalBounds()))
+             {
+             // Player rescued a humanoid, remove it from the list
+              humanoidVec.erase(humanoidVec.begin() + i);
+              score += 50; // Adjust the score as needed
+              break;
+             }
+         }
+
+        
+
+        if(testHumanoid.isKidnapped){
+            testHumanoid.moveHumanoidUp();
+        }
+
+        //Move lander up
+        for (size_t i = 0; i < landers.size(); i++)
+        {
+            if (!landers[i].isDestroyed() && landers[i].isAttached() == true)
+            {
+               
+                landers[i].moveLanderUp();
+            }
+        }
     }
 }
 
-void Game::render(sf::RenderWindow &window)
+void Game::render(sf::RenderWindow &window) // Rendering the game shapes and sprites
 {
-    // Render game elements here
     window.clear();
-   // window.draw(splashBackground);
+    window.draw(backgroundSprite);
+    player.render(window);
+    window.draw(testHumanoid.getSprite());
     window.draw(player);
 
-    // Draw Landers
-    for (const auto &lander : landers)
+    // Draw Landers using the render function from Lander
+    for (auto &lander : landers)
     {
         if (!lander.isDestroyed())
         {
-            window.draw(lander.shape);
+            lander.render(window);
         }
     }
 
@@ -293,7 +370,6 @@ void Game::render(sf::RenderWindow &window)
     }
 
     // Display and update the score
-    // Create a text object for the current score
     sf::Text scoreText;
     scoreText.setFont(font);
     scoreText.setCharacterSize(24);
@@ -313,22 +389,19 @@ void Game::render(sf::RenderWindow &window)
     window.draw(highScoreText);
 
     // Display the splash screen
-    if (!gameStarted && !isPauseScreenVisible && !isGameOver)
+    if (!gameStarted && !isPauseScreenVisible && !isGameOver && !isWinScreenVisible)
     {
         sf::Text splashText;
         splashText.setFont(font);
-        splashText.setCharacterSize(30);
+        splashText.setCharacterSize(32);
         splashText.setFillColor(sf::Color::White);
-        splashText.setPosition(200, 400);
-        splashText.setString(" Instructions:\n- Use A/D/W/S to move\n- Left-click to shoot\n- Press Space to start");
-
-
-        sf::Text highScoreText;
-        highScoreText.setFont(font);
-        highScoreText.setCharacterSize(24);
-        highScoreText.setFillColor(sf::Color::White);
-        highScoreText.setPosition(200, 300);
-        highScoreText.setString("Highscore: " + std::to_string(highScore));
+        splashText.setPosition(200, 200);
+        splashText.setString("Press Space to Start \n "
+                             " \n WASD keys to move \n "
+                             " \n Left mouseclick to fire  \n "
+                             " \n Hover mouse left or right of \n "
+                             " \n player to change direction \n "
+                             " \n esc to pause \n");
 
         window.draw(splashText);
         window.draw(highScoreText);
@@ -346,6 +419,17 @@ void Game::render(sf::RenderWindow &window)
 
         window.draw(pauseText);
     }
+    if (isWinScreenVisible)
+    {
+        sf::Text winText;
+        winText.setFont(font);
+        winText.setCharacterSize(32);
+        winText.setFillColor(sf::Color::White);
+        winText.setPosition(200, 200);
+        winText.setString("You killed 10 landers! YOU WIN!\nProceed to level " + std::to_string(level + 1) + "?\nY for yes, N for no");
+
+        window.draw(winText);
+    }
 
     // Display the game over screen
     if (isGameOver)
@@ -355,7 +439,7 @@ void Game::render(sf::RenderWindow &window)
         gameOverText.setCharacterSize(32);
         gameOverText.setFillColor(sf::Color::Red);
         gameOverText.setPosition(200, 200);
-        gameOverText.setString("You Died\nPlay again?\nY for yes, N for no");
+        gameOverText.setString("You Died\nPlay again?\nY for yes, N to close the window");
 
         window.draw(gameOverText);
         resetGame();

@@ -1,167 +1,102 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
+#include "Player.h"
+#include "Laser.h"
+#include "Lander.h"
+#include "Missile.h"
+TEST_CASE("Player movement")
+{
+    Player player;
+    sf::Texture texture;
 
-#include <SFML/Graphics.hpp>
-#include <vector>
-#include <ctime>
-#include <cstdlib>
-#include <cmath>
-#include <iostream>
+    player.setTexture(texture);
 
-// // Define your game objects and functions here.
-// struct Player
-// {
-//     sf::RectangleShape shape;
-// };
+    SUBCASE("Moving up (W key)")
+    {
+        sf::Vector2f initialPosition = player.getPosition();
+        player.move(0, -10); // Assuming -10 moves the player up
+        sf::Vector2f newPosition = player.getPosition();
+        CHECK(newPosition.y == doctest::Approx(initialPosition.y - 10));
+        CHECK(newPosition.x == doctest::Approx(initialPosition.x));
+    }
 
-// struct Missile
-// {
-//     sf::RectangleShape shape;
-// };
+    SUBCASE("Moving left (A key)")
+    {
+        sf::Vector2f initialPosition = player.getPosition();
+        player.move(-10, 0); // Assuming -10 moves the player left
+        sf::Vector2f newPosition = player.getPosition();
+        CHECK(newPosition.x == doctest::Approx(initialPosition.x - 10));
+        CHECK(newPosition.y == doctest::Approx(initialPosition.y));
+    }
 
-// struct Lander
-// {
-//     sf::RectangleShape shape;
-//     bool isDestroyed;
-// };
-// struct Laser
-// {
-//     sf::RectangleShape shape;
-// };
+    SUBCASE("Moving down (S key)")
+    {
+        sf::Vector2f initialPosition = player.getPosition();
+        player.move(0, 10); // Assuming 10 moves the player down
+        sf::Vector2f newPosition = player.getPosition();
+        CHECK(newPosition.y == doctest::Approx(initialPosition.y + 10));
+        CHECK(newPosition.x == doctest::Approx(initialPosition.x));
+    }
 
-// bool isGameOver = false; // A global variable to simulate game over state
+    SUBCASE("Moving right (D key)")
+    {
+        sf::Vector2f initialPosition = player.getPosition();
+        player.move(10, 0); // Assuming 10 moves the player right
+        sf::Vector2f newPosition = player.getPosition();
+        CHECK(newPosition.x == doctest::Approx(initialPosition.x + 10));
+        CHECK(newPosition.y == doctest::Approx(initialPosition.y));
+    }
+}
+TEST_CASE("Laser firing")
+{
+    Laser laser;
 
-// // Function to check collision between player ship and missiles
-// bool checkPlayerMissileCollision(const Player &player, const std::vector<Missile> &missiles)
-// {
-//     for (const auto &missile : missiles)
-//     {
-//         if (missile.shape.getGlobalBounds().intersects(player.shape.getGlobalBounds()))
-//         {
-//             return true;
-//         }
-//     }
-//     return false;
-// }
+    SUBCASE("Mouse click fires laser")
+    {
+        sf::Vector2f startPosition(100, 100);
+        sf::Event event;
+        event.type = sf::Event::MouseButtonPressed;
+        event.mouseButton.button = sf::Mouse::Left;
+        sf::Vector2f mousePosition(200, 200); // Set your desired mouse position
+        laser.fire(startPosition, mousePosition);
+        laser.move();
+        CHECK(laser.isFired() == true);
+    }
+}
 
-// // Function to check collision between player ship and enemy landers
-// bool checkPlayerLanderCollision(const Player &player, const std::vector<Lander> &landers)
-// {
-//     for (const auto &lander : landers)
-//     {
-//         if (!lander.isDestroyed && lander.shape.getGlobalBounds().intersects(player.shape.getGlobalBounds()))
-//         {
-//             return true;
-//         }
-//     }
-//     return false;
-// }
+TEST_CASE("Lander behavior")
+{
+    SUBCASE("Lander spawning and movement")
+    {
+        Lander lander;
+        sf::Vector2f initialPosition(100, 100); // Set your desired initial position
+        lander.reset();
+        lander.getSprite().setPosition(initialPosition);
+        CHECK(lander.getPosition() == initialPosition); // Check if the lander was spawned at the initial position
+        lander.update();                                // Move the lander
+        CHECK(lander.getPosition() != initialPosition);
+    }
 
-// // Function to check collision between missiles and enemy landers
-// void checkMissileLanderCollision(std::vector<Missile> &missiles, std::vector<Lander> &landers, int &score)
-// {
-//     for (size_t i = 0; i < missiles.size(); i++)
-//     {
-//         for (size_t j = 0; j < landers.size(); j++)
-//         {
-//             if (!landers[j].isDestroyed && missiles[i].shape.getGlobalBounds().intersects(landers[j].shape.getGlobalBounds()))
-//             {
-//                 landers[j].isDestroyed = true;
-//                 missiles.erase(missiles.begin() + i);
-//                 i--;
-//                 score += 10; // Increase the score when a lander is destroyed
-//                 break;       // No need to check further missiles for this lander
-//             }
-//         }
-//     }
-// }
+    SUBCASE("Lander destruction")
+    {
+        Lander lander;
+        CHECK_FALSE(lander.isDestroyed()); // Initially, the lander should not be destroyed
+        lander.destroy();
+        CHECK(lander.isDestroyed());
+    }
+}
+TEST_CASE("Collision tests")
+{
+    SUBCASE("Laser and Lander collision")
+    {
+        Laser laser;
+        Lander lander;
 
-// // Function to check collision between lasers and enemy landers
-// void checkLaserLanderCollision(std::vector<Laser> &lasers, std::vector<Lander> &landers, int &score)
-// {
-//     for (size_t i = 0; i < lasers.size(); i++)
-//     {
-//         for (size_t j = 0; j < landers.size(); j++)
-//         {
-//             if (!landers[j].isDestroyed && lasers[i].shape.getGlobalBounds().intersects(landers[j].shape.getGlobalBounds()))
-//             {
-//                 landers[j].isDestroyed = true;
-//                 lasers.erase(lasers.begin() + i);
-//                 i--;
-//                 score += 10; // Increase the score when a lander is destroyed
-//                 break;       // No need to check further lasers for this lander
-//             }
-//         }
-//     }
-// }
+        // Set the laser and lander positions to overlap (collision)
+        laser.shape.setPosition(100, 100);
+        lander.getSprite().setPosition(100, 100);
 
-// TEST_CASE("Collision Tests")
-// {
-//     Player player;
-//     player.shape.setSize(sf::Vector2f(50, 50));
-//     player.shape.setPosition(100, 100);
-
-//     std::vector<Missile> missiles;
-//     std::vector<Lander> landers;
-//     int score = 0;
-
-//     // Initialize missiles, landers, and player as needed for the test scenarios.
-
-//     SUBCASE("Player ship collision with missiles")
-//     {
-//         Missile missile;
-//         missile.shape.setSize(sf::Vector2f(5, 20));
-//         missile.shape.setPosition(100, 100); // Position it to collide with player
-//         missiles.push_back(missile);
-
-//         CHECK(checkPlayerMissileCollision(player, missiles) == true);
-//     }
-
-//     SUBCASE("Player ship collision with enemy landers")
-//     {
-//         Lander lander;
-//         lander.shape.setSize(sf::Vector2f(30, 30));
-//         lander.shape.setPosition(100, 100); // Position it to collide with player
-//         landers.push_back(lander);
-
-//         CHECK(checkPlayerLanderCollision(player, landers) == true);
-//     }
-
-//     SUBCASE("Missiles collision with enemy landers")
-//     {
-//         Missile missile;
-//         missile.shape.setSize(sf::Vector2f(5, 20));
-//         missile.shape.setPosition(100, 100); // Position it to collide with lander
-//         missiles.push_back(missile);
-
-//         Lander lander;
-//         lander.shape.setSize(sf::Vector2f(30, 30));
-//         lander.shape.setPosition(100, 100); // Position it to collide with missile
-//         landers.push_back(lander);
-
-//         int initialScore = score;
-//         checkMissileLanderCollision(missiles, landers, score);
-
-//         CHECK(score == initialScore + 10);
-//         CHECK(landers[0].isDestroyed == true);
-//     }
-
-//     SUBCASE("Lasers hitting enemy landers")
-//     {
-//         Laser laser;
-//         laser.shape.setSize(sf::Vector2f(5, 20));
-//         laser.shape.setPosition(100, 100); // Position it to collide with lander
-//         std::vector<Laser> lasers = {laser};
-
-//         Lander lander;
-//         lander.shape.setSize(sf::Vector2f(30, 30));
-//         lander.shape.setPosition(100, 100); // Position it to collide with laser
-//         landers.push_back(lander);
-
-//         int initialScore = score;
-//         checkLaserLanderCollision(lasers, landers, score);
-
-//         CHECK(score == initialScore + 10);
-//         CHECK(landers[0].isDestroyed == true);
-//     }
-// }
+        // Check if there is a collision between the laser and lander
+        CHECK(laser.shape.getGlobalBounds().intersects(lander.getSprite().getGlobalBounds()));
+    }
+}

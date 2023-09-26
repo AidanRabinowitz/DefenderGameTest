@@ -1,29 +1,50 @@
-#ifndef LANDER_H
-#define LANDER_H
-#include "Missile.h"
+#pragma once
+
 #include <SFML/Graphics.hpp>
+#include "GameConstants.h" // Include your game constants here
+#include "Humanoid.h"
+
+class Humanoid;
 
 class Lander
 {
 public:
-    Lander(const sf::Vector2f &playerPos);
-    void spawn(sf::RenderWindow &window, std::vector<Lander> &landers);
-    void move();
-    void draw(sf::RenderWindow &window);
-    bool &isDestroyed();             // Return a reference to the destroyed flag.
-    const bool &isDestroyed() const; // For const objects.
-    void destroy();
-    sf::RectangleShape shape;
-    sf::Vector2f velocity;
-    sf::Clock missileFireTimer; // Timer for missile firing
-    bool destroyed;
-    sf::Vector2f getSpawnPosition() const; // Getter for spawn position
-    sf::Clock fireRateClock;               // Add this member variable
-    sf::Vector2f playerPosition;
+    Lander();
+    void reset();
+    void update();
+    void render(sf::RenderWindow &window);
+   
     sf::Vector2f getPosition() const;
 
-private:
-    sf::Vector2f spawnPosition; // Store the spawn position for each lander
-};
+    sf::Sprite &getSprite();
+    bool isDestroyed() const;
+    sf::Sprite landerSprite;
+    sf::Texture landerTexture;
+    void destroy();
+    void attachToHumanoid(Humanoid *humanoid); // Attach the Lander to a Humanoid
+    bool isAttached() const;                   // Check if the Lander is attached to a Humanoid
+    void moveLanderUp();
+     // Public member variable to store the velocity
+    sf::Vector2f velocity;
 
-#endif // LANDER_H
+    sf::Vector2f getVelocity() const; // Declaration of getVelocity function
+
+    Humanoid *attachedHumanoid;
+
+     // Function to attach a humanoid to the lander
+    void attachHumanoid(Humanoid *humanoid);
+
+    // Function to check if the lander is carrying a humanoid
+    bool isCarryingHumanoid() const;
+
+    // Function to get the abducted humanoid (if any)
+    Humanoid* getAbductedHumanoid() const;
+    
+
+private:
+    bool destroyed;
+
+    // Pointer to the humanoid currently abducted by the lander
+    Humanoid *abductedHumanoid;
+    //sf::Vector2f velocity; // Add this member variable to store the velocity
+};

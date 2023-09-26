@@ -7,6 +7,10 @@
 #include "Lander.h"
 #include "Missile.h"
 #include "Laser.h"
+#include "Player.h"
+#include "Humanoid.h"
+
+// #include
 class Game
 {
 public:
@@ -15,26 +19,33 @@ public:
     void run(sf::RenderWindow &window);
 
 private:
+    int previousLevelScore;
+    int level;
     int score;
     int highScore;
     bool gameStarted;
     bool quitConfirmation;
     bool isSplashScreenVisible;
     bool isPauseScreenVisible;
+    bool isWinScreenVisible;
     bool isGameOver;
-
-    sf::RectangleShape player;
+    sf::Texture landerTexture;
+    sf::Texture backgroundTexture;
+    sf::Sprite backgroundSprite;
+    Player player;
+    sf::Texture playerTexture;
     std::vector<Lander> landers;
     std::vector<Missile> missiles;
+    std::vector<Humanoid> humanoidVec;
     std::vector<Laser> lasers;
-
     sf::Clock spawnTimer;
     sf::Clock missileTimer;
-
     sf::Font font;
-
     void resetGame();
     void handleInput(sf::RenderWindow &window);
     void update();
     void render(sf::RenderWindow &window);
+
+    //Test zone
+    Humanoid testHumanoid;
 };

@@ -1,25 +1,22 @@
-#pragma once
+#ifndef PLAYER_H
+#define PLAYER_H
 
 #include <SFML/Graphics.hpp>
 
-class Player
+class Player : public sf::Sprite
 {
 public:
-    Player(float x, float y, float speed, int width, int height);
-
-    void moveLeft();
-    void moveRight();
-    void moveUp();
-    void moveDown();
-    void draw(sf::RenderWindow &window);
-    sf::FloatRect getGlobalBounds() const;
-    sf::Vector2f getPosition() const;
-    // Add this method declaration to the Player class
-    void resetPosition();
+    Player();
+    void setPosition(float x, float y);
+    void move(float offsetX, float offsetY);
+    void setTexture(const sf::Texture &texture);
+    void setScale(const sf::Vector2f &factors);
+    void render(sf::RenderWindow &window) const;
+    const sf::Vector2f &getPosition() const;
+    const sf::FloatRect getGlobalBounds() const;
 
 private:
-    sf::RectangleShape shape;
-    float playerSpeed;
-    int windowWidth;
-    int windowHeight;
+    sf::Sprite sprite;
 };
+
+#endif // PLAYER_H

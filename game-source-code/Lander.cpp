@@ -1,90 +1,91 @@
 #include "Lander.h"
-#include "Missile.h"
-#include "GameConstants.h"
-#include <SFML/Graphics.hpp>
-#include <vector>
-#include <cstdlib> // for rand
-
-// Define the missing constants
-#define MISSILE_INTERVAL 1000  // Fire a missile every 1 second
-std::vector<Missile> missiles; // Definition of the 'missiles' vector
-
-Lander::Lander(const sf::Vector2f &playerPos) : destroyed(false), playerPosition(playerPos)
+#include "Humanoid.h"
+#include <iostream>
+Lander::Lander()
+    : destroyed(false)
 {
-    missileFireTimer.restart();
-    shape.setSize(sf::Vector2f(30, 30));
-    shape.setFillColor(sf::Color::Red);
-    // Set the spawn position to a random position away from the player
-    spawnPosition = sf::Vector2f(rand() % (WINDOW_WIDTH - 30), -30);
-    shape.setPosition(spawnPosition);
-    velocity.x = LANDER_SPEED;
-    velocity.y = LANDER_SPEED;
-    fireRateClock.restart(); // Initialize the fire rate clock
-}
-
-void Lander::spawn(sf::RenderWindow &window, std::vector<Lander> &landers)
-{
-    Lander lander(playerPosition);
-    lander.shape.setSize(sf::Vector2f(30, 30));
-    lander.shape.setFillColor(sf::Color::Red);
-    lander.shape.setPosition(rand() % (WINDOW_WIDTH - 30), 0);
-    lander.velocity.x = LANDER_SPEED;
-    lander.velocity.y = LANDER_SPEED;
-    lander.isDestroyed() = false;
-    landers.push_back(lander);
-}
-
-sf::Vector2f Lander::getPosition() const
-{
-    return shape.getPosition(); // Return the current position of the lander
-}
-
-// Define the missing variables
-sf::Vector2f playerPosition; // Assuming you have a player position variable
-
-void Lander::move()
-{
-    // Set a constant horizontal velocity for leftward movement
-    if (missileFireTimer.getElapsedTime().asMilliseconds() > MISSILE_INTERVAL)
+    if (!landerTexture.loadFromFile("resources/landerShip.png"))
     {
-        missiles.push_back(Missile(shape.getPosition(), playerPosition)); // Pass the lander's position as initial position
-        missileFireTimer.restart();                                       // Reset the fire rate timer
+        std::cerr << "Failed to load lander texture!" << std::endl;
     }
-    velocity.y = -LANDER_SPEED; // Adjust LANDER_SPEED as needed
-
-    // Update the position of the lander based on its velocity
-    shape.move(velocity);
-
-    // Fire missiles at the specified fire rate
-    // Fire missiles at the specified fire rate towards the player's position
-    if (missileFireTimer.getElapsedTime().asMilliseconds() > MISSILE_INTERVAL)
-    {
-        missiles.push_back(Missile(shape.getPosition(), playerPosition));
-        missileFireTimer.restart(); // Reset the fire rate timer
-    }
-
-    // You can add additional logic here to handle screen boundaries or other behaviors
+    landerSprite.setTexture(landerTexture);
+    landerSprite.setScale(sf::Vector2f(0.1f, 0.1f));
+    // Set the initial position and other properties for the lander
 }
 
-void Lander::draw(sf::RenderWindow &window)
+sf::Vector2f Lander::getVelocity() const
+{
+    return velocity;
+}
+
+void Lander::reset()
+{
+    destroyed = false;
+}
+
+void Lander::update()
 {
     if (!destroyed)
     {
-        window.draw(shape);
+        // Move the lander
+        landerSprite.move(0, LANDER_SPEED); // Adjust the speed as needed
     }
 }
 
-bool &Lander::isDestroyed()
+void Lander::render(sf::RenderWindow &window)
+{
+    // Render the lander on the window
+    if (!destroyed)
+    {
+        window.draw(landerSprite);
+    }
+}
+
+sf::Sprite &Lander::getSprite()
+{
+    return landerSprite;
+}
+
+bool Lander::isDestroyed() const
 {
     return destroyed;
 }
-
-const bool &Lander::isDestroyed() const
+sf::Vector2f Lander::getPosition() const
 {
-    return destroyed;
+    return landerSprite.getPosition();
 }
-
 void Lander::destroy()
 {
     destroyed = true;
+}
+
+void Lander::moveLanderUp()
+{
+    // Move the lander
+    landerSprite.move(0, -2 * LANDER_SPEED); // Adjust the speed as needed
+}
+
+void Lander::attachToHumanoid(Humanoid *humanoid)
+{
+    attachedHumanoid = humanoid;
+}
+
+bool Lander::isAttached() const
+{
+    return attachedHumanoid != nullptr;
+}
+
+void Lander::attachHumanoid(Humanoid *humanoid)
+{
+    abductedHumanoid = humanoid;
+}
+
+bool Lander::isCarryingHumanoid() const
+{
+    return abductedHumanoid != nullptr;
+}
+
+Humanoid* Lander::getAbductedHumanoid() const
+{
+    return abductedHumanoid;
 }
