@@ -21,6 +21,7 @@ public:
     void moveLandersTowardsHumanoids();
 
     void run(sf::RenderWindow &window);
+    float calculateDistance(const sf::Vector2f &point1, const sf::Vector2f &point2);
 
 private:
     // Add these variables to track the nearest humanoid and whether a lander is attached

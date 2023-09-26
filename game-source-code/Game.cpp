@@ -223,6 +223,45 @@ void Game::update()
             humanoids.push_back(newHumanoid);
             spawnHumanoidTimer.restart();
         }
+        for (auto &lander : landers)
+        {
+            if (!lander.isDestroyed() && !lander.isAttached())
+            {
+                // Find the nearest Humanoid for this lander
+                Humanoid *nearestHumanoid = nullptr;
+                float minDistance = std::numeric_limits<float>::max(); // Initialize with a large value
+                const sf::Vector2f landerPos = lander.getPosition();
+
+                for (auto &humanoid : humanoids)
+                {
+                    if (!humanoid.isDestroyed())
+                    {
+                        float dx = humanoid.getPosition().x - landerPos.x;
+                        float dy = humanoid.getPosition().y - landerPos.y;
+                        float distance = std::sqrt(dx * dx + dy * dy);
+
+                        if (distance < minDistance)
+                        {
+                            minDistance = distance;
+                            nearestHumanoid = &humanoid;
+                        }
+                    }
+                }
+
+                if (nearestHumanoid)
+                {
+                    sf::Vector2f targetPosition = nearestHumanoid->getPosition();
+
+                    // Move the lander towards the x-position of the nearest Humanoid
+                    if (landerPos.x != targetPosition.x)
+                    {
+                        lander.moveTowards(sf::Vector2f(targetPosition.x, landerPos.y));
+                    }
+                    // ... handle horizontal alignment if needed ...
+                }
+            }
+        }
+
         if (fuelSpawnTimer.getElapsedTime().asMilliseconds() > FUEL_SPAWN_INTERVAL)
         {
             // Spawn Humanoids
@@ -468,6 +507,13 @@ void Game::render(sf::RenderWindow &window) // Rendering the game shapes and spr
     // Display everything on the window
     window.display();
 }
+
+// float Game::calculateDistance(const sf::Vector2f &point1, const sf::Vector2f &point2)
+// {
+//     float dx = point1.x - point2.x;
+//     float dy = point1.y - point2.y;
+//     return std::sqrt(dx * dx + dy * dy);
+// }
 
 // void Game::moveLandersTowardsHumanoids()
 // {
