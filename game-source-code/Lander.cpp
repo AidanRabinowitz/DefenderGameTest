@@ -134,3 +134,8 @@ Humanoid *Lander::getAttachedHumanoid() const
 {
     return attachedHumanoid;
 }
+
+bool Lander::wasDestroyedByLaser()
+{
+    return destroyed;
+}

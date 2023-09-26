@@ -4,7 +4,7 @@ Game::Game()
     : score(0), highScore(0), gameStarted(false),
       quitConfirmation(false), isSplashScreenVisible(true),
       isPauseScreenVisible(false), isWinScreenVisible(false), isGameOver(false),
-      level(1), previousLevelScore(0), fuelBar(200.0f, 20.0f, 100.f) //, isGamePaused(false)
+      level(1), previousLevelScore(0), fuelBar(200.0f, 20.0f, 100.f), humansKilled(0)
 {
     // Load background texture
     backgroundTexture.loadFromFile("resources/background.jpg");
@@ -33,6 +33,7 @@ void Game::resetGame()
 {
     // Reset player position
     player.setPosition(WINDOW_WIDTH / 2 - 25, WINDOW_HEIGHT - 60);
+    humansKilled = 0; // Reset humansKilled
 
     // Clear the list of landers and missiles
     landers.clear();
@@ -354,7 +355,7 @@ void Game::update()
             {
                 // Move both the lander and the attached humanoid upwards
                 lander.moveLanderUp();
-                lander.getAttachedHumanoid()->moveHumanoidUp();
+                lander.getAttachedHumanoid()->moveHumanoid(-LANDER_SPEED);
 
                 // Check if both lander and humanoid are out of the window bounds
                 if (lander.getPosition().y < -lander.landerSprite.getGlobalBounds().height)
@@ -385,26 +386,8 @@ void Game::update()
                 {
                     sf::Vector2f targetPosition = nearestHumanoid->getPosition();
 
-                    // Check if the lander's x-position is not equal to the humanoid's x-position
-                    if (lander.getPosition().x != targetPosition.x)
-                    {
-                        // Move the lander towards the x-position of the nearest Humanoid
-                        lander.moveTowards(sf::Vector2f(targetPosition.x, lander.getPosition().y));
-                    }
-                    else
-                    {
-                        // If lander is aligned with the humanoid, only move on the x-axis
-                        if (targetPosition.x < lander.getPosition().x)
-                        {
-                            // Move left on the x-axis
-                            lander.moveTowards(sf::Vector2f(targetPosition.x - 1.0f, lander.getPosition().y));
-                        }
-                        else
-                        {
-                            // Move right on the x-axis
-                            lander.moveTowards(sf::Vector2f(targetPosition.x + 1.0f, lander.getPosition().y));
-                        }
-                    }
+                    // Move the lander towards the x-position of the nearest Humanoid
+                    lander.moveTowards(sf::Vector2f(targetPosition.x, lander.getPosition().y));
 
                     // Check if the lander touches the humanoid
                     if (lander.getSprite().getGlobalBounds().intersects(nearestHumanoid->getSprite().getGlobalBounds()))
@@ -412,6 +395,27 @@ void Game::update()
                         lander.attachToHumanoid(nearestHumanoid);
                     }
                 }
+            }
+        }
+        else
+        {
+            // Check if the lander is attached to a humanoid
+            if (lander.isAttached())
+            {
+                // Detach the lander from the humanoid
+                // lander.detachFromHumanoid();
+
+                // Move the attached humanoid using LANDER_SPEED
+                if (lander.getAttachedHumanoid())
+                {
+                    lander.getAttachedHumanoid()->moveHumanoid(LANDER_SPEED);
+                }
+            }
+
+            // Check if the lander is out of bounds and destroy it
+            if (lander.getPosition().y < -lander.landerSprite.getGlobalBounds().height)
+            {
+                lander.destroy();
             }
         }
     }
@@ -431,7 +435,16 @@ void Game::render(sf::RenderWindow &window) // Rendering the game shapes and spr
         {
             humanoid.render(window);
         }
+
+        if (humanoid.getPosition().y > WINDOW_HEIGHT)
+        {
+            // Destroy the humanoid
+            humanoid.destroy();
+        }
     }
+    humansKilled += std::count_if(humanoids.begin(), humanoids.end(), [](const Humanoid &h)
+                                  { return h.isDestroyed(); });
+
     for (auto &fuelCan : fuels)
     {
 
@@ -476,8 +489,17 @@ void Game::render(sf::RenderWindow &window) // Rendering the game shapes and spr
     highScoreText.setPosition(10, 40); // Adjust the vertical position for the high score
     highScoreText.setString("Highscore: " + std::to_string(highScore));
 
+    // Create a Text object for displaying humans killed
+    sf::Text humansKilledText;
+    humansKilledText.setFont(font);
+    humansKilledText.setCharacterSize(24); // Set the character size
+    humansKilledText.setFillColor(sf::Color::White);
+    humansKilledText.setPosition(WINDOW_WIDTH - 250, 10); // Adjust position as needed
+    humansKilledText.setString("Humans Killed: " + std::to_string(humansKilled));
+
     window.draw(scoreText);
     window.draw(highScoreText);
+    window.draw(humansKilledText);
 
     // Display the splash screen
     if (!gameStarted && !isPauseScreenVisible && !isGameOver && !isWinScreenVisible)

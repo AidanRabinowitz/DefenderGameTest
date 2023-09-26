@@ -15,17 +15,22 @@ public:
 
     // Getter function to check if the humanoid is touching something
     bool isTouching(const sf::FloatRect &bounds);
-
+    void fall(float deltaTime, float gravity);
     sf::Sprite humanoidSprite;
     bool isDestroyed() const;
 
     void destroy();
     sf::Vector2f getPosition() const;
     void setPosition(const sf::Vector2f &newPosition);
-    void moveHumanoidUp();
+    void moveHumanoid(float speed);
+    void moveHumanoidDown();
+
     sf::Sprite &getSprite();
+    bool isAttached() const;
+    void setAttached(bool value);
 
 private:
+    bool attached = false;
     sf::Texture humanoidTexture;
     bool destroyed;
     sf::Vector2f position;

@@ -18,10 +18,7 @@ class Game
 {
 public:
     Game();
-    void moveLandersTowardsHumanoids();
-
     void run(sf::RenderWindow &window);
-    float calculateDistance(const sf::Vector2f &point1, const sf::Vector2f &point2);
 
 private:
     // Add these variables to track the nearest humanoid and whether a lander is attached
@@ -29,11 +26,11 @@ private:
     bool isLanderAttached;
     FuelBar fuelBar;
     // Add this function to find the nearest humanoid
-    Humanoid *findNearestHumanoid();
     int previousLevelScore;
     int level;
     int score;
     int highScore;
+    int humansKilled;
     bool gameStarted;
     bool quitConfirmation;
     bool isSplashScreenVisible;

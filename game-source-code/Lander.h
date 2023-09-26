@@ -16,6 +16,7 @@ public:
     sf::Sprite &getSprite();
     void moveLanderUp();
     Humanoid *attachedHumanoid;
+    bool wasDestroyedByLaser();
 
     bool isDestroyed() const;
     sf::Sprite landerSprite;
@@ -27,6 +28,7 @@ public:
     void attachToHumanoid(Humanoid *humanoid); // Attach the Lander to a Humanoid
     bool isAttached() const;                   // Check if the Lander is attached to a Humanoid
     Humanoid *getAttachedHumanoid() const;     // Get the attached Humanoid
+
 private:
     float calculateDistance(const sf::Vector2f &point1, const sf::Vector2f &point2) const;
     sf::Vector2f velocity;
