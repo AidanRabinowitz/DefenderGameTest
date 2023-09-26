@@ -200,6 +200,7 @@ void Game::update()
 {
     if (gameStarted && !isPauseScreenVisible && !isGameOver)
     {
+        // moveLandersTowardsHumanoids();
         if (spawnTimer.getElapsedTime().asMilliseconds() > SPAWN_INTERVAL) // Spawn Landers
         {
             Lander newLander;
@@ -223,45 +224,6 @@ void Game::update()
             humanoids.push_back(newHumanoid);
             spawnHumanoidTimer.restart();
         }
-        for (auto &lander : landers)
-        {
-            if (!lander.isDestroyed() && !lander.isAttached())
-            {
-                // Find the nearest Humanoid for this lander
-                Humanoid *nearestHumanoid = nullptr;
-                float minDistance = std::numeric_limits<float>::max(); // Initialize with a large value
-                const sf::Vector2f landerPos = lander.getPosition();
-
-                for (auto &humanoid : humanoids)
-                {
-                    if (!humanoid.isDestroyed())
-                    {
-                        float dx = humanoid.getPosition().x - landerPos.x;
-                        float dy = humanoid.getPosition().y - landerPos.y;
-                        float distance = std::sqrt(dx * dx + dy * dy);
-
-                        if (distance < minDistance)
-                        {
-                            minDistance = distance;
-                            nearestHumanoid = &humanoid;
-                        }
-                    }
-                }
-
-                if (nearestHumanoid)
-                {
-                    sf::Vector2f targetPosition = nearestHumanoid->getPosition();
-
-                    // Move the lander towards the x-position of the nearest Humanoid
-                    if (landerPos.x != targetPosition.x)
-                    {
-                        lander.moveTowards(sf::Vector2f(targetPosition.x, landerPos.y));
-                    }
-                    // ... handle horizontal alignment if needed ...
-                }
-            }
-        }
-
         if (fuelSpawnTimer.getElapsedTime().asMilliseconds() > FUEL_SPAWN_INTERVAL)
         {
             // Spawn Humanoids
@@ -290,7 +252,6 @@ void Game::update()
                 ++it;
             }
         }
-        // moveLandersTowardsHumanoids();
         fuelBar.setFuel(player.getCurrentFuel());
         // fuelBar.update();
         float deltaTime = frameClock.restart().asSeconds();
@@ -380,6 +341,77 @@ void Game::update()
             {
                 isGameOver = true;
                 break;
+            }
+        }
+    }
+    // Landers should abduct Humanoids
+    for (auto &lander : landers)
+    {
+        if (!lander.isDestroyed())
+        {
+            // Check if the lander is attached to a humanoid
+            if (lander.isAttached())
+            {
+                // Move both the lander and the attached humanoid upwards
+                lander.moveLanderUp();
+                lander.getAttachedHumanoid()->moveHumanoidUp();
+
+                // Check if both lander and humanoid are out of the window bounds
+                if (lander.getPosition().y < -lander.landerSprite.getGlobalBounds().height)
+                {
+                    lander.destroy();
+                }
+            }
+            else
+            {
+                // Find the nearest Humanoid
+                Humanoid *nearestHumanoid = nullptr;
+                float minDistance = std::numeric_limits<float>::max(); // Initialize with a large value
+
+                for (auto &humanoid : humanoids)
+                {
+                    if (!humanoid.isDestroyed())
+                    {
+                        float distance = lander.getDistance(humanoid.getPosition());
+                        if (distance < minDistance)
+                        {
+                            minDistance = distance;
+                            nearestHumanoid = &humanoid;
+                        }
+                    }
+                }
+
+                if (nearestHumanoid)
+                {
+                    sf::Vector2f targetPosition = nearestHumanoid->getPosition();
+
+                    // Check if the lander's x-position is not equal to the humanoid's x-position
+                    if (lander.getPosition().x != targetPosition.x)
+                    {
+                        // Move the lander towards the x-position of the nearest Humanoid
+                        lander.moveTowards(sf::Vector2f(targetPosition.x, lander.getPosition().y));
+                    }
+                    else
+                    {
+                        // If lander is aligned with the humanoid, only move on the x-axis
+                        if (targetPosition.x < lander.getPosition().x)
+                        {
+                            // Move left on the x-axis
+                            lander.moveTowards(sf::Vector2f(targetPosition.x - 1.0f, lander.getPosition().y));
+                        }
+                        else
+                        {
+                            // Move right on the x-axis
+                            lander.moveTowards(sf::Vector2f(targetPosition.x + 1.0f, lander.getPosition().y));
+                        }
+                    }
+
+                    // Check if the lander touches the humanoid
+                    if (lander.getSprite().getGlobalBounds().intersects(nearestHumanoid->getSprite().getGlobalBounds()))
+                    {
+                        lander.attachToHumanoid(nearestHumanoid);
+                    }
+                }
             }
         }
     }
@@ -507,13 +539,6 @@ void Game::render(sf::RenderWindow &window) // Rendering the game shapes and spr
     // Display everything on the window
     window.display();
 }
-
-// float Game::calculateDistance(const sf::Vector2f &point1, const sf::Vector2f &point2)
-// {
-//     float dx = point1.x - point2.x;
-//     float dy = point1.y - point2.y;
-//     return std::sqrt(dx * dx + dy * dy);
-// }
 
 // void Game::moveLandersTowardsHumanoids()
 // {
