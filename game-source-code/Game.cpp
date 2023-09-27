@@ -201,7 +201,7 @@ void Game::update()
 {
     if (gameStarted && !isPauseScreenVisible && !isGameOver)
     {
-        // moveLandersTowardsHumanoids();
+
         if (spawnTimer.getElapsedTime().asMilliseconds() > SPAWN_INTERVAL) // Spawn Landers
         {
             Lander newLander;
@@ -294,6 +294,7 @@ void Game::update()
                 i--;
                 missiles.erase(missiles.begin() + i);
                 i--;
+                landers[i].destroy();
             }
         }
 
@@ -345,6 +346,8 @@ void Game::update()
             }
         }
     }
+    // Check for collision between lasers and humanoids
+
     // Landers should abduct Humanoids
     for (auto &lander : landers)
     {
@@ -380,6 +383,12 @@ void Game::update()
                             nearestHumanoid = &humanoid;
                         }
                     }
+                    if (humanoid.getPosition().y > WINDOW_HEIGHT)
+                    {
+                        // Destroy the humanoid
+                        humanoid.destroy();
+                        // humansKilled++;
+                    }
                 }
 
                 if (nearestHumanoid)
@@ -403,19 +412,50 @@ void Game::update()
             if (lander.isAttached())
             {
                 // Detach the lander from the humanoid
-                // lander.detachFromHumanoid();
-
                 // Move the attached humanoid using LANDER_SPEED
                 if (lander.getAttachedHumanoid())
                 {
                     lander.getAttachedHumanoid()->moveHumanoid(LANDER_SPEED);
                 }
             }
-
-            // Check if the lander is out of bounds and destroy it
-            if (lander.getPosition().y < -lander.landerSprite.getGlobalBounds().height)
+        }
+        // Check if the lander is out of bounds and destroy it
+        if (lander.getPosition().y - 399 > lander.landerSprite.getGlobalBounds().height)
+        {
+            lander.destroy();
+        }
+    }
+    // Check for collision between lasers and landers
+    for (size_t i = 0; i < lasers.size(); i++)
+    {
+        for (size_t j = 0; j < landers.size(); j++)
+        {
+            if (!landers[j].isDestroyed() && lasers[i].shape.getGlobalBounds().intersects(landers[j].getSprite().getGlobalBounds()))
             {
-                lander.destroy();
+                score += 10;
+                landers[j].destroy();
+                lasers.erase(lasers.begin() + i);
+                i--;   // Adjust the index after removal
+                break; // Exit the inner loop when a collision occurs
+            }
+        }
+    }
+
+    // Check for collision between lasers and humanoids
+    for (size_t i = 0; i < lasers.size(); i++)
+    {
+        for (size_t j = 0; j < humanoids.size(); j++)
+        {
+            if (!humanoids[j].isDestroyed() && lasers[i].shape.getGlobalBounds().intersects(humanoids[j].getSprite().getGlobalBounds()))
+            {
+                // Handle the collision logic here (e.g., destroying the humanoid)
+                // Add your logic for scoring or any other actions as needed
+                // You can increment the 'humansKilled' variable here as well
+                humansKilled++;
+                humanoids[j].destroy();
+                lasers.erase(lasers.begin() + i);
+                i--;   // Adjust the index after removal
+                break; // Exit the inner loop when a collision occurs
             }
         }
     }
@@ -435,15 +475,7 @@ void Game::render(sf::RenderWindow &window) // Rendering the game shapes and spr
         {
             humanoid.render(window);
         }
-
-        if (humanoid.getPosition().y > WINDOW_HEIGHT)
-        {
-            // Destroy the humanoid
-            humanoid.destroy();
-        }
     }
-    humansKilled += std::count_if(humanoids.begin(), humanoids.end(), [](const Humanoid &h)
-                                  { return h.isDestroyed(); });
 
     for (auto &fuelCan : fuels)
     {

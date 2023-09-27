@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Laser.h"
 #include <SFML/Graphics.hpp>
 
 class Humanoid
@@ -28,6 +28,7 @@ public:
     sf::Sprite &getSprite();
     bool isAttached() const;
     void setAttached(bool value);
+    bool checkCollisionWithLaser(const Laser &laser) const;
 
 private:
     bool attached = false;

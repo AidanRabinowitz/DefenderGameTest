@@ -48,11 +48,6 @@ bool Humanoid::isDestroyed() const
     return destroyed;
 }
 
-void Humanoid::destroy()
-{
-    destroyed = true;
-}
-
 sf::Vector2f Humanoid::getPosition() const
 {
     return humanoidSprite.getPosition();
@@ -73,6 +68,20 @@ void Humanoid::moveHumanoidDown()
 {
     // Move the lander
     humanoidSprite.move(0, LANDER_SPEED); // Adjust the speed as needed
+}
+
+bool Humanoid::checkCollisionWithLaser(const Laser &laser) const
+{
+    if (!destroyed && laser.isFired())
+    {
+        return humanoidSprite.getGlobalBounds().intersects(laser.shape.getGlobalBounds());
+    }
+    return false;
+}
+
+void Humanoid::destroy()
+{
+    destroyed = true;
 }
 
 sf::Sprite &Humanoid::getSprite()

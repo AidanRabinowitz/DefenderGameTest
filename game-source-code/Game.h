@@ -13,7 +13,8 @@
 #include <limits>
 #include "FuelBar.h"
 #include "Fuels.h"
-// #include
+#include "LanderPool.h"
+
 class Game
 {
 public:
@@ -21,6 +22,7 @@ public:
     void run(sf::RenderWindow &window);
 
 private:
+    // LanderPool landerPool;
     // Add these variables to track the nearest humanoid and whether a lander is attached
     Humanoid *targetHumanoid;
     bool isLanderAttached;
