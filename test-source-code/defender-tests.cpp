@@ -171,8 +171,8 @@ TEST_CASE("Player Fuel Tests")
     SUBCASE("Reset Fuel")
     {
         // Consume some fuel
+        sf::Keyboard::isKeyPressed(sf::Keyboard::W);
         player.consumeFuel(0.5f);
-
         CHECK(player.getCurrentFuel() < 100.0f); // Current fuel should be less than 100.0f
         player.resetCurrentFuel();
         CHECK(player.getCurrentFuel() == doctest::Approx(100.0f)); // After reset, current fuel should be 100.0f
