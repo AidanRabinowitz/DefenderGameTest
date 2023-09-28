@@ -205,3 +205,41 @@ TEST_CASE("FuelBar Class Tests")
         CHECK(fuelBar.getCurrentFuel() == doctest::Approx(100.0f)); // After reset, current fuel should be 100.0f
     }
 }
+
+TEST_CASE("Missile Initialization")
+{
+    sf::Vector2f initialPosition(10.0f, 20.0f);
+    sf::Vector2f targetPosition(50.0f, 60.0f);
+
+    Missile missile(initialPosition, targetPosition);
+
+    SUBCASE("Position and Velocity")
+    {
+        CHECK(missile.shape.getPosition() == initialPosition);
+        CHECK(missile.velocity.x != 0.0f); // Velocity should not be zero
+        CHECK(missile.velocity.y != 0.0f);
+    }
+
+    SUBCASE("Shape")
+    {
+        CHECK(missile.shape.getSize() == sf::Vector2f(3, 15));
+        CHECK(missile.shape.getFillColor() == sf::Color::Red);
+    }
+}
+
+TEST_CASE("Missile Movement")
+{
+    sf::Vector2f initialPosition(10.0f, 20.0f);
+    sf::Vector2f targetPosition(50.0f, 60.0f);
+
+    Missile missile(initialPosition, targetPosition);
+
+    SUBCASE("Move")
+    {
+        sf::Vector2f initialPosition = missile.shape.getPosition();
+        missile.move();
+        sf::Vector2f newPosition = missile.shape.getPosition();
+
+        CHECK(newPosition != initialPosition); // Check if the missile has moved
+    }
+}
