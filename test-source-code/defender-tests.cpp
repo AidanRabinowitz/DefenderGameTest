@@ -205,3 +205,35 @@ TEST_CASE("FuelBar Class Tests")
         CHECK(fuelBar.getCurrentFuel() == doctest::Approx(100.0f)); // After reset, current fuel should be 100.0f
     }
 }
+
+TEST_CASE("Missile Movement Test")
+{
+    // Create a missile with an initial position and target position
+    sf::Vector2f initialPosition(0, 0);
+    sf::Vector2f targetPosition(10, 10);
+    Missile missile(initialPosition, targetPosition);
+
+    SUBCASE("Initial Position and Velocity")
+    {
+        CHECK(missile.shape.getPosition() == initialPosition);
+        CHECK(missile.velocity.x != 0);
+        CHECK(missile.velocity.y != 0);
+    }
+
+    SUBCASE("Move Missile")
+    {
+        // Move the missile and check its new position
+        missile.move();
+        CHECK(missile.shape.getPosition() != initialPosition);
+    }
+
+    SUBCASE("Check Final Position")
+    {
+        // Move the missile to its final position
+        while (missile.shape.getPosition() != targetPosition)
+        {
+            missile.move();
+        }
+        CHECK(missile.shape.getPosition() == targetPosition);
+    }
+}

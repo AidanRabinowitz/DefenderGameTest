@@ -16,7 +16,6 @@ Game::Game()
     }
     // Initialize textures
     landerTexture.loadFromFile("resources/landerShip.png");
-    humanoidTexture.loadFromFile("resources/humanoid.png");
     fuelsTexture.loadFromFile("resources/fuel.png");
     playerTexture.loadFromFile("resources/playerShip.png");
     srand(static_cast<unsigned>(time(0))); // Seed random number generator
@@ -38,7 +37,6 @@ void Game::resetGame()
     landers.clear();
     missiles.clear();
     lasers.clear();
-    humanoids.clear(); // Clear the list of humanoids
     fuelBar.reset();
     player.resetCurrentFuel();
     fuels.clear();
@@ -221,12 +219,13 @@ void Game::update()
                 landers[i].update();
             }
         }
+
         if (fuelSpawnTimer.getElapsedTime().asMilliseconds() > FUEL_SPAWN_INTERVAL)
         {
             // Spawn Fuels
             Fuels fuelCan;
 
-            // Set the humanoid's position to a random location along the X-axis
+            // Set the fuel's position to a random location along the X-axis
             float xPos = static_cast<float>(rand() % static_cast<int>(WINDOW_WIDTH - fuelCan.fuelsSprite.getGlobalBounds().width));
             fuelCan.fuelsSprite.setPosition(sf::Vector2f(xPos, WINDOW_HEIGHT - fuelCan.fuelsSprite.getGlobalBounds().height));
             fuelCan.fuelsSprite.setTexture(fuelsTexture);
@@ -333,14 +332,6 @@ void Game::render(sf::RenderWindow &window) // Rendering the game shapes and spr
     player.render(window);
 
     window.draw(player);
-    // Draw humanoids
-    for (auto &humanoid : humanoids)
-    {
-        if (!humanoid.isDestroyed())
-        {
-            humanoid.render(window);
-        }
-    }
     for (auto &fuelCan : fuels)
     {
 
@@ -368,46 +359,73 @@ void Game::render(sf::RenderWindow &window) // Rendering the game shapes and spr
     }
     // Draw the fuel bar
     fuelBar.render(window);
+    displayScore(window, font, score, highScore);
+    displayScreen(window, font, gameStarted, isPauseScreenVisible, isGameOver, isWinScreenVisible, level);
 
-    // Display and update the score
-    sf::Text scoreText;
+    window.display();
+}
+
+// Function to display a text object
+void Game::drawText(sf::RenderWindow &window, const sf::Text &text)
+{
+    window.draw(text);
+}
+
+// Function to display the score and high score
+void Game::displayScore(sf::RenderWindow &window, sf::Font &font, int score, int highScore)
+{
+    sf::Text scoreText, highScoreText;
     scoreText.setFont(font);
-    scoreText.setCharacterSize(24);
-    scoreText.setFillColor(sf::Color::White);
-    scoreText.setPosition(10, 20);
-    scoreText.setString("Score: " + std::to_string(score)); // Display the score
-
-    // Create a text object for the high score
-    sf::Text highScoreText;
     highScoreText.setFont(font);
+    scoreText.setCharacterSize(24);
     highScoreText.setCharacterSize(24);
+    scoreText.setFillColor(sf::Color::White);
     highScoreText.setFillColor(sf::Color::White);
-    highScoreText.setPosition(10, 40); // Adjust the vertical position for the high score
+    scoreText.setPosition(10, 20);
+    highScoreText.setPosition(10, 40);
+    scoreText.setString("Score: " + std::to_string(score));
     highScoreText.setString("Highscore: " + std::to_string(highScore));
 
-    window.draw(scoreText);
-    window.draw(highScoreText);
+    drawText(window, scoreText);
+    drawText(window, highScoreText);
+}
 
-    // Display the splash screen
+// Function to display different screens
+void Game::displayScreen(sf::RenderWindow &window, sf::Font &font, bool gameStarted, bool isPauseScreenVisible, bool isGameOver, bool isWinScreenVisible, int level)
+{
     if (!gameStarted && !isPauseScreenVisible && !isGameOver && !isWinScreenVisible)
     {
-        sf::Text splashText;
-        splashText.setFont(font);
-        splashText.setCharacterSize(32);
-        splashText.setFillColor(sf::Color::White);
-        splashText.setPosition(200, 200);
-        splashText.setString("Press Space to Start \n "
-                             " \n WASD keys to move \n "
-                             " \n Left mouseclick to fire  \n "
-                             " \n Hover mouse left or right of \n "
-                             " \n player to change direction \n "
-                             " \n esc to pause \n");
+        sf::Text leftColumnText;
 
-        window.draw(splashText);
-        window.draw(highScoreText);
+        leftColumnText.setFont(font);
+        leftColumnText.setCharacterSize(24);
+        leftColumnText.setFillColor(sf::Color::White);
+        leftColumnText.setPosition(100, 200); // Adjust the position as needed
+        leftColumnText.setString("Press Space to Start\n"
+                                 "\n"
+                                 "\n"
+                                 "WASD keys to move\n"
+                                 "\n"
+                                 "\n"
+                                 "Left mouse click to fire");
+        drawText(window, leftColumnText);
+
+        sf::Text rightColumnText;
+
+        rightColumnText.setFont(font);
+        rightColumnText.setCharacterSize(24);
+        rightColumnText.setFillColor(sf::Color::White);
+        rightColumnText.setPosition(390, 200); // Adjust the position as needed
+        rightColumnText.setString("Capture fuel to refill tank\n"
+                                  "\n"
+                                  "\n"
+                                  "Hover mouse left to change direction\n"
+                                  "\n"
+                                  "\n"
+                                  "esc to pause");
+        drawText(window, rightColumnText);
     }
 
-    // Display the pause screen
     if (isPauseScreenVisible)
     {
         sf::Text pauseText;
@@ -417,8 +435,9 @@ void Game::render(sf::RenderWindow &window) // Rendering the game shapes and spr
         pauseText.setPosition(200, 200);
         pauseText.setString("Are you sure you want to quit?\nY for yes, N for no");
 
-        window.draw(pauseText);
+        drawText(window, pauseText);
     }
+
     if (isWinScreenVisible)
     {
         sf::Text winText;
@@ -428,10 +447,9 @@ void Game::render(sf::RenderWindow &window) // Rendering the game shapes and spr
         winText.setPosition(200, 200);
         winText.setString("You killed 10 landers! YOU WIN!\nProceed to level " + std::to_string(level + 1) + "?\nY for yes, N for no");
 
-        window.draw(winText);
+        drawText(window, winText);
     }
 
-    // Display the game over screen
     if (isGameOver)
     {
         sf::Text gameOverText;
@@ -441,10 +459,7 @@ void Game::render(sf::RenderWindow &window) // Rendering the game shapes and spr
         gameOverText.setPosition(200, 200);
         gameOverText.setString("You Died\nPlay again?\nY for yes, N to close the window");
 
-        window.draw(gameOverText);
+        drawText(window, gameOverText);
         resetGame();
     }
-
-    // Display everything on the window
-    window.display();
 }

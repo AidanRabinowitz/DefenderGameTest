@@ -6,7 +6,7 @@ Player::Player()
     playerTexture.loadFromFile("resources/playerShip.png");
     totalFuel = 100.0f;
     currentFuel = 100.0f;
-    fuelConsumptionRate = 10.0f;
+    fuelConsumptionRate = 20.0f;
     playerSprite.setTexture(playerTexture);
     playerSprite.setScale(sf::Vector2f(0.1, 0.1));
     playerSprite.setPosition(WINDOW_WIDTH / 2 - 25, WINDOW_HEIGHT - 60);
@@ -17,7 +17,6 @@ void Player::consumeFuel(float deltaTime)
 {
     if (!descending)
     {
-
         // Check for WASD key presses and consume fuel accordingly
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) ||
             sf::Keyboard::isKeyPressed(sf::Keyboard::A) ||

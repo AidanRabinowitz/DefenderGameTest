@@ -2,7 +2,6 @@
 #define PLAYER_H
 
 #include <SFML/Graphics.hpp>
-#include "Humanoid.h"
 class Player : public sf::Sprite
 {
 public:

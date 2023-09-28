@@ -8,7 +8,6 @@
 #include "Missile.h"
 #include "Laser.h"
 #include "Player.h"
-#include "Humanoid.h"
 #include <cmath>
 #include <limits>
 #include "FuelBar.h"
@@ -20,12 +19,18 @@ public:
     Game();
     void run(sf::RenderWindow &window);
     void spawnLanders();
+    // Function to display a text object
+    void drawText(sf::RenderWindow &window, const sf::Text &text);
+
+    // Function to display the score and high score
+    void displayScore(sf::RenderWindow &window, sf::Font &font, int score, int highScore);
+
+    // Function to display different screens
+    void displayScreen(sf::RenderWindow &window, sf::Font &font, bool gameStarted, bool isPauseScreenVisible, bool isGameOver, bool isWinScreenVisible, int level);
 
 private:
-    Humanoid *targetHumanoid;
     bool isLanderAttached;
     FuelBar fuelBar;
-    Humanoid *findNearestHumanoid();
     int previousLevelScore;
     int level;
     int score;
@@ -37,14 +42,12 @@ private:
     bool isWinScreenVisible;
     bool isGameOver;
     sf::Texture landerTexture;
-    sf::Texture humanoidTexture;
     sf::Texture fuelsTexture;
     sf::Texture backgroundTexture;
     sf::Sprite backgroundSprite;
     Player player;
     sf::Texture playerTexture;
     std::vector<Lander> landers;
-    std::vector<Humanoid> humanoids;
     std::vector<Missile> missiles;
     std::vector<Laser> lasers;
     std::vector<Fuels> fuels;
@@ -60,10 +63,4 @@ private:
     void handleInput(sf::RenderWindow &window);
     void update();
     void render(sf::RenderWindow &window);
-
-    bool landerContact;          // To track if a lander has contacted a humanoid
-    int humanoidsKilled;         // To keep track of how many humanoids have been killed
-    Humanoid *connectedHumanoid; // To store the humanoid connected to a lander or player
-    Lander *connectedLander;     // To store the lander connected to a humanoid
-    bool playerCarryingHumanoid; // To track if the player is carrying a humanoid
 };
