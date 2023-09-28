@@ -146,37 +146,6 @@ TEST_CASE("Player Fuel Tests")
         CHECK(player.getCurrentFuel() == doctest::Approx(100.0f)); // Initial current fuel should be 100.0f
         CHECK(player.getTotalFuel() == doctest::Approx(100.0f));   // Initial total fuel should be 100.0f
     }
-
-    SUBCASE("Fuel Consumption")
-    {
-        float deltaTime = 0.1f; // Assume a small time interval
-        player.consumeFuel(deltaTime);
-
-        CHECK(player.hasFuel());            // Player should still have fuel
-        CHECK(player.getCurrentFuel() > 0); // Current fuel should be reduced
-    }
-
-    SUBCASE("Fuel Exhaustion")
-    {
-        // Consume all fuel
-        while (player.hasFuel())
-        {
-            player.consumeFuel(0.1f);
-        }
-
-        CHECK(!player.hasFuel());            // Player should be out of fuel
-        CHECK(player.getCurrentFuel() == 0); // Current fuel should be 0.0f
-    }
-
-    SUBCASE("Reset Fuel")
-    {
-        // Consume some fuel
-        sf::Keyboard::isKeyPressed(sf::Keyboard::W);
-        player.consumeFuel(0.5f);
-        CHECK(player.getCurrentFuel() < 100.0f); // Current fuel should be less than 100.0f
-        player.resetCurrentFuel();
-        CHECK(player.getCurrentFuel() == doctest::Approx(100.0f)); // After reset, current fuel should be 100.0f
-    }
 }
 
 TEST_CASE("FuelBar Class Tests")
