@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Humanoid.h"
 #include <SFML/Graphics.hpp>
 #include "GameConstants.h" // Include your game constants here
 #include <cmath>
@@ -8,8 +8,9 @@
 class Lander
 {
 public:
-    Lander();
+    Lander(int id, std::vector<Humanoid> &humanoids);
     void moveAndCheckBounds();
+    void setId(int id);
 
     void reset();
     void update();
@@ -21,9 +22,19 @@ public:
     sf::Sprite landerSprite;
     sf::Texture landerTexture;
     void destroy();
+    void releaseHumanoid();
+    bool isCarryingHumanoid() const;
+    Humanoid *carriedHumanoid;
+    void handleLaserDestruction();
+    void resetHumanoids(std::vector<Humanoid> &humanoids);
 
 private:
+    std::vector<Humanoid> &humanoids; // Reference to the humanoids container
+    bool destroyedByLaser;
     sf::Vector2f velocity;
-
+    bool carryingHumanoid;
+    bool onWayToTop;
     bool destroyed;
+    int id;
+    int humansKilled = 0;
 };

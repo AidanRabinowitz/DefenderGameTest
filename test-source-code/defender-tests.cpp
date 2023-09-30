@@ -71,7 +71,8 @@ TEST_CASE("Lander behavior")
 {
     SUBCASE("Lander spawning and movement")
     {
-        Lander lander;
+        std::vector<Humanoid> humanoids;        // Create a vector to hold humanoids
+        Lander lander(1, humanoids);            // Pass an id and the humanoids container
         sf::Vector2f initialPosition(100, 100); // Set your desired initial position
         lander.reset();
         lander.getSprite().setPosition(initialPosition);
@@ -82,18 +83,21 @@ TEST_CASE("Lander behavior")
 
     SUBCASE("Lander destruction")
     {
-        Lander lander;
+        std::vector<Humanoid> humanoids;   // Create a vector to hold humanoids
+        Lander lander(1, humanoids);       // Pass an id and the humanoids container
         CHECK_FALSE(lander.isDestroyed()); // Initially, the lander should not be destroyed
         lander.destroy();
         CHECK(lander.isDestroyed());
     }
 }
+
 TEST_CASE("Collision tests")
 {
     SUBCASE("Laser and Lander collision")
     {
+        std::vector<Humanoid> humanoids; // Create a vector to hold humanoids
         Laser laser;
-        Lander lander;
+        Lander lander(1, humanoids); // Pass an id and the humanoids container
 
         // Set the laser and lander positions to overlap (collision)
         laser.shape.setPosition(100, 100);

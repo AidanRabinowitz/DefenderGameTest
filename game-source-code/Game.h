@@ -12,6 +12,7 @@
 #include <limits>
 #include "FuelBar.h"
 #include "Fuels.h"
+#include "Humanoid.h"
 // #include
 class Game
 {
@@ -29,6 +30,9 @@ public:
     void displayScreen(sf::RenderWindow &window, sf::Font &font, bool gameStarted, bool isPauseScreenVisible, bool isGameOver, bool isWinScreenVisible, int level);
 
 private:
+    static int nextLanderId; // Static variable to track the next available id for Landers
+    std::vector<Humanoid> humanoids;
+    sf::Texture humanoidTexture;
     bool isLanderAttached;
     FuelBar fuelBar;
     int previousLevelScore;
@@ -52,6 +56,7 @@ private:
     std::vector<Laser> lasers;
     std::vector<Fuels> fuels;
     sf::Sprite fuelsSprite;
+    sf::Sprite humanoidSprite;
     sf::Clock spawnTimer;
     sf::Clock spawnHumanoidTimer;
     sf::Clock missileTimer;

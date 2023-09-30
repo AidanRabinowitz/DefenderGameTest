@@ -4,7 +4,7 @@ Game::Game()
     : score(0), highScore(0), gameStarted(false),
       quitConfirmation(false), isSplashScreenVisible(true),
       isPauseScreenVisible(false), isWinScreenVisible(false), isGameOver(false),
-      level(1), previousLevelScore(0), fuelBar(200.0f, 20.0f, 100.f) //, isGamePaused(false)
+      level(1), previousLevelScore(0), fuelBar(200.0f, 20.0f, 100.f)
 {
     // Load background texture
     backgroundTexture.loadFromFile("resources/background.jpg");
@@ -15,10 +15,26 @@ Game::Game()
         std::cout << "Loading font error" << std::endl;
     }
     // Initialize textures
+    // humanoidTexture.loadFromFile("resources/humanoid.png");
+    // humanoidSprite.setTexture(humanoidTexture);
+    // humanoidSprite.setScale(sf::Vector2f(0.1f, 0.1f));
+
     landerTexture.loadFromFile("resources/landerShip.png");
     fuelsTexture.loadFromFile("resources/fuel.png");
-    playerTexture.loadFromFile("resources/playerShip.png");
     srand(static_cast<unsigned>(time(0))); // Seed random number generator
+    for (int i = 0; i < 5; i++)
+    {
+        Humanoid humanoid;
+
+        // Calculate the x position with spacing multiplier
+        float xPos = 100 + static_cast<float>(i * 100);
+
+        // Calculate the y position at the bottom of the window
+        float yPos = static_cast<float>(WINDOW_HEIGHT - 10 - humanoid.humanoidSprite.getGlobalBounds().height);
+
+        humanoid.setPosition(xPos, yPos);
+        humanoids.push_back(humanoid);
+    }
 }
 
 void Game::run(sf::RenderWindow &window)
@@ -193,16 +209,20 @@ void Game::handleInput(sf::RenderWindow &window)
         player.move(0, PLAYER_SPEED);
     }
 }
+int Game::nextLanderId = 1;
 void Game::spawnLanders()
 {
+
     if (spawnTimer.getElapsedTime().asMilliseconds() > SPAWN_INTERVAL)
     {
-        Lander newLander;
+        Lander newLander(nextLanderId, humanoids); // Pass the 'humanoids' container
+
         float xPos = static_cast<float>(rand() % static_cast<int>(WINDOW_WIDTH - newLander.landerSprite.getGlobalBounds().width));
         newLander.landerSprite.setPosition(sf::Vector2f(xPos, -newLander.landerSprite.getGlobalBounds().height));
         newLander.landerSprite.setTexture(landerTexture);
         landers.push_back(newLander);
         spawnTimer.restart();
+        nextLanderId++; // Increment the id for the next Lander
     }
 }
 
@@ -210,6 +230,26 @@ void Game::update()
 {
     if (gameStarted && !isPauseScreenVisible && !isGameOver)
     {
+        // Update the Humanoid objects
+        for (auto &humanoid : humanoids)
+        {
+            humanoid.update();
+        }
+        for (Lander &lander : landers)
+        {
+            lander.update(); // Update lander position and check for destruction
+
+            if (lander.isDestroyed() && lander.isCarryingHumanoid())
+            {
+                // The lander is destroyed and carrying a humanoid, release the humanoid
+                lander.releaseHumanoid();
+            }
+        }
+
+        // Remove destroyed Humanoid objects
+        humanoids.erase(std::remove_if(humanoids.begin(), humanoids.end(), [](const Humanoid &humanoid)
+                                       { return humanoid.isDestroyed(); }),
+                        humanoids.end());
         spawnLanders(); // Call the spawnLanders function
         for (size_t i = 0; i < landers.size(); i++)
         {
@@ -292,10 +332,59 @@ void Game::update()
         {
             for (size_t j = 0; j < landers.size(); j++)
             {
+
                 if (!landers[j].isDestroyed() && lasers[i].shape.getGlobalBounds().intersects(landers[j].getSprite().getGlobalBounds()))
                 {
                     score += 10;
                     landers[j].destroy();
+                    lasers.erase(lasers.begin() + i);
+                    i--;   // Adjust the index after removal
+                    break; // Exit the inner loop when a collision occurs
+                }
+            }
+        }
+        for (size_t i = 0; i < humanoids.size(); i++)
+        {
+            Humanoid &humanoid = humanoids[i];
+
+            // Check if the player touches a humanoid that is not already picked up
+            if (!humanoid.isPickedUpByPlayer() && player.getGlobalBounds().intersects(humanoid.humanoidSprite.getGlobalBounds()))
+            {
+                // Mark the humanoid as picked up by the player
+                humanoid.setPickedUpByPlayer(true);
+
+                humanoid.setPosition(player.getPosition().x, WINDOW_HEIGHT - humanoid.humanoidSprite.getGlobalBounds().height);
+
+                // Break out of the loop since the player can carry only one humanoid at a time
+                break;
+            }
+        }
+        for (size_t i = 0; i < humanoids.size(); i++)
+        {
+            Humanoid &humanoid = humanoids[i];
+
+            // Check if a humanoid is carried by the player and reached the ground
+            if (humanoid.isPickedUpByPlayer() && humanoid.humanoidSprite.getPosition().y >= WINDOW_HEIGHT)
+            {
+                // Reset the humanoid's position
+                humanoid.setPosition(player.getPosition().x, WINDOW_HEIGHT - humanoid.humanoidSprite.getGlobalBounds().height);
+
+                // Mark the humanoid as not picked up by the player
+                humanoid.setPickedUpByPlayer(false);
+            }
+        }
+        // Check for collision between lasers and humanoids
+        for (size_t i = 0; i < lasers.size(); i++)
+        {
+            for (size_t j = 0; j < humanoids.size(); j++)
+            {
+                if (!humanoids[j].isDestroyed() && humanoids[j].checkCollisionWithLaser(lasers[i]))
+                {
+                    // Destroy the humanoid
+                    humanoids[j].destroy();
+                    // Set the humanoid to fall
+                    humanoids[j].setFreeFall(true); // Add this line
+                    // Remove the laser that hit the humanoid
                     lasers.erase(lasers.begin() + i);
                     i--;   // Adjust the index after removal
                     break; // Exit the inner loop when a collision occurs
@@ -330,11 +419,13 @@ void Game::render(sf::RenderWindow &window) // Rendering the game shapes and spr
     window.clear();
     window.draw(backgroundSprite);
     player.render(window);
-
+    for (const auto &humanoid : humanoids)
+    {
+        humanoid.render(window);
+    }
     window.draw(player);
     for (auto &fuelCan : fuels)
     {
-
         fuelCan.render(window);
     }
     // Draw Landers using the render function from Lander
