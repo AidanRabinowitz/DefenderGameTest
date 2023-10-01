@@ -14,19 +14,16 @@ void Lander::reset()
     destroyed = false;
 }
 
-// Lander.cpp
-
 void Lander::update()
 {
     if (!destroyed)
     {
         moveAndCheckBounds();
-        // Check if it's every third Lander
+
         if (id % 1 == 0)
         {
             if (!carryingHumanoid)
             {
-                // Check for collision with Humanoid
                 for (Humanoid &humanoid : humanoids)
                 {
                     if (!humanoid.isCarried() && getSprite().getGlobalBounds().intersects(humanoid.humanoidSprite.getGlobalBounds()))
@@ -34,6 +31,7 @@ void Lander::update()
                         carryingHumanoid = true;
                         carriedHumanoid = &humanoid;
                         carriedHumanoid->setCarried(true);
+                        std::cout << "carried" << std::endl;
                         onWayToTop = true;
                         break;
                     }
@@ -41,29 +39,25 @@ void Lander::update()
             }
             else if (onWayToTop)
             {
-                // Move towards the top with the Humanoid
                 getSprite().move(0, -2 * LANDER_SPEED);
                 carriedHumanoid->humanoidSprite.move(0, -LANDER_SPEED);
 
-                // Check if both Lander and Humanoid are at the top
                 if (getSprite().getPosition().y < 0)
                 {
+                    // Lander is destroyed, set freeFall only for the carried humanoid
                     destroyed = true;
-                    carriedHumanoid->destroy();
-                    carriedHumanoid->setCarried(false);
                     onWayToTop = false;
                     humansKilled++;
+                    carriedHumanoid = nullptr; // Reset the carried humanoid
+                    std::cout << "out of bounds" << std::endl;
                 }
             }
         }
-        else if (destroyed)
-        {
-            // Handle the case when the lander is destroyed
-            carriedHumanoid->setCarried(false);
-            carriedHumanoid->setFreeFall(true);
-
-            carriedHumanoid = nullptr;
-        }
+    }
+    if (destroyed && carriedHumanoid != nullptr)
+    {
+        carriedHumanoid->setFreeFall(true); // Set freeFall for the carried humanoid
+        carriedHumanoid = nullptr;          // Reset the carried humanoid
     }
 }
 

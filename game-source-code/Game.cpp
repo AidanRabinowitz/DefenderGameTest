@@ -15,9 +15,9 @@ Game::Game()
         std::cout << "Loading font error" << std::endl;
     }
     // Initialize textures
-    // humanoidTexture.loadFromFile("resources/humanoid.png");
-    // humanoidSprite.setTexture(humanoidTexture);
-    // humanoidSprite.setScale(sf::Vector2f(0.1f, 0.1f));
+    humanoidTexture.loadFromFile("resources/humanoid.png");
+    humanoidSprite.setTexture(humanoidTexture);
+    humanoidSprite.setScale(sf::Vector2f(0.1f, 0.1f));
 
     landerTexture.loadFromFile("resources/landerShip.png");
     fuelsTexture.loadFromFile("resources/fuel.png");
@@ -343,36 +343,7 @@ void Game::update()
                 }
             }
         }
-        for (size_t i = 0; i < humanoids.size(); i++)
-        {
-            Humanoid &humanoid = humanoids[i];
 
-            // Check if the player touches a humanoid that is not already picked up
-            if (!humanoid.isPickedUpByPlayer() && player.getGlobalBounds().intersects(humanoid.humanoidSprite.getGlobalBounds()))
-            {
-                // Mark the humanoid as picked up by the player
-                humanoid.setPickedUpByPlayer(true);
-
-                humanoid.setPosition(player.getPosition().x, WINDOW_HEIGHT - humanoid.humanoidSprite.getGlobalBounds().height);
-
-                // Break out of the loop since the player can carry only one humanoid at a time
-                break;
-            }
-        }
-        for (size_t i = 0; i < humanoids.size(); i++)
-        {
-            Humanoid &humanoid = humanoids[i];
-
-            // Check if a humanoid is carried by the player and reached the ground
-            if (humanoid.isPickedUpByPlayer() && humanoid.humanoidSprite.getPosition().y >= WINDOW_HEIGHT)
-            {
-                // Reset the humanoid's position
-                humanoid.setPosition(player.getPosition().x, WINDOW_HEIGHT - humanoid.humanoidSprite.getGlobalBounds().height);
-
-                // Mark the humanoid as not picked up by the player
-                humanoid.setPickedUpByPlayer(false);
-            }
-        }
         // Check for collision between lasers and humanoids
         for (size_t i = 0; i < lasers.size(); i++)
         {
@@ -382,8 +353,6 @@ void Game::update()
                 {
                     // Destroy the humanoid
                     humanoids[j].destroy();
-                    // Set the humanoid to fall
-                    humanoids[j].setFreeFall(true); // Add this line
                     // Remove the laser that hit the humanoid
                     lasers.erase(lasers.begin() + i);
                     i--;   // Adjust the index after removal

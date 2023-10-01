@@ -25,8 +25,6 @@ public:
     void releaseHumanoid();
     bool isCarryingHumanoid() const;
     Humanoid *carriedHumanoid;
-    void handleLaserDestruction();
-    void resetHumanoids(std::vector<Humanoid> &humanoids);
 
 private:
     std::vector<Humanoid> &humanoids; // Reference to the humanoids container

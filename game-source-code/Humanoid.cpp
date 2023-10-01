@@ -11,33 +11,20 @@ Humanoid::Humanoid()
     // Set the initial position and other properties for the humanoid
 }
 
-bool Humanoid::isPickedUpByPlayer() const
-{
-    return pickedUpByPlayer;
-}
-
-void Humanoid::setPickedUpByPlayer(bool pickedUp)
-{
-    pickedUpByPlayer = pickedUp;
-}
-
 void Humanoid::render(sf::RenderWindow &window) const
 {
     // Draw the humanoid sprite
     window.draw(humanoidSprite);
 }
-void Humanoid::setFreeFall(bool fallStatus)
-{
-    freeFall = fallStatus;
-}
+
 void Humanoid::update()
 {
+
     if (freeFall)
     {
         // Move the humanoid down (fall)
-        humanoidSprite.move(0, LANDER_SPEED);
+        humanoidSprite.move(0, LANDER_SPEED); // Adjust the speed as needed
     }
-
     // Check if the humanoid is out of bounds (below the screen)
     if (humanoidSprite.getPosition().y > WINDOW_HEIGHT)
     {
@@ -71,4 +58,9 @@ void Humanoid::destroy()
 void Humanoid::setCarried(bool carriedStatus)
 {
     carried = carriedStatus;
+}
+void Humanoid::setFreeFall(bool fallStatus)
+{
+    freeFall = fallStatus;
+    std::cout << "falling" << std::endl;
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include "Laser.h"
 #include <SFML/Graphics.hpp>
-
+#include <iostream>
 class Humanoid
 {
 public:
@@ -18,12 +18,10 @@ public:
     void update();
     bool checkCollisionWithLaser(const Laser &laser) const;
     void setFreeFall(bool fallStatus);
-    bool isPickedUpByPlayer() const;
-    void setPickedUpByPlayer(bool pickedUp);
 
 private:
     bool pickedUpByPlayer;
-
+    bool pickedUpAndDropped;
     bool freeFall = false;
     bool carried;
     bool destroyed;
