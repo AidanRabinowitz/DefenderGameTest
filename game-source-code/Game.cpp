@@ -254,6 +254,11 @@ void Game::update()
                 {
                     humanoid.passengerMovement(0, PLAYER_SPEED);
                 }
+                if (player.getPosition().y >= WINDOW_HEIGHT - 50)
+                {
+                    // Reset the humanoid to its original position
+                    humanoid.reset();
+                }
             }
         }
 

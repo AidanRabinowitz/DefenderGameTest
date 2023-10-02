@@ -22,6 +22,9 @@ public:
     sf::Texture humanoidTexture;
     void passengerMovement(float offsetX, float offsetY);
     bool isTouchingPlayer();
+    void reset();
+    sf::Vector2f originalPosition;
+    int humanoidCounter;
 
 private:
     bool touchingPlayer = false;

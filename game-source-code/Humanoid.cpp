@@ -8,7 +8,26 @@ Humanoid::Humanoid()
     humanoidSprite.setScale(sf::Vector2f(0.1f, 0.1f));
     destroyed = false;
     freeFall = false;
-    // Set the initial position and other properties for the humanoid
+    touchingPlayer = false;
+
+    // Calculate the x position based on the current index
+    float xPos = 100 + static_cast<float>(humanoidCounter * 100);
+
+    // Calculate the y position at the bottom of the window
+    float yPos = static_cast<float>(WINDOW_HEIGHT - 10 - humanoidTexture.getSize().y * 0.1f);
+
+    originalPosition = sf::Vector2f(xPos, yPos);  // Set the original position
+    humanoidSprite.setPosition(originalPosition); // Set the initial position
+
+    humanoidCounter++; // Increment the counter for the next humanoid
+}
+
+void Humanoid::reset()
+{
+    destroyed = false;
+    freeFall = false;
+    touchingPlayer = false;
+    humanoidSprite.setPosition(originalPosition);
 }
 
 void Humanoid::render(sf::RenderWindow &window) const
