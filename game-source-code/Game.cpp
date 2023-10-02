@@ -6,6 +6,7 @@ Game::Game()
       isPauseScreenVisible(false), isWinScreenVisible(false), isGameOver(false),
       level(1), previousLevelScore(0), fuelBar(200.0f, 20.0f, 100.f)
 {
+
     // Load background texture
     backgroundTexture.loadFromFile("resources/background.jpg");
     // Set the background sprite
@@ -18,7 +19,6 @@ Game::Game()
     humanoidTexture.loadFromFile("resources/humanoid.png");
     humanoidSprite.setTexture(humanoidTexture);
     humanoidSprite.setScale(sf::Vector2f(0.1f, 0.1f));
-
     landerTexture.loadFromFile("resources/landerShip.png");
     fuelsTexture.loadFromFile("resources/fuel.png");
     srand(static_cast<unsigned>(time(0))); // Seed random number generator
@@ -233,8 +233,30 @@ void Game::update()
         // Update the Humanoid objects
         for (auto &humanoid : humanoids)
         {
-            humanoid.update();
+            humanoid.update(player.getPosition(), player);
+
+            if (humanoid.isTouchingPlayer())
+            {
+                // Apply passenger movement if touching the player during freefall
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && player.getPosition().x > 0)
+                {
+                    humanoid.passengerMovement(-PLAYER_SPEED, 0);
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && player.getPosition().x < WINDOW_WIDTH - 50)
+                {
+                    humanoid.passengerMovement(PLAYER_SPEED, 0);
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && player.getPosition().y > 0)
+                {
+                    humanoid.passengerMovement(0, -PLAYER_SPEED);
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && player.getPosition().y < WINDOW_HEIGHT - 50)
+                {
+                    humanoid.passengerMovement(0, PLAYER_SPEED);
+                }
+            }
         }
+
         for (Lander &lander : landers)
         {
             lander.update(); // Update lander position and check for destruction
@@ -353,6 +375,8 @@ void Game::update()
                 {
                     // Destroy the humanoid
                     humanoids[j].destroy();
+                    // Set the humanoid to fall
+                    humanoids[j].setFreeFall(true); // Add this line
                     // Remove the laser that hit the humanoid
                     lasers.erase(lasers.begin() + i);
                     i--;   // Adjust the index after removal
@@ -366,7 +390,7 @@ void Game::update()
         {
             if (!landers[i].isDestroyed() && player.getGlobalBounds().intersects(landers[i].landerSprite.getGlobalBounds()))
             {
-                isGameOver = true;
+                isGameOver = false;
                 break;
             }
         }
@@ -376,7 +400,7 @@ void Game::update()
         {
             if (missiles[i].shape.getGlobalBounds().intersects(player.getGlobalBounds()))
             {
-                isGameOver = true;
+                isGameOver = false;
                 break;
             }
         }
@@ -388,7 +412,8 @@ void Game::render(sf::RenderWindow &window) // Rendering the game shapes and spr
     window.clear();
     window.draw(backgroundSprite);
     player.render(window);
-    for (const auto &humanoid : humanoids)
+
+    for (const auto humanoid : humanoids)
     {
         humanoid.render(window);
     }
