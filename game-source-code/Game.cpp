@@ -474,6 +474,7 @@ void Game::render(sf::RenderWindow &window) // Rendering the game shapes and spr
     displayScore(window, font, score, highScore);
     displayScreen(window, font, gameStarted, isPauseScreenVisible, isGameOver, isWinScreenVisible, level);
     displayHumansKilled(window, font, Humanoid::humansKilled);
+    displayLevel(window, font, level);
     window.display();
 }
 
@@ -510,6 +511,19 @@ void Game::displayHumansKilled(sf::RenderWindow &window, sf::Font &font, int hum
     humansKilledText.setFillColor(sf::Color::White);
     humansKilledText.setPosition(WINDOW_WIDTH - 200, 20);
     humansKilledText.setString("Humans Killed: " + std::to_string(Humanoid::humansKilled));
+
+    drawText(window, humansKilledText); // Draw the humansKilledText
+}
+
+void Game::displayLevel(sf::RenderWindow &window, sf::Font &font, int level)
+{
+    // Render Humans Killed counter
+    sf::Text humansKilledText;
+    humansKilledText.setFont(font);
+    humansKilledText.setCharacterSize(24);
+    humansKilledText.setFillColor(sf::Color::White);
+    humansKilledText.setPosition(WINDOW_WIDTH - 200, 60);
+    humansKilledText.setString("Level: " + std::to_string(level));
 
     drawText(window, humansKilledText); // Draw the humansKilledText
 }
