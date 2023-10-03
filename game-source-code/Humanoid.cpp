@@ -9,25 +9,18 @@ Humanoid::Humanoid()
     destroyed = false;
     freeFall = false;
     touchingPlayer = false;
-
-    // Calculate the x position based on the current index
-    float xPos = 100 + static_cast<float>(humanoidCounter * 100);
-
-    // Calculate the y position at the bottom of the window
-    float yPos = static_cast<float>(WINDOW_HEIGHT - 10 - humanoidTexture.getSize().y * 0.1f);
-
-    originalPosition = sf::Vector2f(xPos, yPos);  // Set the original position
-    humanoidSprite.setPosition(originalPosition); // Set the initial position
-
-    humanoidCounter++; // Increment the counter for the next humanoid
 }
 
 void Humanoid::reset()
 {
-    destroyed = false;
+    // Reset the position to the original position defined in the constructor
+    setPosition(originalPosition.x, originalPosition.y);
+
+    // Reset any other flags or properties to their initial state
     freeFall = false;
     touchingPlayer = false;
-    humanoidSprite.setPosition(originalPosition);
+    carried = false;
+    // Reset any other properties as needed
 }
 
 void Humanoid::render(sf::RenderWindow &window) const
@@ -64,6 +57,13 @@ void Humanoid::update(const sf::Vector2f &playerPosition, const Player &player)
 
             // Update the humanoid's position to follow the player
             humanoidSprite.setPosition(player.getPosition() - offset);
+
+            // Check if the humanoid is close to the ground
+            if (humanoidSprite.getPosition().y >= WINDOW_HEIGHT - 5)
+            {
+                // Reset the humanoid to its original position
+                reset();
+            }
         }
         else
         {
@@ -73,10 +73,15 @@ void Humanoid::update(const sf::Vector2f &playerPosition, const Player &player)
     }
 
     // Check if the humanoid is out of bounds (below the screen)
-    if (humanoidSprite.getPosition().y > WINDOW_HEIGHT)
+    if (humanoidSprite.getPosition().y > WINDOW_HEIGHT && !isTouchingPlayer())
     {
         destroy(); // Mark the humanoid as destroyed
     }
+}
+
+void Humanoid::setOriginalPosition(float x, float y)
+{
+    originalPosition = sf::Vector2f(x, y);
 }
 
 bool Humanoid::isDestroyed() const

@@ -44,10 +44,13 @@ void Lander::update()
 
                 if (getSprite().getPosition().y < 0)
                 {
-                    // Lander is destroyed, set freeFall only for the carried humanoid
-                    destroyed = true;
-                    onWayToTop = false;
-                    humansKilled++;
+                    if (!carriedHumanoid->isTouchingPlayer())
+                    {
+                        // Lander is destroyed, set freeFall only for the carried humanoid
+                        destroyed = true;
+                        onWayToTop = false;
+                        humansKilled++;
+                    }
                     carriedHumanoid = nullptr; // Reset the carried humanoid
                     std::cout << "out of bounds" << std::endl;
                 }

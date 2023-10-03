@@ -28,6 +28,7 @@ public:
 
     // Function to display different screens
     void displayScreen(sf::RenderWindow &window, sf::Font &font, bool gameStarted, bool isPauseScreenVisible, bool isGameOver, bool isWinScreenVisible, int level);
+    void createHumanoids();
 
 private:
     static int nextLanderId; // Static variable to track the next available id for Landers
@@ -55,8 +56,6 @@ private:
     std::vector<Missile> missiles;
     std::vector<Laser> lasers;
     std::vector<Fuels> fuels;
-    sf::Sprite fuelsSprite;
-    sf::Sprite humanoidSprite;
     sf::Clock spawnTimer;
     sf::Clock spawnHumanoidTimer;
     sf::Clock missileTimer;

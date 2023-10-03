@@ -25,6 +25,7 @@ public:
     void reset();
     sf::Vector2f originalPosition;
     int humanoidCounter;
+    void setOriginalPosition(float x, float y);
 
 private:
     bool touchingPlayer = false;

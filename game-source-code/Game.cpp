@@ -16,9 +16,10 @@ Game::Game()
         std::cout << "Loading font error" << std::endl;
     }
     // Initialize textures
-    humanoidTexture.loadFromFile("resources/humanoid.png");
-    humanoidSprite.setTexture(humanoidTexture);
-    humanoidSprite.setScale(sf::Vector2f(0.1f, 0.1f));
+    if (!humanoidTexture.loadFromFile("resources/humanoid.png"))
+    {
+        std::cout << "Loading humanoid.png error" << std::endl;
+    }
     landerTexture.loadFromFile("resources/landerShip.png");
     fuelsTexture.loadFromFile("resources/fuel.png");
     srand(static_cast<unsigned>(time(0))); // Seed random number generator
@@ -31,7 +32,7 @@ Game::Game()
 
         // Calculate the y position at the bottom of the window
         float yPos = static_cast<float>(WINDOW_HEIGHT - 10 - humanoid.humanoidSprite.getGlobalBounds().height);
-
+        humanoid.setOriginalPosition(xPos, yPos); // Store the original position
         humanoid.setPosition(xPos, yPos);
         humanoids.push_back(humanoid);
     }
@@ -56,6 +57,11 @@ void Game::resetGame()
     fuelBar.reset();
     player.resetCurrentFuel();
     fuels.clear();
+    // Reset all the humanoid objects in the vector
+    for (auto &humanoid : humanoids)
+    {
+        humanoid.reset();
+    }
 }
 
 void Game::handleInput(sf::RenderWindow &window)
@@ -381,7 +387,6 @@ void Game::update()
                     // Destroy the humanoid
                     humanoids[j].destroy();
                     // Set the humanoid to fall
-                    humanoids[j].setFreeFall(true); // Add this line
                     // Remove the laser that hit the humanoid
                     lasers.erase(lasers.begin() + i);
                     i--;   // Adjust the index after removal
@@ -418,10 +423,11 @@ void Game::render(sf::RenderWindow &window) // Rendering the game shapes and spr
     window.draw(backgroundSprite);
     player.render(window);
 
-    for (const auto humanoid : humanoids)
+    for (auto &humanoid : humanoids)
     {
         humanoid.render(window);
     }
+
     window.draw(player);
     for (auto &fuelCan : fuels)
     {
