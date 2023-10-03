@@ -8,6 +8,7 @@ Lander::Lander(int id, std::vector<Humanoid> &humanoids)
     landerSprite.setScale(sf::Vector2f(0.1f, 0.1f));
     velocity = sf::Vector2f(0.0f, 0.0f);
 }
+int Humanoid::humansKilled = 0; // Initialize the static variable
 
 void Lander::reset()
 {
@@ -49,7 +50,7 @@ void Lander::update()
                         // Lander is destroyed, set freeFall only for the carried humanoid
                         destroyed = true;
                         onWayToTop = false;
-                        humansKilled++;
+                        carriedHumanoid->destroy();
                     }
                     carriedHumanoid = nullptr; // Reset the carried humanoid
                     std::cout << "out of bounds" << std::endl;

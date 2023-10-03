@@ -34,5 +34,4 @@ private:
     bool onWayToTop;
     bool destroyed;
     int id;
-    int humansKilled = 0;
 };

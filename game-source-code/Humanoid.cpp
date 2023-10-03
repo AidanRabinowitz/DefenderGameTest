@@ -1,5 +1,6 @@
 #include "humanoid.h"
 #include "GameConstants.h"
+
 Humanoid::Humanoid()
 {
     // Initialize 'destroyed' to false
@@ -9,6 +10,7 @@ Humanoid::Humanoid()
     destroyed = false;
     freeFall = false;
     touchingPlayer = false;
+    humansKilled = 0;
 }
 
 void Humanoid::reset()
@@ -105,6 +107,7 @@ bool Humanoid::isCarried() const
 void Humanoid::destroy()
 {
     // Implement the destruction logic here
+    humansKilled++;
     destroyed = true;
 }
 void Humanoid::setCarried(bool carriedStatus)

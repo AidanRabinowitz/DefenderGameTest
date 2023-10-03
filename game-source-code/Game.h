@@ -29,6 +29,8 @@ public:
     // Function to display different screens
     void displayScreen(sf::RenderWindow &window, sf::Font &font, bool gameStarted, bool isPauseScreenVisible, bool isGameOver, bool isWinScreenVisible, int level);
     void createHumanoids();
+    int humansKilled = 0; // Initialize the number of humans killed in the start to 0
+    void displayHumansKilled(sf::RenderWindow &window, sf::Font &font, int humansKilled);
 
 private:
     static int nextLanderId; // Static variable to track the next available id for Landers

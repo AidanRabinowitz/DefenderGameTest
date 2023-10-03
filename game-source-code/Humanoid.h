@@ -7,10 +7,11 @@ class Humanoid
 {
 public:
     Humanoid();
+    static int humansKilled; // Declare humans killed as static
+
     void render(sf::RenderWindow &window) const;
     sf::Sprite humanoidSprite;
     void setPosition(float x, float y);
-    int humansKilled;
     bool isCarried() const;
     void setCarried(bool carriedStatus);
     void destroy();

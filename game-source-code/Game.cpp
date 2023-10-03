@@ -4,7 +4,7 @@ Game::Game()
     : score(0), highScore(0), gameStarted(false),
       quitConfirmation(false), isSplashScreenVisible(true),
       isPauseScreenVisible(false), isWinScreenVisible(false), isGameOver(false),
-      level(1), previousLevelScore(0), fuelBar(200.0f, 20.0f, 100.f)
+      level(1), previousLevelScore(0), fuelBar(200.0f, 20.0f, 100.f), humansKilled(0)
 {
 
     // Load background texture
@@ -20,22 +20,23 @@ Game::Game()
     {
         std::cout << "Loading humanoid.png error" << std::endl;
     }
+
     landerTexture.loadFromFile("resources/landerShip.png");
     fuelsTexture.loadFromFile("resources/fuel.png");
-    srand(static_cast<unsigned>(time(0))); // Seed random number generator
-    for (int i = 0; i < 5; i++)
-    {
-        Humanoid humanoid;
+    // for (int i = 0; i < 5; i++)
+    // {
+    //     Humanoid humanoid;
 
-        // Calculate the x position with spacing multiplier
-        float xPos = 100 + static_cast<float>(i * 100);
-
-        // Calculate the y position at the bottom of the window
-        float yPos = static_cast<float>(WINDOW_HEIGHT - 10 - humanoid.humanoidSprite.getGlobalBounds().height);
-        humanoid.setOriginalPosition(xPos, yPos); // Store the original position
-        humanoid.setPosition(xPos, yPos);
-        humanoids.push_back(humanoid);
-    }
+    //     // Calculate the x position with spacing multiplier
+    //     float xPos = 100 + static_cast<float>(i * 100);
+    //     humanoid.humanoidSprite.setTexture(humanoidTexture);
+    //     // Calculate the y position at the bottom of the window
+    //     float yPos = static_cast<float>(WINDOW_HEIGHT - 10 - humanoid.humanoidSprite.getGlobalBounds().height);
+    //     humanoid.setOriginalPosition(xPos, yPos); // Store the original position
+    //     humanoid.setPosition(xPos, yPos);
+    //     humanoids.push_back(humanoid);
+    // }
+    createHumanoids();
 }
 
 void Game::run(sf::RenderWindow &window)
@@ -58,9 +59,25 @@ void Game::resetGame()
     player.resetCurrentFuel();
     fuels.clear();
     // Reset all the humanoid objects in the vector
-    for (auto &humanoid : humanoids)
+    humanoids.clear();
+    createHumanoids();
+}
+
+void Game::createHumanoids()
+{
+    for (int i = 0; i < 5; i++)
     {
-        humanoid.reset();
+        Humanoid humanoid;
+
+        // Calculate the x position with spacing multiplier
+        float xPos = 100 + static_cast<float>(i * 100);
+        humanoid.humanoidSprite.setTexture(humanoidTexture);
+
+        // Calculate the y position at the bottom of the window
+        float yPos = static_cast<float>(WINDOW_HEIGHT - 10 - humanoid.humanoidSprite.getGlobalBounds().height);
+        humanoid.setOriginalPosition(xPos, yPos); // Store the original position
+        humanoid.setPosition(xPos, yPos);
+        humanoids.push_back(humanoid);
     }
 }
 
@@ -386,7 +403,6 @@ void Game::update()
                 {
                     // Destroy the humanoid
                     humanoids[j].destroy();
-                    // Set the humanoid to fall
                     // Remove the laser that hit the humanoid
                     lasers.erase(lasers.begin() + i);
                     i--;   // Adjust the index after removal
@@ -400,7 +416,7 @@ void Game::update()
         {
             if (!landers[i].isDestroyed() && player.getGlobalBounds().intersects(landers[i].landerSprite.getGlobalBounds()))
             {
-                isGameOver = false;
+                isGameOver = true;
                 break;
             }
         }
@@ -410,7 +426,7 @@ void Game::update()
         {
             if (missiles[i].shape.getGlobalBounds().intersects(player.getGlobalBounds()))
             {
-                isGameOver = false;
+                isGameOver = true;
                 break;
             }
         }
@@ -457,7 +473,7 @@ void Game::render(sf::RenderWindow &window) // Rendering the game shapes and spr
     fuelBar.render(window);
     displayScore(window, font, score, highScore);
     displayScreen(window, font, gameStarted, isPauseScreenVisible, isGameOver, isWinScreenVisible, level);
-
+    displayHumansKilled(window, font, Humanoid::humansKilled);
     window.display();
 }
 
@@ -484,6 +500,18 @@ void Game::displayScore(sf::RenderWindow &window, sf::Font &font, int score, int
 
     drawText(window, scoreText);
     drawText(window, highScoreText);
+}
+void Game::displayHumansKilled(sf::RenderWindow &window, sf::Font &font, int humansKilled)
+{
+    // Render Humans Killed counter
+    sf::Text humansKilledText;
+    humansKilledText.setFont(font);
+    humansKilledText.setCharacterSize(24);
+    humansKilledText.setFillColor(sf::Color::White);
+    humansKilledText.setPosition(WINDOW_WIDTH - 200, 20);
+    humansKilledText.setString("Humans Killed: " + std::to_string(Humanoid::humansKilled));
+
+    drawText(window, humansKilledText); // Draw the humansKilledText
 }
 
 // Function to display different screens
