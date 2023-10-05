@@ -13,7 +13,7 @@
 #include "FuelBar.h"
 #include "Fuels.h"
 #include "Humanoid.h"
-// #include
+#include "ScreenManager.h"
 class Game : public GameEntity
 {
 public:
@@ -59,6 +59,7 @@ private:
     std::vector<Missile> missiles;
     std::vector<Laser> lasers;
     std::vector<Fuels> fuels;
+    std::shared_ptr<ScreenManager> screenManager; 
     sf::Clock spawnTimer;
     sf::Clock spawnHumanoidTimer;
     sf::Clock missileTimer;

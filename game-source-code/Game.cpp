@@ -1,5 +1,6 @@
 #include "game.h"
 #include "GameEntity.h"
+#include "ScreenManager.h"
 #include <iostream>
 Game::Game()
     : score(0), highScore(0), gameStarted(false),
@@ -25,14 +26,35 @@ Game::Game()
     landerTexture.loadFromFile("resources/landerShip.png");
     fuelsTexture.loadFromFile("resources/fuel.png");
     createHumanoids();
+
+      // Initialize the ScreenManager
+    screenManager = std::make_shared<ScreenManager>();
+    screenManager->setCurrentScreen(GameState::SplashScreen);
 }
 
 void Game::run(sf::RenderWindow &window)
 {
-    handleInput(window);
-    update(window);
-    render(window);
+    //handleInput(window);
+    //update(window);
+    //render(window);
+   while (window.isOpen()) {
+        handleInput(window);
+        update(window);
+
+        // Render the current screen using the ScreenManager
+        screenManager->render(window);
+
+        window.display();
+
+        if (screenManager->getCurrentScreen() == GameState::GameOver) {
+            resetGame();
+        }
+        else if (screenManager->getCurrentScreen() == GameState::ExitScreen) {
+            window.close();
+        }
+    }
 }
+
 
 void Game::resetGame()
 {
@@ -65,120 +87,85 @@ void Game::createHumanoids()
     }
 }
 
-void Game::handleInput(sf::RenderWindow &window)
-{
+void Game::handleInput(sf::RenderWindow &window) {
     sf::Event event;
     sf::Vector2f mousePosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-    sf::Vector2f playerCenter = player.getPosition() + sf::Vector2f(player.getGlobalBounds().width / 2, player.getGlobalBounds().height / 2);
-    sf::Vector2f rightScale(0.1f, 0.1f); // Set scale factors for X and Y uniformly
-    sf::Vector2f leftScale(-0.1f, 0.1f); // Swap direction
-    if (mousePosition.x > playerCenter.x)
-    {
-        player.setScale(rightScale); // Fire laser to the right
-    }
-    else
-    {
-        player.setScale(leftScale); // Flip horizontally by setting X scale to negative
-    }
-    if (!gameStarted && !isPauseScreenVisible && !isGameOver && !isWinScreenVisible)
-    {
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
-        {
-            gameStarted = true;
+
+    // Handle input based on the current game state
+    if (screenManager->getCurrentScreen() == GameState::SplashScreen) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {
+            screenManager->setCurrentScreen(GameState::Gameplay);
             isSplashScreenVisible = false;
             score = 0; // Reset the score when the game starts
         }
-    }
-    else if (gameStarted && !isPauseScreenVisible && !isGameOver && !isWinScreenVisible)
-    {
+    } else if (screenManager->getCurrentScreen() == GameState::Gameplay) {
         int oldScore = score; // Check if the player has won, ending the game, unless another level is chosen.
 
-        if (score >= previousLevelScore + 100)
-        {
-            isWinScreenVisible = true;
+        if (score >= previousLevelScore + 100) {
+            screenManager->setCurrentScreen(GameState::WinScreen);
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
-        {
-            isPauseScreenVisible = true;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) {
+            screenManager->setCurrentScreen(GameState::PauseScreen);
         }
-    }
-    else if (isPauseScreenVisible)
-    {
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Y))
-        {
+    } else if (screenManager->getCurrentScreen() == GameState::PauseScreen) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Y)) {
+            screenManager->setCurrentScreen(GameState::Gameplay);
             isPauseScreenVisible = false;
             gameStarted = false;
-            if (score > highScore)
-            {
+            if (score > highScore) {
                 highScore = score; // Save the highscore
             }
             score = 0;
             resetGame();
-        }
-        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::N))
-        {
+        } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::N)) {
+            screenManager->setCurrentScreen(GameState::Gameplay);
             isPauseScreenVisible = false;
         }
-    }
-    // Handle input for game over screen
-    else if (isWinScreenVisible)
-    {
+    } else if (screenManager->getCurrentScreen() == GameState::WinScreen) {
         gameStarted = false;
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Y)) // Continue the next level
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Y)) // Continue to the next level
         {
-            isWinScreenVisible = false;
-            gameStarted = true;
             level++;
             previousLevelScore = score;
-            gameStarted = true;
-        }
-        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::N)) // Restart a new game
-
+            screenManager->setCurrentScreen(GameState::Gameplay);
+        } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::N)) // Restart a new game
         {
-            isWinScreenVisible = false;
-            isSplashScreenVisible = true;
+            screenManager->setCurrentScreen(GameState::SplashScreen);
             resetGame();
             score = 0;
             previousLevelScore = 0;
             level = 1;
         }
-    }
-    else if (isGameOver)
-    {
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Y))
-        {
+    } else if (screenManager->getCurrentScreen() == GameState::GameOver) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Y)) {
+            screenManager->setCurrentScreen(GameState::Gameplay);
             isGameOver = false;
             gameStarted = true;
             isSplashScreenVisible = false;
-            if (score > highScore)
-            {
+            if (score > highScore) {
                 highScore = score;
             }
             score = 0;
             previousLevelScore = 0;
             level = 1;
             resetGame();
-        }
-        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::N))
-        {
+        } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::N)) {
+            screenManager->setCurrentScreen(GameState::SplashScreen);
             gameStarted = false;
             isSplashScreenVisible = true;
             resetGame();
             window.close();
         }
     }
-    while (window.pollEvent(event))
-    {
-        if (event.type == sf::Event::Closed)
-        {
+
+    while (window.pollEvent(event)) {
+        if (event.type == sf::Event::Closed) {
             window.close();
         }
-        if (event.type == sf::Event::MouseButtonPressed)
-        {
-            if (event.mouseButton.button == sf::Mouse::Left)
-            {
+        if (event.type == sf::Event::MouseButtonPressed) {
+            if (event.mouseButton.button == sf::Mouse::Left) {
                 Laser laser;
                 laser.fire(player.getPosition(), mousePosition);
                 lasers.push_back(laser);
@@ -205,7 +192,9 @@ void Game::spawnLanders()
 
 void Game::update(sf::RenderWindow &window)
 {
-    if (gameStarted && !isPauseScreenVisible && !isGameOver)
+    // Update based on the current game state
+    if (screenManager->getCurrentScreen() == GameState::Gameplay)
+
     {
         // Update the Humanoid objects
         for (auto &humanoid : humanoids)
@@ -213,8 +202,9 @@ void Game::update(sf::RenderWindow &window)
             humanoid.update(player.getPosition(), player, window);
             if (humanoid.humansKilled >= 5)
             {
-                isGameOver = true; // Set isGameOver to true when humansKilled reaches 5
-                break;             // Exit the loop since the game is over
+                //ScreenManager screenManager; // Create an instance of ScreenManager
+                screenManager->setGameState(GameState::GameOver); // Set to game over state when humansKilled reaches 5
+                break; // Exit the loop since the game is over
             }
         }
 
@@ -279,7 +269,7 @@ void Game::update(sf::RenderWindow &window)
         {
             player.move(0.0f, 4.0f);
             if (player.getPosition().y > WINDOW_HEIGHT - 60)
-                isGameOver = true;
+                screenManager->setGameState(GameState::GameOver);
         }
 
         // Fire Missiles from Landers towards the player's ship after the desired interval
@@ -321,7 +311,7 @@ void Game::update(sf::RenderWindow &window)
                     score += 10;
                     landers[j].destroy();
                     lasers.erase(lasers.begin() + i);
-                    i--;   // Adjust the index after removal
+                    i--; // Adjust the index after removal
                     break; // Exit the inner loop when a collision occurs
                 }
             }
@@ -338,7 +328,7 @@ void Game::update(sf::RenderWindow &window)
                     humanoids[j].destroy();
                     // Remove the laser that hit the humanoid
                     lasers.erase(lasers.begin() + i);
-                    i--;   // Adjust the index after removal
+                    i--; // Adjust the index after removal
                     break; // Exit the inner loop when a collision occurs
                 }
             }
@@ -349,7 +339,7 @@ void Game::update(sf::RenderWindow &window)
         {
             if (!landers[i].isDestroyed() && player.getGlobalBounds().intersects(landers[i].sprite.getGlobalBounds()))
             {
-                isGameOver = true;
+                 screenManager->setGameState(GameState::GameOver);
                 break;
             }
         }
@@ -359,12 +349,13 @@ void Game::update(sf::RenderWindow &window)
         {
             if (missiles[i].shape.getGlobalBounds().intersects(player.getGlobalBounds()))
             {
-                isGameOver = true;
+                 screenManager->setGameState(GameState::GameOver);
                 break;
             }
         }
     }
 }
+
 
 void Game::render(sf::RenderWindow &window) // Rendering the game shapes and sprites
 {
@@ -461,76 +452,76 @@ void Game::displayLevel(sf::RenderWindow &window, sf::Font &font, int level)
     drawText(window, humansKilledText); // Draw the humansKilledText
 }
 
-// Function to display different screens
-void Game::displayScreen(sf::RenderWindow &window, sf::Font &font, bool gameStarted, bool isPauseScreenVisible, bool isGameOver, bool isWinScreenVisible, int level)
-{
-    if (!gameStarted && !isPauseScreenVisible && !isGameOver && !isWinScreenVisible)
-    {
-        sf::Text leftColumnText;
+// // Function to display different screens
+// void Game::displayScreen(sf::RenderWindow &window, sf::Font &font, bool gameStarted, bool isPauseScreenVisible, bool isGameOver, bool isWinScreenVisible, int level)
+// {
+//     if (!gameStarted && !isPauseScreenVisible && !isGameOver && !isWinScreenVisible)
+//     {
+//         sf::Text leftColumnText;
 
-        leftColumnText.setFont(font);
-        leftColumnText.setCharacterSize(24);
-        leftColumnText.setFillColor(sf::Color::White);
-        leftColumnText.setPosition(100, 200); // Adjust the position as needed
-        leftColumnText.setString("Press Space to Start\n"
-                                 "\n"
-                                 "\n"
-                                 "WASD keys to move\n"
-                                 "\n"
-                                 "\n"
-                                 "Left mouse click to fire");
-        drawText(window, leftColumnText);
+//         leftColumnText.setFont(font);
+//         leftColumnText.setCharacterSize(24);
+//         leftColumnText.setFillColor(sf::Color::White);
+//         leftColumnText.setPosition(100, 200); // Adjust the position as needed
+//         leftColumnText.setString("Press Space to Start\n"
+//                                  "\n"
+//                                  "\n"
+//                                  "WASD keys to move\n"
+//                                  "\n"
+//                                  "\n"
+//                                  "Left mouse click to fire");
+//         drawText(window, leftColumnText);
 
-        sf::Text rightColumnText;
+//         sf::Text rightColumnText;
 
-        rightColumnText.setFont(font);
-        rightColumnText.setCharacterSize(24);
-        rightColumnText.setFillColor(sf::Color::White);
-        rightColumnText.setPosition(390, 200); // Adjust the position as needed
-        rightColumnText.setString("Capture fuel to refill tank\n"
-                                  "\n"
-                                  "\n"
-                                  "Hover mouse left to change direction\n"
-                                  "\n"
-                                  "\n"
-                                  "esc to pause");
-        drawText(window, rightColumnText);
-    }
+//         rightColumnText.setFont(font);
+//         rightColumnText.setCharacterSize(24);
+//         rightColumnText.setFillColor(sf::Color::White);
+//         rightColumnText.setPosition(390, 200); // Adjust the position as needed
+//         rightColumnText.setString("Capture fuel to refill tank\n"
+//                                   "\n"
+//                                   "\n"
+//                                   "Hover mouse left to change direction\n"
+//                                   "\n"
+//                                   "\n"
+//                                   "esc to pause");
+//         drawText(window, rightColumnText);
+//     }
 
-    if (isPauseScreenVisible)
-    {
-        sf::Text pauseText;
-        pauseText.setFont(font);
-        pauseText.setCharacterSize(32);
-        pauseText.setFillColor(sf::Color::White);
-        pauseText.setPosition(200, 200);
-        pauseText.setString("Are you sure you want to quit?\nY for yes, N for no");
+//     if (isPauseScreenVisible)
+//     {
+//         sf::Text pauseText;
+//         pauseText.setFont(font);
+//         pauseText.setCharacterSize(32);
+//         pauseText.setFillColor(sf::Color::White);
+//         pauseText.setPosition(200, 200);
+//         pauseText.setString("Are you sure you want to quit?\nY for yes, N for no");
 
-        drawText(window, pauseText);
-    }
+//         drawText(window, pauseText);
+//     }
 
-    if (isWinScreenVisible)
-    {
-        sf::Text winText;
-        winText.setFont(font);
-        winText.setCharacterSize(32);
-        winText.setFillColor(sf::Color::White);
-        winText.setPosition(200, 200);
-        winText.setString("You killed 10 landers! YOU WIN!\nProceed to level " + std::to_string(level + 1) + "?\nY for yes, N for no");
+//     if (isWinScreenVisible)
+//     {
+//         sf::Text winText;
+//         winText.setFont(font);
+//         winText.setCharacterSize(32);
+//         winText.setFillColor(sf::Color::White);
+//         winText.setPosition(200, 200);
+//         winText.setString("You killed 10 landers! YOU WIN!\nProceed to level " + std::to_string(level + 1) + "?\nY for yes, N for no");
 
-        drawText(window, winText);
-    }
+//         drawText(window, winText);
+//     }
 
-    if (isGameOver)
-    {
-        sf::Text gameOverText;
-        gameOverText.setFont(font);
-        gameOverText.setCharacterSize(32);
-        gameOverText.setFillColor(sf::Color::Red);
-        gameOverText.setPosition(200, 200);
-        gameOverText.setString("You Died\nPlay again?\nY for yes, N to close the window");
+//     if (isGameOver)
+//     {
+//         sf::Text gameOverText;
+//         gameOverText.setFont(font);
+//         gameOverText.setCharacterSize(32);
+//         gameOverText.setFillColor(sf::Color::Red);
+//         gameOverText.setPosition(200, 200);
+//         gameOverText.setString("You Died\nPlay again?\nY for yes, N to close the window");
 
-        drawText(window, gameOverText);
-        resetGame();
-    }
-}
+//         drawText(window, gameOverText);
+//         resetGame();
+//     }
+// }
