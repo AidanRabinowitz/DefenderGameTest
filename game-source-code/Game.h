@@ -14,7 +14,7 @@
 #include "Fuels.h"
 #include "Humanoid.h"
 // #include
-class Game
+class Game : public GameEntity
 {
 public:
     Game();
@@ -52,9 +52,9 @@ private:
     sf::Texture landerTexture;
     sf::Texture fuelsTexture;
     sf::Texture backgroundTexture;
+    sf::Texture playerTexture;
     sf::Sprite backgroundSprite;
     Player player;
-    sf::Texture playerTexture;
     std::vector<Lander> landers;
     std::vector<Missile> missiles;
     std::vector<Laser> lasers;
@@ -62,12 +62,12 @@ private:
     sf::Clock spawnTimer;
     sf::Clock spawnHumanoidTimer;
     sf::Clock missileTimer;
-    sf::Clock frameClock; // Add this line to declare frameClock
+    sf::Clock frameClock;
     sf::Clock fuelSpawnTimer;
 
     sf::Font font;
     void resetGame();
     void handleInput(sf::RenderWindow &window);
-    void update();
+    void update(sf::RenderWindow &window);
     void render(sf::RenderWindow &window);
 };

@@ -1,4 +1,5 @@
 #include "game.h"
+#include "GameEntity.h"
 #include <iostream>
 Game::Game()
     : score(0), highScore(0), gameStarted(false),
@@ -23,44 +24,29 @@ Game::Game()
 
     landerTexture.loadFromFile("resources/landerShip.png");
     fuelsTexture.loadFromFile("resources/fuel.png");
-    // for (int i = 0; i < 5; i++)
-    // {
-    //     Humanoid humanoid;
-
-    //     // Calculate the x position with spacing multiplier
-    //     float xPos = 100 + static_cast<float>(i * 100);
-    //     humanoid.humanoidSprite.setTexture(humanoidTexture);
-    //     // Calculate the y position at the bottom of the window
-    //     float yPos = static_cast<float>(WINDOW_HEIGHT - 10 - humanoid.humanoidSprite.getGlobalBounds().height);
-    //     humanoid.setOriginalPosition(xPos, yPos); // Store the original position
-    //     humanoid.setPosition(xPos, yPos);
-    //     humanoids.push_back(humanoid);
-    // }
     createHumanoids();
 }
 
 void Game::run(sf::RenderWindow &window)
 {
     handleInput(window);
-    update();
+    update(window);
     render(window);
 }
 
 void Game::resetGame()
 {
-    // Reset player position
+    // Reset player position and fuel
     player.setPosition(WINDOW_WIDTH / 2 - 25, WINDOW_HEIGHT - 60);
-
-    // Clear the list of landers and missiles
+    player.resetCurrentFuel();
+    // Clear the arrays of players and missiles and landers and fuels and humanoids on the window
     landers.clear();
     missiles.clear();
     lasers.clear();
     fuelBar.reset();
-    player.resetCurrentFuel();
     fuels.clear();
-    // Reset all the humanoid objects in the vector
-    humanoids.clear();
-    createHumanoids();
+    humanoids.clear(); // Reset all the humanoid objects in the vector
+    createHumanoids(); // Re-create  the humanoids after resetting them
 }
 
 void Game::createHumanoids()
@@ -68,13 +54,11 @@ void Game::createHumanoids()
     for (int i = 0; i < 5; i++)
     {
         Humanoid humanoid;
-
         // Calculate the x position with spacing multiplier
         float xPos = 100 + static_cast<float>(i * 100);
-        humanoid.humanoidSprite.setTexture(humanoidTexture);
-
+        humanoid.sprite.setTexture(humanoidTexture);
         // Calculate the y position at the bottom of the window
-        float yPos = static_cast<float>(WINDOW_HEIGHT - 10 - humanoid.humanoidSprite.getGlobalBounds().height);
+        float yPos = static_cast<float>(WINDOW_HEIGHT - 10 - humanoid.sprite.getGlobalBounds().height);
         humanoid.setOriginalPosition(xPos, yPos); // Store the original position
         humanoid.setPosition(xPos, yPos);
         humanoids.push_back(humanoid);
@@ -88,7 +72,6 @@ void Game::handleInput(sf::RenderWindow &window)
     sf::Vector2f playerCenter = player.getPosition() + sf::Vector2f(player.getGlobalBounds().width / 2, player.getGlobalBounds().height / 2);
     sf::Vector2f rightScale(0.1f, 0.1f); // Set scale factors for X and Y uniformly
     sf::Vector2f leftScale(-0.1f, 0.1f); // Swap direction
-
     if (mousePosition.x > playerCenter.x)
     {
         player.setScale(rightScale); // Fire laser to the right
@@ -97,7 +80,6 @@ void Game::handleInput(sf::RenderWindow &window)
     {
         player.setScale(leftScale); // Flip horizontally by setting X scale to negative
     }
-
     if (!gameStarted && !isPauseScreenVisible && !isGameOver && !isWinScreenVisible)
     {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
@@ -107,7 +89,6 @@ void Game::handleInput(sf::RenderWindow &window)
             score = 0; // Reset the score when the game starts
         }
     }
-
     else if (gameStarted && !isPauseScreenVisible && !isGameOver && !isWinScreenVisible)
     {
         int oldScore = score; // Check if the player has won, ending the game, unless another level is chosen.
@@ -122,7 +103,6 @@ void Game::handleInput(sf::RenderWindow &window)
             isPauseScreenVisible = true;
         }
     }
-
     else if (isPauseScreenVisible)
     {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Y))
@@ -189,99 +169,52 @@ void Game::handleInput(sf::RenderWindow &window)
             window.close();
         }
     }
-
     while (window.pollEvent(event))
     {
         if (event.type == sf::Event::Closed)
         {
             window.close();
         }
-
         if (event.type == sf::Event::MouseButtonPressed)
         {
-
             if (event.mouseButton.button == sf::Mouse::Left)
             {
-
                 Laser laser;
-                laser.shape.setSize(sf::Vector2f(5, 20));
-                laser.shape.setFillColor(sf::Color::Cyan);
-                laser.shape.setPosition(player.getPosition().x + 22, player.getPosition().y);
-                laser.velocity.x = (mousePosition.x > playerCenter.x) ? LASER_SPEED : -LASER_SPEED;
-
-                laser.setFired(true);
+                laser.fire(player.getPosition(), mousePosition);
                 lasers.push_back(laser);
             }
         }
     }
-
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && player.getPosition().x > 0)
-    {
-        player.move(-PLAYER_SPEED, 0);
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && player.getPosition().x < WINDOW_WIDTH - 50)
-    {
-        player.move(PLAYER_SPEED, 0);
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && player.getPosition().y > 0)
-    {
-        player.move(0, -PLAYER_SPEED);
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && player.getPosition().y < WINDOW_HEIGHT - 50)
-    {
-        player.move(0, PLAYER_SPEED);
-    }
+    player.handleMovement(window);
 }
+
 int Game::nextLanderId = 1;
 void Game::spawnLanders()
 {
-
     if (spawnTimer.getElapsedTime().asMilliseconds() > SPAWN_INTERVAL)
     {
         Lander newLander(nextLanderId, humanoids); // Pass the 'humanoids' container
-
-        float xPos = static_cast<float>(rand() % static_cast<int>(WINDOW_WIDTH - newLander.landerSprite.getGlobalBounds().width));
-        newLander.landerSprite.setPosition(sf::Vector2f(xPos, -newLander.landerSprite.getGlobalBounds().height));
-        newLander.landerSprite.setTexture(landerTexture);
+        float xPos = static_cast<float>(rand() % static_cast<int>(WINDOW_WIDTH - newLander.sprite.getGlobalBounds().width));
+        newLander.sprite.setPosition(sf::Vector2f(xPos, -newLander.sprite.getGlobalBounds().height));
+        newLander.sprite.setTexture(landerTexture);
         landers.push_back(newLander);
         spawnTimer.restart();
         nextLanderId++; // Increment the id for the next Lander
     }
 }
 
-void Game::update()
+void Game::update(sf::RenderWindow &window)
 {
     if (gameStarted && !isPauseScreenVisible && !isGameOver)
     {
         // Update the Humanoid objects
         for (auto &humanoid : humanoids)
         {
-            humanoid.update(player.getPosition(), player);
-
-            if (humanoid.isTouchingPlayer())
+            humanoid.update(player.getPosition(), player, window);
+            if (humanoid.humansKilled >= 5)
             {
-                // Apply passenger movement if touching the player during freefall
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && player.getPosition().x > 0)
-                {
-                    humanoid.passengerMovement(-PLAYER_SPEED, 0);
-                }
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && player.getPosition().x < WINDOW_WIDTH - 50)
-                {
-                    humanoid.passengerMovement(PLAYER_SPEED, 0);
-                }
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && player.getPosition().y > 0)
-                {
-                    humanoid.passengerMovement(0, -PLAYER_SPEED);
-                }
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && player.getPosition().y < WINDOW_HEIGHT - 50)
-                {
-                    humanoid.passengerMovement(0, PLAYER_SPEED);
-                }
-                if (player.getPosition().y >= WINDOW_HEIGHT - 50)
-                {
-                    // Reset the humanoid to its original position
-                    humanoid.reset();
-                }
+                isGameOver = true; // Set isGameOver to true when humansKilled reaches 5
+                break;             // Exit the loop since the game is over
             }
         }
 
@@ -383,7 +316,7 @@ void Game::update()
             for (size_t j = 0; j < landers.size(); j++)
             {
 
-                if (!landers[j].isDestroyed() && lasers[i].shape.getGlobalBounds().intersects(landers[j].getSprite().getGlobalBounds()))
+                if (!landers[j].isDestroyed() && lasers[i].shape.getGlobalBounds().intersects(landers[j].sprite.getGlobalBounds()))
                 {
                     score += 10;
                     landers[j].destroy();
@@ -414,7 +347,7 @@ void Game::update()
         // Check for collision between player and landers
         for (size_t i = 0; i < landers.size(); i++)
         {
-            if (!landers[i].isDestroyed() && player.getGlobalBounds().intersects(landers[i].landerSprite.getGlobalBounds()))
+            if (!landers[i].isDestroyed() && player.getGlobalBounds().intersects(landers[i].sprite.getGlobalBounds()))
             {
                 isGameOver = true;
                 break;

@@ -6,6 +6,7 @@
 #include "Missile.h"
 #include "Fuels.h"
 #include "FuelBar.h"
+#include "GameEntity.h"
 
 TEST_CASE("Player movement")
 {
@@ -75,7 +76,7 @@ TEST_CASE("Lander behavior")
         Lander lander(1, humanoids);            // Pass an id and the humanoids container
         sf::Vector2f initialPosition(100, 100); // Set your desired initial position
         lander.reset();
-        lander.getSprite().setPosition(initialPosition);
+        lander.sprite.setPosition(initialPosition);
         CHECK(lander.getPosition() == initialPosition); // Check if the lander was spawned at the initial position
         lander.update();                                // Move the lander
         CHECK(lander.getPosition() != initialPosition);
@@ -101,10 +102,10 @@ TEST_CASE("Collision tests")
 
         // Set the laser and lander positions to overlap (collision)
         laser.shape.setPosition(100, 100);
-        lander.getSprite().setPosition(100, 100);
+        lander.sprite.setPosition(100, 100);
 
         // Check if there is a collision between the laser and lander
-        CHECK(laser.shape.getGlobalBounds().intersects(lander.getSprite().getGlobalBounds()));
+        CHECK(laser.shape.getGlobalBounds().intersects(lander.sprite.getGlobalBounds()));
     }
 }
 

@@ -1,19 +1,18 @@
 #ifndef LASER_H
 #define LASER_H
 
+#include "GameConstants.h"
 #include <SFML/Graphics.hpp>
+#include "GameEntity.h"
 
-class Laser
+class Laser : public GameEntity
 {
 public:
     Laser();
     void fire(sf::Vector2f startPosition, sf::Vector2f mousePosition);
     void move();
-    void draw(sf::RenderWindow &window);
     bool isFired() const;
     void setFired(bool fired);
-    sf::RectangleShape shape;
-    sf::Vector2f velocity;
     bool fired;
 
 private:

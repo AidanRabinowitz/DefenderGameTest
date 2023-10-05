@@ -22,6 +22,7 @@ public:
     bool descending;      // Flag to indicate whether the player is descending
     void resetCurrentFuel();
     float fuelConsumptionRate; // Fuel consumption rate per second
+    void handleMovement(sf::RenderWindow &window);
 
 private:
     sf::Texture playerTexture;

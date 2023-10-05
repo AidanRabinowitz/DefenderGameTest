@@ -1,11 +1,11 @@
 #include "Lander.h"
 #include <iostream>
 Lander::Lander(int id, std::vector<Humanoid> &humanoids)
-    : id(id), humanoids(humanoids), destroyed(false), carryingHumanoid(false), onWayToTop(false), destroyedByLaser(false)
+    : id(id), humanoids(humanoids), destroyed(false), carryingHumanoid(false), onWayToTop(false), destroyedByLaser(false), spawnTimer(spawnTimer)
 {
-    landerTexture.loadFromFile("resources/landerShip.png");
-    landerSprite.setTexture(landerTexture);
-    landerSprite.setScale(sf::Vector2f(0.1f, 0.1f));
+    texture.loadFromFile("resources/landerShip.png");
+    sprite.setTexture(texture);
+    sprite.setScale(sf::Vector2f(0.1f, 0.1f));
     velocity = sf::Vector2f(0.0f, 0.0f);
 }
 int Humanoid::humansKilled = 0; // Initialize the static variable
@@ -27,7 +27,7 @@ void Lander::update()
             {
                 for (Humanoid &humanoid : humanoids)
                 {
-                    if (!humanoid.isCarried() && getSprite().getGlobalBounds().intersects(humanoid.humanoidSprite.getGlobalBounds()))
+                    if (!humanoid.isCarried() && sprite.getGlobalBounds().intersects(humanoid.sprite.getGlobalBounds()))
                     {
                         carryingHumanoid = true;
                         carriedHumanoid = &humanoid;
@@ -40,10 +40,10 @@ void Lander::update()
             }
             else if (onWayToTop)
             {
-                getSprite().move(0, -2 * LANDER_SPEED);
-                carriedHumanoid->humanoidSprite.move(0, -LANDER_SPEED);
+                sprite.move(0, -2 * LANDER_SPEED);
+                carriedHumanoid->sprite.move(0, -LANDER_SPEED);
 
-                if (getSprite().getPosition().y < 0)
+                if (sprite.getPosition().y < 0)
                 {
                     if (!carriedHumanoid->isTouchingPlayer())
                     {
@@ -83,10 +83,10 @@ void Lander::setId(int id)
 void Lander::moveAndCheckBounds()
 {
     // Move the lander
-    landerSprite.move(0, LANDER_SPEED); // Adjust the speed as needed
+    sprite.move(0, LANDER_SPEED); // Adjust the speed as needed
 
     // Check if the lander is out of bounds
-    if (landerSprite.getPosition().y > WINDOW_HEIGHT)
+    if (sprite.getPosition().y > WINDOW_HEIGHT)
     {
         destroyed = true; // Mark it as destroyed when out of bounds
     }
@@ -97,23 +97,15 @@ void Lander::render(sf::RenderWindow &window)
     // Render the lander on the window
     if (!destroyed)
     {
-        window.draw(landerSprite);
+        window.draw(sprite);
     }
-}
-
-sf::Sprite &Lander::getSprite()
-{
-    return landerSprite;
 }
 
 bool Lander::isDestroyed() const
 {
     return destroyed;
 }
-sf::Vector2f Lander::getPosition() const
-{
-    return landerSprite.getPosition();
-}
+
 void Lander::destroy()
 {
     destroyed = true;
