@@ -1,4 +1,4 @@
-#include "game.h"
+#include "Game.h"
 #include "GameEntity.h"
 #include "ScreenManager.h"
 #include <iostream>
