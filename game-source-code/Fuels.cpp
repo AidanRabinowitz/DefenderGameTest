@@ -10,6 +10,19 @@ Fuels::Fuels()
     fuelsSprite.setScale(sf::Vector2f(0.1f, 0.1f));
     // Set the initial position and other properties for the fuel
 }
+
+void Fuels::spawnFuel(std::vector<Fuels> &fuels, const sf::Texture &fuelsTexture)
+{
+    Fuels fuelCan;
+
+    // Set the fuel's position to a random location along the X-axis
+    float xPos = static_cast<float>(rand() % static_cast<int>(WINDOW_WIDTH - fuelCan.fuelsSprite.getGlobalBounds().width));
+    fuelCan.fuelsSprite.setPosition(sf::Vector2f(xPos, WINDOW_HEIGHT - fuelCan.fuelsSprite.getGlobalBounds().height));
+
+    fuelCan.fuelsSprite.setTexture(fuelsTexture);
+    fuels.push_back(fuelCan);
+}
+
 bool Fuels::checkCollision(const sf::FloatRect &playerBounds)
 {
     // Check if the fuel sprite's bounds intersect with the player's bounds

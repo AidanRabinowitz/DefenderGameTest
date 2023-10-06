@@ -13,6 +13,9 @@
 #include "FuelBar.h"
 #include "Fuels.h"
 #include "Humanoid.h"
+#include "CollisionHandler.h"
+#include "ScreenManager.h"
+
 // #include
 class Game : public GameEntity
 {
@@ -26,6 +29,7 @@ public:
 
     // Function to display the score and high score
     void displayScore(sf::RenderWindow &window, sf::Font &font, int score, int highScore);
+    void loadScreenTextures();
 
     // Function to display different screens
     void displayScreen(sf::RenderWindow &window, sf::Font &font, bool gameStarted, bool isPauseScreenVisible, bool isGameOver, bool isWinScreenVisible, int level);
@@ -64,6 +68,7 @@ private:
     sf::Clock missileTimer;
     sf::Clock frameClock;
     sf::Clock fuelSpawnTimer;
+    ScreenManager screenManager;
 
     sf::Font font;
     void resetGame();

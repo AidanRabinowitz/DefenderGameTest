@@ -7,7 +7,6 @@ Game::Game()
       isPauseScreenVisible(false), isWinScreenVisible(false), isGameOver(false),
       level(1), previousLevelScore(0), fuelBar(200.0f, 20.0f, 100.f), humansKilled(0)
 {
-
     // Load background texture
     backgroundTexture.loadFromFile("resources/background.jpg");
     // Set the background sprite
@@ -216,24 +215,13 @@ void Game::update(sf::RenderWindow &window)
                 isGameOver = true; // Set isGameOver to true when humansKilled reaches 5
                 break;             // Exit the loop since the game is over
             }
+            humanoid.removeDestroyed(humanoids); // Remove the humanoid sprites once they have been destroyed
         }
-
         for (Lander &lander : landers)
         {
             lander.update(); // Update lander position and check for destruction
-
-            if (lander.isDestroyed() && lander.isCarryingHumanoid())
-            {
-                // The lander is destroyed and carrying a humanoid, release the humanoid
-                lander.releaseHumanoid();
-            }
         }
-
-        // Remove destroyed Humanoid objects
-        humanoids.erase(std::remove_if(humanoids.begin(), humanoids.end(), [](const Humanoid &humanoid)
-                                       { return humanoid.isDestroyed(); }),
-                        humanoids.end());
-        spawnLanders(); // Call the spawnLanders function
+        spawnLanders(); // SpawnLanders to call the lander spawning function
         for (size_t i = 0; i < landers.size(); i++)
         {
             if (!landers[i].isDestroyed())
@@ -242,29 +230,20 @@ void Game::update(sf::RenderWindow &window)
                 landers[i].update();
             }
         }
-
         if (fuelSpawnTimer.getElapsedTime().asMilliseconds() > FUEL_SPAWN_INTERVAL)
         {
             // Spawn Fuels
             Fuels fuelCan;
-
-            // Set the fuel's position to a random location along the X-axis
-            float xPos = static_cast<float>(rand() % static_cast<int>(WINDOW_WIDTH - fuelCan.fuelsSprite.getGlobalBounds().width));
-            fuelCan.fuelsSprite.setPosition(sf::Vector2f(xPos, WINDOW_HEIGHT - fuelCan.fuelsSprite.getGlobalBounds().height));
-            fuelCan.fuelsSprite.setTexture(fuelsTexture);
-            fuels.push_back(fuelCan);
+            fuelCan.spawnFuel(fuels, fuelsTexture);
             fuelSpawnTimer.restart();
         }
         for (auto it = fuels.begin(); it != fuels.end();)
         {
             if (it->checkCollisionWithPlayer(player))
             {
-                // Collision with fuel detected, remove the fuel
-                it = fuels.erase(it);
-                // Reset player's current fuel to 100.0f
-                player.resetCurrentFuel();
-                // Reset the fuel bar
-                fuelBar.reset();
+                it = fuels.erase(it);      // Collision with fuel detected, remove the fuel
+                player.resetCurrentFuel(); // Reset player's current fuel to 100.0f
+                fuelBar.reset();           // Reset the fuel bar
             }
             else
             {
@@ -310,58 +289,20 @@ void Game::update(sf::RenderWindow &window)
             lasers[i].shape.move(lasers[i].velocity);
         }
 
-        // Check for collision between lasers and landers
-        for (size_t i = 0; i < lasers.size(); i++)
+        CollisionHandler collisionHandler; // Create an instance of CollisionHandler to encapsulate collision checks
+        // Handle laser-lander collisions
+        collisionHandler.handleLaserLanderCollisions(lasers, landers, score);
+        // Handle laser-humanoid collisions
+        collisionHandler.handleLaserHumanoidCollisions(lasers, humanoids);
+        // Handle player-lander collisions
+        if (collisionHandler.handlePlayerLanderCollisions(player, landers))
         {
-            for (size_t j = 0; j < landers.size(); j++)
-            {
-
-                if (!landers[j].isDestroyed() && lasers[i].shape.getGlobalBounds().intersects(landers[j].sprite.getGlobalBounds()))
-                {
-                    score += 10;
-                    landers[j].destroy();
-                    lasers.erase(lasers.begin() + i);
-                    i--;   // Adjust the index after removal
-                    break; // Exit the inner loop when a collision occurs
-                }
-            }
+            isGameOver = true;
         }
-
-        // Check for collision between lasers and humanoids
-        for (size_t i = 0; i < lasers.size(); i++)
+        // Handle player-missile collisions
+        if (collisionHandler.handlePlayerMissileCollisions(player, missiles))
         {
-            for (size_t j = 0; j < humanoids.size(); j++)
-            {
-                if (!humanoids[j].isDestroyed() && humanoids[j].checkCollisionWithLaser(lasers[i]))
-                {
-                    // Destroy the humanoid
-                    humanoids[j].destroy();
-                    // Remove the laser that hit the humanoid
-                    lasers.erase(lasers.begin() + i);
-                    i--;   // Adjust the index after removal
-                    break; // Exit the inner loop when a collision occurs
-                }
-            }
-        }
-
-        // Check for collision between player and landers
-        for (size_t i = 0; i < landers.size(); i++)
-        {
-            if (!landers[i].isDestroyed() && player.getGlobalBounds().intersects(landers[i].sprite.getGlobalBounds()))
-            {
-                isGameOver = true;
-                break;
-            }
-        }
-
-        // Check for collision between player and missiles
-        for (size_t i = 0; i < missiles.size(); i++)
-        {
-            if (missiles[i].shape.getGlobalBounds().intersects(player.getGlobalBounds()))
-            {
-                isGameOver = true;
-                break;
-            }
+            isGameOver = true;
         }
     }
 }
@@ -369,6 +310,7 @@ void Game::update(sf::RenderWindow &window)
 void Game::render(sf::RenderWindow &window) // Rendering the game shapes and sprites
 {
     window.clear();
+    screenManager.drawCurrentScreen(window);
     window.draw(backgroundSprite);
     player.render(window);
 
@@ -435,6 +377,7 @@ void Game::displayScore(sf::RenderWindow &window, sf::Font &font, int score, int
     drawText(window, scoreText);
     drawText(window, highScoreText);
 }
+
 void Game::displayHumansKilled(sf::RenderWindow &window, sf::Font &font, int humansKilled)
 {
     // Render Humans Killed counter
@@ -464,73 +407,52 @@ void Game::displayLevel(sf::RenderWindow &window, sf::Font &font, int level)
 // Function to display different screens
 void Game::displayScreen(sf::RenderWindow &window, sf::Font &font, bool gameStarted, bool isPauseScreenVisible, bool isGameOver, bool isWinScreenVisible, int level)
 {
+    sf::Sprite screen;
+    sf::Texture texture;
+
     if (!gameStarted && !isPauseScreenVisible && !isGameOver && !isWinScreenVisible)
     {
-        sf::Text leftColumnText;
-
-        leftColumnText.setFont(font);
-        leftColumnText.setCharacterSize(24);
-        leftColumnText.setFillColor(sf::Color::White);
-        leftColumnText.setPosition(100, 200); // Adjust the position as needed
-        leftColumnText.setString("Press Space to Start\n"
-                                 "\n"
-                                 "\n"
-                                 "WASD keys to move\n"
-                                 "\n"
-                                 "\n"
-                                 "Left mouse click to fire");
-        drawText(window, leftColumnText);
-
-        sf::Text rightColumnText;
-
-        rightColumnText.setFont(font);
-        rightColumnText.setCharacterSize(24);
-        rightColumnText.setFillColor(sf::Color::White);
-        rightColumnText.setPosition(390, 200); // Adjust the position as needed
-        rightColumnText.setString("Capture fuel to refill tank\n"
-                                  "\n"
-                                  "\n"
-                                  "Hover mouse left to change direction\n"
-                                  "\n"
-                                  "\n"
-                                  "esc to pause");
-        drawText(window, rightColumnText);
+        // Display the splash screen
+        if (!texture.loadFromFile("resources/splashScreen.jpeg"))
+        {
+            std::cerr << "Couldn't load splashScreen.jpeg" << std::endl;
+            return;
+        }
     }
-
-    if (isPauseScreenVisible)
+    else if (isPauseScreenVisible)
     {
-        sf::Text pauseText;
-        pauseText.setFont(font);
-        pauseText.setCharacterSize(32);
-        pauseText.setFillColor(sf::Color::White);
-        pauseText.setPosition(200, 200);
-        pauseText.setString("Are you sure you want to quit?\nY for yes, N for no");
-
-        drawText(window, pauseText);
+        // Display the pause screen
+        if (!texture.loadFromFile("resources/pauseScreen.jpeg"))
+        {
+            std::cerr << "Couldn't load pauseScreen.jpeg" << std::endl;
+            return;
+        }
     }
-
-    if (isWinScreenVisible)
+    else if (isWinScreenVisible)
     {
-        sf::Text winText;
-        winText.setFont(font);
-        winText.setCharacterSize(32);
-        winText.setFillColor(sf::Color::White);
-        winText.setPosition(200, 200);
-        winText.setString("You killed 10 landers! YOU WIN!\nProceed to level " + std::to_string(level + 1) + "?\nY for yes, N for no");
-
-        drawText(window, winText);
+        // Display the win screen
+        if (!texture.loadFromFile("resources/levelScreen.jpeg"))
+        {
+            std::cerr << "Couldn't load levelScreen.jpeg" << std::endl;
+            return;
+        }
     }
-
-    if (isGameOver)
+    else if (isGameOver)
     {
-        sf::Text gameOverText;
-        gameOverText.setFont(font);
-        gameOverText.setCharacterSize(32);
-        gameOverText.setFillColor(sf::Color::Red);
-        gameOverText.setPosition(200, 200);
-        gameOverText.setString("You Died\nPlay again?\nY for yes, N to close the window");
-
-        drawText(window, gameOverText);
-        resetGame();
+        // Display the game over screen
+        if (!texture.loadFromFile("resources/deathScreen.jpeg"))
+        {
+            std::cerr << "Couldn't load deathScreen.jpeg" << std::endl;
+            return;
+        }
     }
+
+    screen.setTexture(texture);
+
+    // Scale the screen to fit the window
+    float scaleX = static_cast<float>(window.getSize().x) / texture.getSize().x;
+    float scaleY = static_cast<float>(window.getSize().y) / texture.getSize().y;
+    screen.setScale(scaleX, scaleY);
+
+    window.draw(screen);
 }

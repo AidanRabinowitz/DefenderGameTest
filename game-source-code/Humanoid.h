@@ -9,7 +9,7 @@ class Humanoid : public GameEntity
 public:
     Humanoid();
     static int humansKilled; // Declare humans killed as static
-
+    void removeDestroyed(std::vector<Humanoid> &humanoids);
     void setPosition(float x, float y);
     bool isCarried() const;
     void setCarried(bool carriedStatus);

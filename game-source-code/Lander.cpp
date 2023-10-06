@@ -58,7 +58,7 @@ void Lander::update()
             }
         }
     }
-    if (destroyed && carriedHumanoid != nullptr)
+    if (isDestroyed() && carriedHumanoid != nullptr && isCarryingHumanoid())
     {
         carriedHumanoid->setFreeFall(true); // Set freeFall for the carried humanoid
         carriedHumanoid = nullptr;          // Reset the carried humanoid
@@ -68,12 +68,6 @@ void Lander::update()
 bool Lander::isCarryingHumanoid() const
 {
     return carryingHumanoid;
-}
-
-void Lander::releaseHumanoid()
-{
-    carryingHumanoid = false;
-    carriedHumanoid = nullptr;
 }
 
 void Lander::setId(int id)

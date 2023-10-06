@@ -17,6 +17,7 @@ public:
     void setPosition(const sf::Vector2f &newPosition);
     sf::Texture fuelsTexture;
     sf::Sprite fuelsSprite;
+    void spawnFuel(std::vector<Fuels> &fuels, const sf::Texture &fuelsTexture);
 
 private:
     sf::Vector2f position;

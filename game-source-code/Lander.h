@@ -16,7 +16,6 @@ public:
     void render(sf::RenderWindow &window);
     bool isDestroyed() const;
     void destroy();
-    void releaseHumanoid();
     bool isCarryingHumanoid() const;
     Humanoid *carriedHumanoid;
     sf::Clock spawnTimer;

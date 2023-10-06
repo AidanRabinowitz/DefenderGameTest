@@ -106,6 +106,13 @@ void Humanoid::setOriginalPosition(float x, float y)
     originalPosition = sf::Vector2f(x, y);
 }
 
+void Humanoid::removeDestroyed(std::vector<Humanoid> &humanoids)
+{
+    humanoids.erase(std::remove_if(humanoids.begin(), humanoids.end(), [](const Humanoid &humanoid)
+                                   { return humanoid.isDestroyed(); }),
+                    humanoids.end());
+}
+
 bool Humanoid::isDestroyed() const
 {
     return destroyed;
