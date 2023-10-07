@@ -18,10 +18,10 @@ public:
     void destroy();
     bool isCarryingHumanoid() const;
     bool isMovingUp() const;
-    Humanoid *carriedHumanoid;
-    sf::Clock spawnTimer;
 
 private:
+    Humanoid *carriedHumanoid;
+    sf::Clock spawnTimer;
     std::vector<Humanoid> &humanoids; // Reference to the humanoids container
     bool destroyedByLaser;
     bool carryingHumanoid;

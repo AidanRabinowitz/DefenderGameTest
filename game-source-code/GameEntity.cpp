@@ -13,6 +13,11 @@ GameEntity::GameEntity(sf::Vector2f initialPosition, sf::Vector2f targetPosition
     // Perform SFML-related operations here, e.g., creating shapes or sprites
 }
 
+const sf::FloatRect GameEntity::getGlobalBounds() const
+{
+    return sprite.getGlobalBounds();
+}
+
 GameEntity::~GameEntity()
 {
     // Common cleanup for all game entities if needed

@@ -22,7 +22,6 @@ public:
     void passengerMovement(float offsetX, float offsetY);
     bool isTouchingPlayer();
     void reset();
-    int humanoidCounter;
     void setOriginalPosition(float x, float y);
     bool isFreeFall() const;
 

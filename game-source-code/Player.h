@@ -19,12 +19,12 @@ public:
     float getCurrentFuel() const;
     float getTotalFuel() const;
     bool hasFuel() const; // Add this function to check if there is fuel
-    bool descending;      // Flag to indicate whether the player is descending
     void resetCurrentFuel();
-    float fuelConsumptionRate; // Fuel consumption rate per second
     void handleMovement(sf::RenderWindow &window);
 
 private:
+    bool descending;           // Flag to indicate whether the player is descending
+    float fuelConsumptionRate; // Fuel consumption rate per second
     sf::Texture playerTexture;
     float totalFuel;
     float currentFuel;

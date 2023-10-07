@@ -17,6 +17,7 @@ public:
     sf::Texture texture;
     sf::Vector2f position;
     sf::Vector2f velocity;
+    const sf::FloatRect getGlobalBounds() const;
 
     // Common methods
     void move(float xOffset, float yOffset);

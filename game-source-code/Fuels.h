@@ -4,7 +4,9 @@
 #include <SFML/Graphics.hpp>
 #include "GameConstants.h" // Include any relevant constants
 #include "Player.h"
-class Fuels
+#include "GameEntity.h"
+
+class Fuels : public GameEntity
 {
 public:
     Fuels();
@@ -13,10 +15,7 @@ public:
     bool checkCollisionWithPlayer(const Player &player);
     bool isDestroyed() const;
     void destroy();
-    sf::Vector2f getPosition() const;
     void setPosition(const sf::Vector2f &newPosition);
-    sf::Texture fuelsTexture;
-    sf::Sprite fuelsSprite;
     void spawnFuel(std::vector<Fuels> &fuels, const sf::Texture &fuelsTexture);
 
 private:

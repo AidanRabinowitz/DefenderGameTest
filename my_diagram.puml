@@ -1,0 +1,15 @@
+@startuml Sequencediagram
+class Car {
+  - brand: String
+  - model: String
+  + start()
+  + stop()
+}
+
+class Engine {
+  + start()
+  + stop()
+}
+
+Car --> Engine : has
+@enduml
