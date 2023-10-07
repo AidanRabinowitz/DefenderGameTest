@@ -24,6 +24,7 @@ public:
     void reset();
     int humanoidCounter;
     void setOriginalPosition(float x, float y);
+    bool isFreeFall() const;
 
 private:
     bool touchingPlayer = false;

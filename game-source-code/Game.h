@@ -15,8 +15,6 @@
 #include "Humanoid.h"
 #include "CollisionHandler.h"
 #include "ScreenManager.h"
-
-// #include
 class Game : public GameEntity
 {
 public:
@@ -69,7 +67,6 @@ private:
     sf::Clock frameClock;
     sf::Clock fuelSpawnTimer;
     ScreenManager screenManager;
-
     sf::Font font;
     void resetGame();
     void handleInput(sf::RenderWindow &window);

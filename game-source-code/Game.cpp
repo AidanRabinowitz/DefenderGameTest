@@ -46,6 +46,7 @@ void Game::resetGame()
     fuels.clear();
     humanoids.clear(); // Reset all the humanoid objects in the vector
     createHumanoids(); // Re-create  the humanoids after resetting them
+    level = 1;
 }
 
 void Game::createHumanoids()

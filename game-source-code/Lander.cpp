@@ -21,7 +21,7 @@ void Lander::update()
     {
         moveAndCheckBounds();
 
-        if (id % 1 == 0)
+        if (id % 1 == 0) // Used to set the frequency of landers picking up humanoids. Currently, every lander can pick up humanoids.
         {
             if (!carryingHumanoid)
             {
@@ -32,7 +32,6 @@ void Lander::update()
                         carryingHumanoid = true;
                         carriedHumanoid = &humanoid;
                         carriedHumanoid->setCarried(true);
-                        std::cout << "carried" << std::endl;
                         onWayToTop = true;
                         break;
                     }
@@ -63,6 +62,11 @@ void Lander::update()
         carriedHumanoid->setFreeFall(true); // Set freeFall for the carried humanoid
         carriedHumanoid = nullptr;          // Reset the carried humanoid
     }
+}
+
+bool Lander::isMovingUp() const
+{
+    return onWayToTop;
 }
 
 bool Lander::isCarryingHumanoid() const

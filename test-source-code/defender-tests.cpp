@@ -7,6 +7,8 @@
 #include "Fuels.h"
 #include "FuelBar.h"
 #include "GameEntity.h"
+#include "Humanoid.h"
+#include "CollisionHandler.h"
 
 TEST_CASE("Player movement")
 {
@@ -216,4 +218,240 @@ TEST_CASE("Missile Movement")
 
         CHECK(newPosition != initialPosition); // Check if the missile has moved
     }
+}
+
+TEST_CASE("Humanoid Initialization")
+{
+    Humanoid humanoid;
+
+    SUBCASE("Initial State")
+    {
+        CHECK(humanoid.isDestroyed() == false);
+        CHECK(humanoid.isCarried() == false);
+        CHECK(humanoid.isTouchingPlayer() == false);
+    }
+
+    SUBCASE("Original Position")
+    {
+        CHECK(humanoid.sprite.getPosition() == sf::Vector2f(0.0f, 0.0f));
+    }
+}
+
+TEST_CASE("Humanoid Reset")
+{
+    Humanoid humanoid;
+    humanoid.setOriginalPosition(100.0f, 100.0f);
+    humanoid.setPosition(200.0f, 200.0f);
+    humanoid.setCarried(true);
+    humanoid.setFreeFall(true);
+    humanoid.reset();
+
+    CHECK(humanoid.getPosition() == sf::Vector2f(100.0f, 100.0f));
+    CHECK(humanoid.isCarried() == false);
+}
+
+TEST_CASE("Humanoid Passenger Movement")
+{
+    Humanoid humanoid;
+    float initialX = humanoid.getPosition().x;
+    float initialY = humanoid.getPosition().y;
+
+    SUBCASE("Move Right")
+    {
+        humanoid.passengerMovement(10.0f, 0.0f);
+        CHECK(humanoid.getPosition().x == initialX + 10.0f);
+        CHECK(humanoid.getPosition().y == initialY);
+    }
+
+    SUBCASE("Move Left")
+    {
+        humanoid.passengerMovement(-10.0f, 0.0f);
+        CHECK(humanoid.getPosition().x == initialX - 10.0f);
+        CHECK(humanoid.getPosition().y == initialY);
+    }
+
+    SUBCASE("Move Up")
+    {
+        humanoid.passengerMovement(0.0f, -10.0f);
+        CHECK(humanoid.getPosition().x == initialX);
+        CHECK(humanoid.getPosition().y == initialY - 10.0f);
+    }
+
+    SUBCASE("Move Down")
+    {
+        humanoid.passengerMovement(0.0f, 10.0f);
+        CHECK(humanoid.getPosition().x == initialX);
+        CHECK(humanoid.getPosition().y == initialY + 10.0f);
+    }
+}
+TEST_CASE("Humanoid FreeFall Status")
+{
+    Player player;
+    sf::RenderWindow window(sf::VideoMode(800, 600), "Test Window");
+    Humanoid humanoid;
+    CHECK_FALSE(humanoid.isFreeFall());
+    humanoid.sprite.setPosition(10.0f, 10.0f);
+    humanoid.setFreeFall(true);
+    CHECK(humanoid.isFreeFall());
+    humanoid.update(player.getPosition(), player, window);
+
+    humanoid.setFreeFall(false);
+    CHECK_FALSE(humanoid.isFreeFall());
+    CHECK_FALSE(humanoid.sprite.getPosition().y == 10.0f);
+}
+
+TEST_CASE("Humanoid Collision with Laser")
+{
+    Player player;
+    sf::RenderWindow window(sf::VideoMode(800, 600), "Test Window");
+
+    // Create vectors for lasers and humanoids
+    std::vector<Laser> lasers;
+    std::vector<Humanoid> humanoids;
+
+    // Create a humanoid and a laser
+    Humanoid humanoid;
+    Laser laser;
+
+    // Set up positions such that the humanoid and laser collide
+    humanoid.sprite.setPosition(100, 100);
+    laser.sprite.setPosition(100, 100);
+
+    // Add the humanoid and laser to their respective vectors
+    humanoids.push_back(humanoid);
+    lasers.push_back(laser);
+
+    // Create a CollisionHandler instance
+    CollisionHandler collisions;
+
+    // Call the collision handling function
+    collisions.handleLaserHumanoidCollisions(lasers, humanoids);
+
+    // Check if a collision occurred by verifying if the humanoid is destroyed
+    CHECK(humanoid.isDestroyed());
+
+    // Move the laser away so that there is no collision
+    laser.sprite.setPosition(200, 200);
+
+    // Call the collision handling function again
+    collisions.handleLaserHumanoidCollisions(lasers, humanoids);
+    humanoid.update(player.getPosition(), player, window);
+
+    // Check that no collision occurred this time
+    CHECK_FALSE(humanoid.isDestroyed());
+}
+
+TEST_CASE("Lander-Humanoid Collision")
+{
+    // Create a vector of Humanoids and add one Humanoid to it
+    std::vector<Humanoid> humanoids;
+    Humanoid humanoid;
+    humanoids.push_back(humanoid);
+
+    // Create a Lander with an ID and the vector of Humanoids
+    Lander lander(1, humanoids);
+
+    // Initially, Lander should not be carrying a Humanoid
+    CHECK_FALSE(lander.isCarryingHumanoid());
+
+    // Set positions such that they touch but don't collide
+    lander.sprite.setPosition(100, 100); // Position Lander at (100, 100)
+    humanoid.setPosition(100, 200);      // Position Humanoid at (100, 200)
+
+    // Update the Lander
+    lander.update();
+
+    // Lander should not be carrying the Humanoid
+    CHECK_FALSE(lander.isCarryingHumanoid());
+
+    // Set positions such that they collide
+    lander.sprite.setPosition(100, 100); // Position Lander at (100, 100)
+    humanoid.setPosition(100, 100);      // Position Humanoid at (100, 100)
+
+    // Update the Lander
+    lander.update();
+
+    // Now, Lander should be carrying the Humanoid
+    CHECK(lander.isCarryingHumanoid());
+
+    // Update the Lander again (simulate movement)
+    lander.update();
+
+    // Now, Lander should be moving up
+    CHECK(lander.isMovingUp());
+}
+
+TEST_CASE("Humanoid FreeFall and Player Interaction")
+{
+    // Create a window for testing (you can adjust the window size)
+    sf::RenderWindow window(sf::VideoMode(800, 600), "Test Window");
+
+    // Create a Humanoid and a Player
+    Humanoid humanoid;
+    Player player;
+
+    // Set up positions for the humanoid and player to touch
+    humanoid.setPosition(100, 100);
+    player.setPosition(100, 100);
+
+    // Enable free fall for the humanoid
+    humanoid.setFreeFall(true);
+
+    // Simulate the player's position and check interaction
+    sf::Vector2f playerPosition(100, 100); // Set the player's position to touch the humanoid
+    humanoid.update(playerPosition, player, window);
+
+    // Check if the humanoid is touching the player
+    CHECK(humanoid.isTouchingPlayer());
+
+    // Check if the humanoid is at the same position as the player
+    CHECK(humanoid.getPosition() == player.getPosition());
+
+    // Now, simulate the player's movement
+    player.handleMovement(window);
+
+    // Update the humanoid with the player's new position
+    playerPosition = player.getPosition();
+    humanoid.update(playerPosition, player, window);
+
+    // Check if the humanoid still follows the player's position
+    CHECK(humanoid.getPosition() == player.getPosition());
+}
+
+TEST_CASE("Humanoid Reset on Touching Bottom")
+{
+    // Create a window for testing (you can adjust the window size)
+    sf::RenderWindow window(sf::VideoMode(800, 600), "Test Window");
+
+    // Create a Humanoid and a Player
+    Humanoid humanoid;
+    Player player;
+
+    // Set up positions for the humanoid and player to touch
+    humanoid.setOriginalPosition(100, 100);
+    player.setPosition(100, 100);
+
+    // Enable free fall for the humanoid
+    humanoid.setFreeFall(true);
+
+    // Simulate the player's position and check interaction
+    sf::Vector2f playerPosition(100, 100); // Set the player's position to touch the humanoid
+    humanoid.update(playerPosition, player, window);
+
+    // Check if the humanoid is touching the player
+    CHECK(humanoid.isTouchingPlayer());
+
+    // Simulate the player touching the bottom of the window
+    player.setPosition(100, window.getSize().y - 10);
+    playerPosition = player.getPosition();
+    humanoid.update(playerPosition, player, window);
+
+    // Check if the humanoid is no longer touching the player
+    CHECK_FALSE(humanoid.isTouchingPlayer());
+
+    // Check if the humanoid's reset function is called
+    humanoid.update(playerPosition, player, window);
+
+    // Check if the humanoid is reset to its original position
+    CHECK(humanoid.getPosition().x == 100);
 }

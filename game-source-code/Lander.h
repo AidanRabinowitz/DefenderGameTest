@@ -17,6 +17,7 @@ public:
     bool isDestroyed() const;
     void destroy();
     bool isCarryingHumanoid() const;
+    bool isMovingUp() const;
     Humanoid *carriedHumanoid;
     sf::Clock spawnTimer;
 

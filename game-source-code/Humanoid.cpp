@@ -11,6 +11,7 @@ Humanoid::Humanoid()
     freeFall = false;
     touchingPlayer = false;
     humansKilled = 0;
+    carried = false; // Initialize the carried flag
 }
 
 void Humanoid::reset()
@@ -22,7 +23,6 @@ void Humanoid::reset()
     freeFall = false;
     touchingPlayer = false;
     carried = false;
-    // Reset any other properties as needed
 }
 
 void Humanoid::passengerMovement(float offsetX, float offsetY)
@@ -104,6 +104,7 @@ void Humanoid::update(const sf::Vector2f &playerPosition, const Player &player, 
 void Humanoid::setOriginalPosition(float x, float y)
 {
     originalPosition = sf::Vector2f(x, y);
+    setPosition(x, y); // Update the sprite's position here
 }
 
 void Humanoid::removeDestroyed(std::vector<Humanoid> &humanoids)
@@ -116,6 +117,10 @@ void Humanoid::removeDestroyed(std::vector<Humanoid> &humanoids)
 bool Humanoid::isDestroyed() const
 {
     return destroyed;
+}
+bool Humanoid::isFreeFall() const
+{
+    return freeFall;
 }
 bool Humanoid::checkCollisionWithLaser(const Laser &laser) const
 {
