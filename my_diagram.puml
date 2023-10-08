@@ -1,15 +1,66 @@
-@startuml Sequencediagram
-class Car {
-  - brand: String
-  - model: String
-  + start()
-  + stop()
-}
+@startuml Sequence Diagram
+User -> Game: run(window)
+activate Game
 
-class Engine {
-  + start()
-  + stop()
-}
+User -> Game: handleInput(window)
+activate Game
 
-Car --> Engine : has
-@enduml
+User -> Game: update(window)
+activate Game
+
+User -> Game: render(window)
+activate Game
+
+Game -> Player: handleMovement(window)
+activate Player
+
+Player --> Game: Player Movement
+
+Game -> Humanoid: update(player.getPosition(), player, window)
+activate Humanoid
+
+Humanoid --> Game: Updated Humanoids
+
+Game -> Lander: update()
+activate Lander
+
+Lander --> Game: Updated Landers
+
+Game -> FuelBar: setFuel(player.getCurrentFuel())
+activate FuelBar
+
+FuelBar --> Game: FuelBar Updated
+
+Game -> Laser: fire(player.getPosition(), mousePosition)
+activate Laser
+
+Laser -> CollisionHandler: handleLaserLanderCollisions(lasers, landers, score)
+activate CollisionHandler
+
+Laser -> CollisionHandler: handleLaserHumanoidCollisions(lasers, humanoids)
+activate CollisionHandler
+
+CollisionHandler --> Laser: Collision Result
+deactivate CollisionHandler
+
+Laser --> Game: Laser Fired
+
+Game -> Missiles: move()
+activate Missiles
+
+Missiles --> Game: Missiles Moved
+
+Game -> Lasers: move()
+activate Lasers
+
+Lasers --> Game: Lasers Moved
+
+Game -> Fuels: checkCollisionWithPlayer(player: Player)
+activate Fuels
+
+Fuels --> Game: Collision Result
+deactivate Fuels
+
+Game --> User: Game Rendered
+
+User --> Game: Close Window

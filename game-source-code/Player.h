@@ -13,7 +13,6 @@ public:
     void render(sf::RenderWindow &window) const;
     const sf::Vector2f &getPosition() const;
     const sf::FloatRect getGlobalBounds() const;
-    // bool isTouchingHumanoid(const Humanoid &humanoid) const;
     void renderFuelBar(sf::RenderWindow &window) const; // Add this function to render the fuel bar
     void consumeFuel(float deltaTime);
     float getCurrentFuel() const;

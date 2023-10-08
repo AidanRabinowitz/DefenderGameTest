@@ -181,6 +181,29 @@ TEST_CASE("FuelBar Class Tests")
         CHECK(fuelBar.getCurrentFuel() == doctest::Approx(100.0f)); // After reset, current fuel should be 100.0f
     }
 }
+TEST_CASE("Game Ends on Fuel Depletion")
+{
+    // Create a Player
+    Player player;
+
+    // Simulate fuel depletion until it's empty
+    float deltaTime = 50.0f;
+    while (player.hasFuel())
+    {
+        // Simulate a frame update with fuel consumption
+        player.consumeFuel(deltaTime);
+
+        // Check for game over condition
+        if (!player.hasFuel() && player.getPosition().y >= 540)
+        {
+            break; // The game is over when fuel is depleted and the player is at the bottom
+        }
+    }
+
+    // Check if the player has run out of fuel and the game is over
+    CHECK_FALSE(player.hasFuel());        // Player should be out of fuel
+    CHECK(player.getPosition().y >= 540); // Player should touch the bottom
+}
 
 TEST_CASE("Missile Initialization")
 {
