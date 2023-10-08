@@ -62,6 +62,7 @@ void Lander::update()
         carriedHumanoid->setFreeFall(true); // Set freeFall for the carried humanoid
         carriedHumanoid = nullptr;          // Reset the carried humanoid
     }
+    
 }
 
 bool Lander::isMovingUp() const

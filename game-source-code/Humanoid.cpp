@@ -61,6 +61,7 @@ void Humanoid::update(const sf::Vector2f &playerPosition, const Player &player, 
             // Reset the humanoid to its original position
             reset();
         }
+        
     }
 
     if (freeFall && !touchingPlayer)
