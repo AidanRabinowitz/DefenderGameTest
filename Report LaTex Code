@@ -1,0 +1,82 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% witseiepaper-2005.tex
+%
+%                       Ken Nixon (12 October 2005)
+%
+%                       Sample Paper for ELEN417/455 2005
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Design and Implementation of the Arcade Game Defender in C++}
+
+\documentclass[10pt,twocolumn]{witseiepaper}
+
+%
+% All KJN's macros and goodies (some shameless borrowing from SPL)
+\usepackage{KJN}
+\pagenumbering{roman}
+%
+% PDF Info
+%
+\ifpdf
+\pdfinfo{
+/Title (INSTRUCTIONS AND STYLE GUIDELINES FOR THE PREPARATION OF FINAL YEAR LABORATORY PROJECT PAPERS : 2005 VERSION)
+/Author (Ken J Nixon)
+/CreationDate (D:200309251200)
+/ModDate (D:200510121530)
+/Subject (ELEN417/455 Paper Format, 2005)
+/Keywords (DES, encryption, key, decryption, cipher, Matlab)
+}
+\fi
+ \usepackage{pdfpages} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+
+
+
+
+\author{Aidan Rabinowitz (2341197), Taoni Mansingh (2349884)}
+\thanks{School of Electrical \& Information Engineering, University of the
+Witwatersrand, Private Bag 3, 2050, Johannesburg, South Africa}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\abstract{This report describes the design, implementation and design review of a Windows computer rendition of the arcade game Defender in modern C++ 17, using keyboard and mouse as controls and the SFML 2.6.0 library. The game design strives for an object oriented approach (OOP), whilst maintaining good readability and domain modelling with intuitive abstractions. Key abstractions are modelled using separate classes which interact through a central Game class, achieving an OOP design. The user controls are altered for a computer by including mouse-controlled player direction and shooting control, improving user experience instead of modelling the original arcade controls to only a keyboard. The game functions well and follows OOP principles in many cases, but has design flaws, impacting design requirements such as separation of logic and presentation layers, hiding information and keeping small functions and classes. This creates technical debt, because the game design suffered in order to produce more functionality, and the design can be greatly improved if it was refactored. Collission and movement tests and some tests specific to unique classes are performed.}
+
+\keywords{SFML, OOP, C++, Defender, Game, Technical Debt}
+
+
+\maketitle
+\thispagestyle{empty}\pagestyle{empty}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\section{Introduction and Background}
+\subsection{Success Criteria}
+\subsubsection{Functionality}
+\subsubsection{Design}
+\section{Domain Modelling}
+\section{Code Structure}
+\section{Key Abstractions}
+\subsection{Game}
+\subsection{Fuel}
+\subsection{Landers}
+\subsection{Humanoids}
+\subsection{Screens}
+\section{Class Interactions}
+\section{Technical Debt}
+\section{Testing}
+
+\section{Conclusion and Discussion}
+
+\end{document}
+
+" vim: ts=4
+" vim: tw=78
+" vim: autoindent
+" vim: shiftwidth=4
