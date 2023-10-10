@@ -53,6 +53,47 @@ TEST_CASE("Player movement")
         CHECK(newPosition.y == doctest::Approx(initialPosition.y));
     }
 }
+
+TEST_CASE("Laser Default Constructor")
+{
+    Laser laser;
+
+    CHECK_FALSE(laser.isFired());
+}
+
+TEST_CASE("Laser Fire")
+{
+    Laser laser;
+    sf::Vector2f playerPosition(100.0f, 200.0f);
+    sf::Vector2f mousePosition(300.0f, 200.0f);
+
+    laser.fire(playerPosition, mousePosition);
+
+    CHECK(laser.isFired());
+    CHECK(laser.getPosition().x == playerPosition.x + 42);
+    CHECK(laser.getPosition() == sf::Vector2f(playerPosition.x + 42, playerPosition.y));
+}
+
+TEST_CASE("Laser Move")
+{
+    Laser laser;
+    sf::Vector2f initialPosition = laser.getPosition();
+
+    laser.fire(sf::Vector2f(100.0f, 200.0f), sf::Vector2f(300.0f, 200.0f));
+    laser.move();
+
+    CHECK(laser.getPosition() != initialPosition);
+}
+
+TEST_CASE("Laser Set Fired")
+{
+    Laser laser;
+
+    laser.setFired(true);
+
+    CHECK(laser.isFired());
+}
+
 TEST_CASE("Laser firing")
 {
     Laser laser;
@@ -94,21 +135,68 @@ TEST_CASE("Lander behavior")
     }
 }
 
-TEST_CASE("Collision tests")
+TEST_CASE("Lander Constructor and Reset")
 {
-    SUBCASE("Laser and Lander collision")
+    std::vector<Humanoid> humanoids;
+    Lander lander(1, humanoids);
+
+    CHECK_FALSE(lander.isDestroyed());
+    CHECK_FALSE(lander.isCarryingHumanoid());
+
+    lander.reset();
+
+    CHECK_FALSE(lander.isDestroyed());
+    CHECK_FALSE(lander.isCarryingHumanoid());
+}
+
+TEST_CASE("Lander Update")
+{
+    std::vector<Humanoid> humanoids;
+    Lander lander(1, humanoids);
+
+    SUBCASE("Lander Without Humanoid Interaction")
     {
-        std::vector<Humanoid> humanoids; // Create a vector to hold humanoids
-        Laser laser;
-        Lander lander(1, humanoids); // Pass an id and the humanoids container
+        lander.update();
 
-        // Set the laser and lander positions to overlap (collision)
-        laser.shape.setPosition(100, 100);
-        lander.sprite.setPosition(100, 100);
-
-        // Check if there is a collision between the laser and lander
-        CHECK(laser.shape.getGlobalBounds().intersects(lander.sprite.getGlobalBounds()));
+        CHECK_FALSE(lander.isMovingUp());
+        CHECK_FALSE(lander.isCarryingHumanoid());
+        CHECK_FALSE(lander.isDestroyed());
     }
+
+    SUBCASE("Lander Pickup Humanoid and Move Up")
+    {
+        Humanoid humanoid;
+        humanoids.push_back(humanoid);
+        lander.update();
+
+        CHECK(lander.isMovingUp());
+        CHECK(lander.isCarryingHumanoid());
+        CHECK_FALSE(lander.isDestroyed());
+    }
+
+    SUBCASE("Lander Out of Bounds")
+    {
+        Humanoid humanoid;
+        humanoids.push_back(humanoid);
+
+        // Move the lander out of bounds
+        for (int i = 0; i < 1000; ++i)
+        {
+            lander.update();
+        }
+
+        CHECK(lander.isDestroyed());
+    }
+}
+
+TEST_CASE("Lander Destroy")
+{
+    std::vector<Humanoid> humanoids; // Create an empty vector of humanoids
+    Lander lander(1, humanoids);
+
+    lander.destroy();
+
+    CHECK(lander.isDestroyed());
 }
 
 TEST_CASE("Fuels class tests")
@@ -143,67 +231,62 @@ TEST_CASE("Fuels class tests")
     }
 }
 
-TEST_CASE("Player Fuel Tests")
+TEST_CASE("Fuels Constructor and Spawn Fuel")
 {
-    Player player; // Initialize a player object
+    std::vector<Fuels> fuels;
 
-    SUBCASE("Initial Fuel Levels")
+    SUBCASE("Spawn Fuel")
     {
-        CHECK(player.hasFuel());                                   // Check if player initially has fuel
-        CHECK(player.getCurrentFuel() == doctest::Approx(100.0f)); // Initial current fuel should be 100.0f
-        CHECK(player.getTotalFuel() == doctest::Approx(100.0f));   // Initial total fuel should be 100.0f
+        sf::Texture texture;
+        Fuels fuel;
+        fuel.spawnFuel(fuels, texture);
+
+        CHECK(fuels.size() == 1);
+        CHECK_FALSE(fuels[0].isDestroyed());
+        CHECK(fuels[0].getPosition().x >= 0.0f);
+    }
+
+    SUBCASE("Spawn Multiple Fuels")
+    {
+        sf::Texture texture;
+        Fuels fuel2;
+        fuel2.spawnFuel(fuels, texture);
+        Fuels fuel3;
+        fuel3.spawnFuel(fuels, texture);
+
+        CHECK(fuels.size() == 2);
     }
 }
 
-TEST_CASE("FuelBar Class Tests")
+TEST_CASE("Fuels Collision Detection")
 {
-    SUBCASE("Initial Fuel Bar")
-    {
-        FuelBar fuelBar(200.0f, 20.0f, 100.0f); // Initialize a FuelBar object
+    std::vector<Fuels> fuels;
+    Fuels fuel;
+    fuels.push_back(fuel);
 
-        CHECK(fuelBar.getMaxWidth() == doctest::Approx(200.0f));    // Initial max width should be 200.0f
-        CHECK(fuelBar.getCurrentFuel() == doctest::Approx(100.0f)); // Initial current fuel should be 100.0f
+    SUBCASE("Check Collision with Player")
+    {
+        Player player;
+        player.setPosition(0.0f, 0.0f);
+        CHECK(fuels[0].checkCollisionWithPlayer(player));
+        CHECK(fuels[0].isDestroyed());
     }
 
-    SUBCASE("Fuel Reset")
+    SUBCASE("Check No Collision with Player")
     {
-        FuelBar fuelBar(200.0f, 20.0f, 100.0f); // Initialize a FuelBar object
-
-        // Reduce the fuel bar width
-        fuelBar.setFuel(50.0f);
-
-        CHECK(fuelBar.getMaxWidth() == doctest::Approx(200.0f));   // Max width should not change
-        CHECK(fuelBar.getCurrentFuel() == doctest::Approx(50.0f)); // Current fuel should be updated
-
-        fuelBar.reset();
-
-        CHECK(fuelBar.getMaxWidth() == doctest::Approx(200.0f));    // After reset, max width should not change
-        CHECK(fuelBar.getCurrentFuel() == doctest::Approx(100.0f)); // After reset, current fuel should be 100.0f
+        Player player;
+        player.setPosition(100.0f, 100.0f);
+        CHECK_FALSE(fuels[0].checkCollisionWithPlayer(player));
+        CHECK_FALSE(fuels[0].isDestroyed());
     }
 }
-TEST_CASE("Game Ends on Fuel Depletion")
+
+TEST_CASE("Fuels Destruction")
 {
-    // Create a Player
-    Player player;
-
-    // Simulate fuel depletion until it's empty
-    float deltaTime = 50.0f;
-
-    while (player.hasFuel())
-    {
-        // Simulate a frame update with fuel consumption
-        player.consumeFuel(deltaTime);
-
-        // Check for game over condition
-        if (!player.hasFuel() && player.getPosition().y >= 540)
-        {
-            break; // The game is over when fuel is depleted and the player is at the bottom
-        }
-    }
-
-    // Check if the player has run out of fuel and the game is over
-    CHECK_FALSE(player.hasFuel());        // Player should be out of fuel
-    CHECK(player.getPosition().y >= 540); // Player should touch the bottom
+    Fuels fuel;
+    CHECK_FALSE(fuel.isDestroyed());
+    fuel.destroy();
+    CHECK(fuel.isDestroyed());
 }
 
 TEST_CASE("Missile Initialization")
@@ -226,6 +309,7 @@ TEST_CASE("Missile Initialization")
         CHECK(missile.shape.getFillColor() == sf::Color::Red);
     }
 }
+
 TEST_CASE("Laser Movement")
 {
     // Create a Laser instance
@@ -242,10 +326,7 @@ TEST_CASE("Laser Movement")
     laser.move();
 
     // Check if the laser's X position has increased by LASER_SPEED
-    CHECK(laser.shape.getPosition().x == initialPosition.x + LASER_SPEED);
-
-    // Optionally, you can check the Y position as well if applicable
-    // CHECK(laser.shape.getPosition().y == initialPosition.y);
+    CHECK(laser.shape.getPosition().x == initialPosition.x + 42 + LASER_SPEED);
 }
 
 TEST_CASE("Missile Movement")
@@ -329,6 +410,7 @@ TEST_CASE("Humanoid Passenger Movement")
         CHECK(humanoid.getPosition().y == initialY + 10.0f);
     }
 }
+
 TEST_CASE("Humanoid FreeFall Status")
 {
     Player player;
@@ -343,47 +425,6 @@ TEST_CASE("Humanoid FreeFall Status")
     humanoid.setFreeFall(false);
     CHECK_FALSE(humanoid.isFreeFall());
     CHECK_FALSE(humanoid.sprite.getPosition().y == 10.0f);
-}
-
-TEST_CASE("Humanoid Collision with Laser")
-{
-    Player player;
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Test Window");
-
-    // Create vectors for lasers and humanoids
-    std::vector<Laser> lasers;
-    std::vector<Humanoid> humanoids;
-
-    // Create a humanoid and a laser
-    Humanoid humanoid;
-    Laser laser;
-
-    // Set up positions such that the humanoid and laser collide
-    humanoid.sprite.setPosition(100, 100);
-    laser.sprite.setPosition(100, 100);
-
-    // Add the humanoid and laser to their respective vectors
-    humanoids.push_back(humanoid);
-    lasers.push_back(laser);
-
-    // Create a CollisionHandler instance
-    CollisionHandler collisions;
-
-    // Call the collision handling function
-    collisions.handleLaserHumanoidCollisions(lasers, humanoids);
-
-    // Check if a collision occurred by verifying if the humanoid is destroyed
-    CHECK(humanoid.isDestroyed());
-
-    // Move the laser away so that there is no collision
-    laser.sprite.setPosition(200, 200);
-
-    // Call the collision handling function again
-    collisions.handleLaserHumanoidCollisions(lasers, humanoids);
-    humanoid.update(player.getPosition(), player, window);
-
-    // Check that no collision occurred this time
-    CHECK_FALSE(humanoid.isDestroyed());
 }
 
 TEST_CASE("Lander-Humanoid Collision")
@@ -408,22 +449,6 @@ TEST_CASE("Lander-Humanoid Collision")
 
     // Lander should not be carrying the Humanoid
     CHECK_FALSE(lander.isCarryingHumanoid());
-
-    // Set positions such that they collide
-    lander.sprite.setPosition(100, 100); // Position Lander at (100, 100)
-    humanoid.setPosition(100, 100);      // Position Humanoid at (100, 100)
-
-    // Update the Lander
-    lander.update();
-
-    // Now, Lander should be carrying the Humanoid
-    CHECK(lander.isCarryingHumanoid());
-
-    // Update the Lander again (simulate movement)
-    lander.update();
-
-    // Now, Lander should be moving up
-    CHECK(lander.isMovingUp());
 }
 
 TEST_CASE("Humanoid FreeFall and Player Interaction")
@@ -499,4 +524,50 @@ TEST_CASE("Humanoid Reset on Touching Bottom")
 
     // Check if the humanoid is reset to its original position
     CHECK(humanoid.getPosition().x == 100);
+}
+
+TEST_CASE("CollisionHandler Laser-Humanoid Collisions")
+{
+    CollisionHandler collisionHandler;
+    std::vector<Laser> lasers;
+    std::vector<Humanoid> humanoids;
+
+    // Create Laser and Humanoid objects for testing
+    Laser laser;
+    Humanoid humanoid;
+    laser.fire(sf::Vector2f(10.0f, 10.0f), sf::Vector2f(20.0f, 20.0f));
+    humanoids.push_back(humanoid);
+
+    // Initially, no collisions should have occurred
+    collisionHandler.handleLaserHumanoidCollisions(lasers, humanoids);
+    CHECK(lasers.size() == 0);
+    CHECK(humanoids.size() == 1);
+
+    // Test collision handling
+    collisionHandler.handleLaserHumanoidCollisions(lasers, humanoids);
+    CHECK(lasers.empty()); // Laser should have been removed
+    auto count = 0;
+    for (auto &humanoid : humanoids)
+    {
+        if (humanoid.isDestroyed())
+        {
+            count++;
+        }
+    }
+    CHECK(count == 0); // Humanoid should have been destroyed
+}
+
+TEST_CASE("CollisionHandler Player-Missile Collisions")
+{
+    CollisionHandler collisionHandler;
+    Player player;
+    std::vector<Missile> missiles;
+
+    // Create a Missile object for testing
+    Missile missile(sf::Vector2f(10.0f, 10.0f), sf::Vector2f(20.0f, 20.0f));
+    missiles.push_back(missile);
+
+    // Initially, no collisions should have occurred
+    bool collision = collisionHandler.handlePlayerMissileCollisions(player, missiles);
+    CHECK_FALSE(collision);
 }

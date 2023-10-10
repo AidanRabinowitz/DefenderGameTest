@@ -14,6 +14,7 @@ public:
     bool isFired() const;
     void setFired(bool fired);
     bool fired;
+    sf::Vector2f getPosition() const override;
 
 private:
 };

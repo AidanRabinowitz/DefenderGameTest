@@ -8,7 +8,7 @@ project(elen3009-project)
 set(SRC_PATH "${CMAKE_SOURCE_DIR}/game-source-code") # path to game source code folder
 set(MAIN_CPP "main.cpp") # your cpp file that runs your game and contains the entry point main() function
 set(GAME_EXE_NAME "game") # name of the game executable
-set(TESTS_EXE_NAME "tests")
+set(TESTS_EXE_NAME "tests") # name of the test executable
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin") # the output directory for the executables
 set(WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}) # working directory for exe's so relative paths are correct when running from within VS Code
 get_filename_component(COMPILER_PATH ${CMAKE_CXX_COMPILER} DIRECTORY) # extract the path to the C++ compiler being used
@@ -54,6 +54,20 @@ target_include_directories(${TESTS_EXE_NAME} PRIVATE ${SRC_PATH}) # include game
 target_include_directories(${TESTS_EXE_NAME} PRIVATE "${doctest_SOURCE_DIR}/doctest") # include doctest header
 target_compile_features(${TESTS_EXE_NAME} PRIVATE cxx_std_17) # enable C++17 features for the target
 target_link_libraries(${TESTS_EXE_NAME} PRIVATE sfml-audio sfml-graphics) # link privately to hide SFML internal headers
+
+# Extract Doxygen documentation from the source code
+# Documentation is placed in a folder called "html" in the build directory
+# NB: Doxygen is not a dependency of the project, it is assumed that it is installed on the system
+find_package(Doxygen REQUIRED doxygen)
+
+# Doxygen options: see https://www.doxygen.nl/manual/config.html
+set(DOXYGEN_GENERATE_TREEVIEW YES)
+
+doxygen_add_docs(doxygen_docs
+    "${SRC_PATH}",
+    "${CMAKE_SOURCE_DIR}/test-source-code",
+    ALL
+    COMMENT "Generate HTML documentation")
 
 # ====================== Post-Build  ======================
 

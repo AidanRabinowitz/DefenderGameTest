@@ -24,7 +24,7 @@ public:
     void draw(sf::RenderWindow &window);
     void render(sf::RenderWindow &window) const;
 
-    sf::Vector2f getPosition() const;
+    virtual sf::Vector2f getPosition() const;
     // Laser methods
     sf::RectangleShape shape; // Rectangle shape for rendering
 

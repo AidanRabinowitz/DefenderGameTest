@@ -4,7 +4,8 @@
 Humanoid::Humanoid()
 {
     // Initialize 'destroyed' to false
-
+    texture.loadFromFile("resources/humanoid.png");
+    sprite.setTexture(texture);
     sprite.setScale(sf::Vector2f(0.1f, 0.1f));
     destroyed = false;
     freeFall = false;
