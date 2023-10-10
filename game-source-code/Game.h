@@ -1,4 +1,3 @@
-// game.h
 #pragma once
 
 #include <SFML/Graphics.hpp>
@@ -54,6 +53,7 @@ private:
     sf::Texture landerTexture;
     sf::Texture fuelsTexture;
     sf::Texture backgroundTexture;
+    sf::Texture playerTexture;
     sf::Sprite backgroundSprite;
     Player player;
     std::vector<Lander> landers;

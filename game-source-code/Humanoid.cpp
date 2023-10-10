@@ -3,8 +3,6 @@
 
 Humanoid::Humanoid()
 {
-    // Initialize 'destroyed' to false
-
     sprite.setScale(sf::Vector2f(0.1f, 0.1f));
     destroyed = false;
     freeFall = false;

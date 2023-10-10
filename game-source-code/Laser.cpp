@@ -33,3 +33,8 @@ void Laser::setFired(bool firedStatus)
 {
     fired = firedStatus;
 }
+
+sf::Vector2f Laser::getPosition() const
+{
+    return shape.getPosition();
+}

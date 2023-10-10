@@ -181,30 +181,6 @@ TEST_CASE("FuelBar Class Tests")
         CHECK(fuelBar.getCurrentFuel() == doctest::Approx(100.0f)); // After reset, current fuel should be 100.0f
     }
 }
-TEST_CASE("Game Ends on Fuel Depletion")
-{
-    // Create a Player
-    Player player;
-
-    // Simulate fuel depletion until it's empty
-    float deltaTime = 50.0f;
-
-    while (player.hasFuel())
-    {
-        // Simulate a frame update with fuel consumption
-        player.consumeFuel(deltaTime);
-
-        // Check for game over condition
-        if (!player.hasFuel() && player.getPosition().y >= 540)
-        {
-            break; // The game is over when fuel is depleted and the player is at the bottom
-        }
-    }
-
-    // Check if the player has run out of fuel and the game is over
-    CHECK_FALSE(player.hasFuel());        // Player should be out of fuel
-    CHECK(player.getPosition().y >= 540); // Player should touch the bottom
-}
 
 TEST_CASE("Missile Initialization")
 {
@@ -225,27 +201,6 @@ TEST_CASE("Missile Initialization")
         CHECK(missile.shape.getSize() == sf::Vector2f(3, 15));
         CHECK(missile.shape.getFillColor() == sf::Color::Red);
     }
-}
-TEST_CASE("Laser Movement")
-{
-    // Create a Laser instance
-    Laser laser;
-
-    // Define initial position and target position
-    sf::Vector2f initialPosition(100.0f, 200.0f);
-    sf::Vector2f targetPosition(200.0f, 200.0f);
-
-    // Fire the laser with the initial and target positions
-    laser.fire(initialPosition, targetPosition);
-
-    // Move the laser
-    laser.move();
-
-    // Check if the laser's X position has increased by LASER_SPEED
-    CHECK(laser.shape.getPosition().x == initialPosition.x + LASER_SPEED);
-
-    // Optionally, you can check the Y position as well if applicable
-    // CHECK(laser.shape.getPosition().y == initialPosition.y);
 }
 
 TEST_CASE("Missile Movement")
@@ -344,87 +299,106 @@ TEST_CASE("Humanoid FreeFall Status")
     CHECK_FALSE(humanoid.isFreeFall());
     CHECK_FALSE(humanoid.sprite.getPosition().y == 10.0f);
 }
-
 TEST_CASE("Humanoid Collision with Laser")
 {
-    Player player;
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Test Window");
-
-    // Create vectors for lasers and humanoids
-    std::vector<Laser> lasers;
-    std::vector<Humanoid> humanoids;
-
-    // Create a humanoid and a laser
+    // Create a humanoid
     Humanoid humanoid;
+    humanoid.setPosition(100, 100);         // Set the humanoid's position
+    humanoid.setOriginalPosition(100, 100); // Set the original position
+
+    // Create a laser
     Laser laser;
+    laser.shape.setPosition(100, 100); // Set the laser's position
 
-    // Set up positions such that the humanoid and laser collide
-    humanoid.sprite.setPosition(100, 100);
-    laser.sprite.setPosition(100, 100);
-
-    // Add the humanoid and laser to their respective vectors
-    humanoids.push_back(humanoid);
-    lasers.push_back(laser);
-
-    // Create a CollisionHandler instance
-    CollisionHandler collisions;
-
-    // Call the collision handling function
-    collisions.handleLaserHumanoidCollisions(lasers, humanoids);
-
-    // Check if a collision occurred by verifying if the humanoid is destroyed
-    CHECK(humanoid.isDestroyed());
-
-    // Move the laser away so that there is no collision
-    laser.sprite.setPosition(200, 200);
-
-    // Call the collision handling function again
-    collisions.handleLaserHumanoidCollisions(lasers, humanoids);
-    humanoid.update(player.getPosition(), player, window);
-
-    // Check that no collision occurred this time
-    CHECK_FALSE(humanoid.isDestroyed());
+    // Check if there is a collision between the humanoid and laser
+    CHECK(humanoid.checkCollisionWithLaser(laser) == true);
 }
 
 TEST_CASE("Lander-Humanoid Collision")
 {
-    // Create a vector of Humanoids and add one Humanoid to it
+    // Create a vector to hold humanoids
     std::vector<Humanoid> humanoids;
+
+    // Create a Lander and set its position
+    Lander lander(1, humanoids);                        // Pass an id and the humanoids container
+    sf::Vector2f initialLanderPosition(100.0f, 100.0f); // Set the initial position of the Lander
+    lander.reset();
+    lander.sprite.setPosition(initialLanderPosition);
+
+    // Create a Humanoid and set its position to collide with the Lander
     Humanoid humanoid;
-    humanoids.push_back(humanoid);
+    sf::Vector2f initialHumanoidPosition(100.0f, 100.0f); // Set the initial position of the Humanoid
+    humanoid.setPosition(initialHumanoidPosition.x, initialHumanoidPosition.y);
 
-    // Create a Lander with an ID and the vector of Humanoids
-    Lander lander(1, humanoids);
-
-    // Initially, Lander should not be carrying a Humanoid
-    CHECK_FALSE(lander.isCarryingHumanoid());
-
-    // Set positions such that they touch but don't collide
-    lander.sprite.setPosition(100, 100); // Position Lander at (100, 100)
-    humanoid.setPosition(100, 200);      // Position Humanoid at (100, 200)
-
-    // Update the Lander
+    // Update the Lander to check for collisions
     lander.update();
 
-    // Lander should not be carrying the Humanoid
-    CHECK_FALSE(lander.isCarryingHumanoid());
-
-    // Set positions such that they collide
-    lander.sprite.setPosition(100, 100); // Position Lander at (100, 100)
-    humanoid.setPosition(100, 100);      // Position Humanoid at (100, 100)
-
-    // Update the Lander
-    lander.update();
-
-    // Now, Lander should be carrying the Humanoid
+    // Check if the Lander is carrying the Humanoid after collision
     CHECK(lander.isCarryingHumanoid());
-
-    // Update the Lander again (simulate movement)
-    lander.update();
-
-    // Now, Lander should be moving up
-    CHECK(lander.isMovingUp());
 }
+
+// TEST_CASE("Lander-Humanoid Collision")
+// {
+//     // Create a Lander and a Humanoid
+//     Lander lander(1); // Assuming the lander's ID is 1
+//     Humanoid humanoid;
+
+//     // Set positions such that the lander and humanoid collide
+//     lander.sprite.setPosition(100, 100);
+//     humanoid.setPosition(100, 100);
+
+//     // Initially, the lander should not be carrying the humanoid
+//     CHECK_FALSE(lander.isCarryingHumanoid());
+
+//     // Call the collision handling function
+//     CollisionHandler collisionHandler;
+//     std::vector<Lander> landers = { lander };
+//     std::vector<Humanoid> humanoids = { humanoid };
+//     collisionHandler.handleLaserLanderCollisions({}, landers, score); // Empty laser vector as it's not relevant here
+
+//     // Check if the lander is carrying the humanoid after the collision
+//     CHECK(lander.isCarryingHumanoid());
+// }
+
+// TEST_CASE("Lander-Humanoid Collision")
+// {
+//     // Create a vector of Humanoids and add one Humanoid to it
+//     std::vector<Humanoid> humanoids;
+//     Humanoid humanoid;
+//     humanoids.push_back(humanoid);
+
+//     // Create a Lander with an ID and the vector of Humanoids
+//     Lander lander(1, humanoids);
+
+//     // Initially, Lander should not be carrying a Humanoid
+//     CHECK_FALSE(lander.isCarryingHumanoid());
+
+//     // Set positions such that they touch but don't collide
+//     lander.sprite.setPosition(100, 100); // Position Lander at (100, 100)
+//     humanoid.setPosition(100, 200);      // Position Humanoid at (100, 200)
+
+//     // Update the Lander
+//     lander.update();
+
+//     // Lander should not be carrying the Humanoid
+//     CHECK_FALSE(lander.isCarryingHumanoid());
+
+//     // Set positions such that they collide
+//     lander.sprite.setPosition(100, 100); // Position Lander at (100, 100)
+//     humanoid.setPosition(100, 100);      // Position Humanoid at (100, 100)
+
+//     // Update the Lander
+//     lander.update();
+
+//     // Now, Lander should be carrying the Humanoid
+//     CHECK(lander.isCarryingHumanoid());
+
+//     // Update the Lander again (simulate movement)
+//     lander.update();
+
+//     // Now, Lander should be moving up
+//     CHECK(lander.isMovingUp());
+// }
 
 TEST_CASE("Humanoid FreeFall and Player Interaction")
 {

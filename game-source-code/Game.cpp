@@ -32,7 +32,6 @@ Game::Game()
     }
     createHumanoids();
 }
-
 void Game::run(sf::RenderWindow &window)
 {
     handleInput(window);
@@ -45,7 +44,7 @@ void Game::resetGame()
     // Reset player position and fuel
     player.setPosition(WINDOW_WIDTH / 2 - 25, WINDOW_HEIGHT - 60);
     player.resetCurrentFuel();
-    // Clear the arrays of players and missiles and landers and fuels/bar and humanoids on the window
+    // Clear the arrays of players and missiles and landers and fuels and humanoids on the window
     landers.clear();
     missiles.clear();
     lasers.clear();
@@ -454,13 +453,10 @@ void Game::displayScreen(sf::RenderWindow &window, sf::Font &font, bool gameStar
             return;
         }
     }
-
     screen.setTexture(texture);
-
     // Scale the screen to fit the window
     float scaleX = static_cast<float>(window.getSize().x) / texture.getSize().x;
     float scaleY = static_cast<float>(window.getSize().y) / texture.getSize().y;
     screen.setScale(scaleX, scaleY);
-
     window.draw(screen);
 }
