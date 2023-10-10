@@ -188,6 +188,7 @@ TEST_CASE("Game Ends on Fuel Depletion")
 
     // Simulate fuel depletion until it's empty
     float deltaTime = 50.0f;
+
     while (player.hasFuel())
     {
         // Simulate a frame update with fuel consumption
@@ -224,6 +225,27 @@ TEST_CASE("Missile Initialization")
         CHECK(missile.shape.getSize() == sf::Vector2f(3, 15));
         CHECK(missile.shape.getFillColor() == sf::Color::Red);
     }
+}
+TEST_CASE("Laser Movement")
+{
+    // Create a Laser instance
+    Laser laser;
+
+    // Define initial position and target position
+    sf::Vector2f initialPosition(100.0f, 200.0f);
+    sf::Vector2f targetPosition(200.0f, 200.0f);
+
+    // Fire the laser with the initial and target positions
+    laser.fire(initialPosition, targetPosition);
+
+    // Move the laser
+    laser.move();
+
+    // Check if the laser's X position has increased by LASER_SPEED
+    CHECK(laser.shape.getPosition().x == initialPosition.x + LASER_SPEED);
+
+    // Optionally, you can check the Y position as well if applicable
+    // CHECK(laser.shape.getPosition().y == initialPosition.y);
 }
 
 TEST_CASE("Missile Movement")

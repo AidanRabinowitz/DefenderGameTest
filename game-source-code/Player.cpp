@@ -2,7 +2,6 @@
 #include "GameConstants.h"
 Player::Player()
 {
-    // Your existing constructor code
     playerTexture.loadFromFile("resources/playerShip.png");
     totalFuel = 100.0f;
     currentFuel = 100.0f;
@@ -15,21 +14,24 @@ Player::Player()
 
 void Player::handleMovement(sf::RenderWindow &window)
 {
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && getPosition().x > 0)
+    if (getCurrentFuel() > 0)
     {
-        move(-PLAYER_SPEED, 0);
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && getPosition().x < WINDOW_WIDTH - 50)
-    {
-        move(PLAYER_SPEED, 0);
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && getPosition().y > 0)
-    {
-        move(0, -PLAYER_SPEED);
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && getPosition().y < WINDOW_HEIGHT - 50)
-    {
-        move(0, PLAYER_SPEED);
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && getPosition().x > 0)
+        {
+            move(-PLAYER_SPEED, 0);
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && getPosition().x < WINDOW_WIDTH - 50)
+        {
+            move(PLAYER_SPEED, 0);
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && getPosition().y > 0)
+        {
+            move(0, -PLAYER_SPEED);
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && getPosition().y < WINDOW_HEIGHT - 50)
+        {
+            move(0, PLAYER_SPEED);
+        }
     }
 }
 
