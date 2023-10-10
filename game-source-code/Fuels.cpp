@@ -5,8 +5,7 @@ Fuels::Fuels()
     : destroyed(false)
 {
     // Initialize 'destroyed' to false
-    texture.loadFromFile("resources/fuel.png");
-    sprite.setTexture(texture);
+
     sprite.setScale(sf::Vector2f(0.1f, 0.1f));
     // Set the initial position and other properties for the fuel
 }

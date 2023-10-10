@@ -18,11 +18,6 @@ const sf::FloatRect GameEntity::getGlobalBounds() const
     return sprite.getGlobalBounds();
 }
 
-GameEntity::~GameEntity()
-{
-    // Common cleanup for all game entities if needed
-}
-
 void GameEntity::move(float xOffset, float yOffset)
 {
     sprite.move(xOffset, yOffset);
@@ -33,6 +28,10 @@ sf::Vector2f GameEntity::getPosition() const
     return sprite.getPosition();
 }
 
+GameEntity::~GameEntity()
+{
+    // Common cleanup for all game entities if needed
+}
 void GameEntity::draw(sf::RenderWindow &window)
 {
     window.draw(shape);

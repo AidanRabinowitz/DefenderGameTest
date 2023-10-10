@@ -57,17 +57,7 @@ target_link_libraries(${TESTS_EXE_NAME} PRIVATE sfml-audio sfml-graphics) # link
 
 # Extract Doxygen documentation from the source code
 # Documentation is placed in a folder called "html" in the build directory
-# NB: Doxygen is not a dependency of the project, it is assumed that it is installed on the system
-find_package(Doxygen REQUIRED doxygen)
 
-# Doxygen options: see https://www.doxygen.nl/manual/config.html
-set(DOXYGEN_GENERATE_TREEVIEW YES)
-
-doxygen_add_docs(doxygen_docs
-    "${SRC_PATH}",
-    "${CMAKE_SOURCE_DIR}/test-source-code",
-    ALL
-    COMMENT "Generate HTML documentation")
 
 # ====================== Post-Build  ======================
 

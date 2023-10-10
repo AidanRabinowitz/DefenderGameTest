@@ -7,25 +7,31 @@ Game::Game()
       isPauseScreenVisible(false), isWinScreenVisible(false), isGameOver(false),
       level(1), previousLevelScore(0), fuelBar(200.0f, 20.0f, 100.f), humansKilled(0)
 {
-    // Load background texture
-    backgroundTexture.loadFromFile("resources/background.jpg");
-    // Set the background sprite
+    // Load textures in the game constructor, and check for loading failure, so they are available for setting when game objects are made
+    if (!backgroundTexture.loadFromFile("resources/background.jpg"))
+    {
+        std::cout << "Error loading background texture" << std::endl;
+    }
+    // Set background texture, so it is available as soon as the game starts.
     backgroundSprite.setTexture(backgroundTexture);
     if (!font.loadFromFile("resources/sansation.ttf"))
     {
-        std::cout << "Loading font error" << std::endl;
+        std::cout << "Error loading font" << std::endl;
     }
-    // Initialize textures
     if (!humanoidTexture.loadFromFile("resources/humanoid.png"))
     {
-        std::cout << "Loading humanoid.png error" << std::endl;
+        std::cout << "Error loading humanoid texture" << std::endl;
     }
-
-    landerTexture.loadFromFile("resources/landerShip.png");
-    fuelsTexture.loadFromFile("resources/fuel.png");
+    if (!landerTexture.loadFromFile("resources/landerShip.png"))
+    {
+        std::cout << "Error loading lander texture" << std::endl;
+    }
+    if (!fuelsTexture.loadFromFile("resources/fuel.png"))
+    {
+        std::cout << "Error loading fuels texture" << std::endl;
+    }
     createHumanoids();
 }
-
 void Game::run(sf::RenderWindow &window)
 {
     handleInput(window);
