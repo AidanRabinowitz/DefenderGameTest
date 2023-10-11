@@ -20,6 +20,7 @@ public:
     Game();
     void run(sf::RenderWindow &window);
     void spawnLanders();
+    bool gameOverStatus();
     // Function to display a text object
     void drawText(sf::RenderWindow &window, const sf::Text &text);
     void displayLevel(sf::RenderWindow &window, sf::Font &font, int level);

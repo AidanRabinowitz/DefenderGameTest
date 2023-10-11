@@ -626,31 +626,34 @@ TEST_CASE("Scoring when Laser hits Lander")
     // Perform additional checks for the Laser's fired state and position
     CHECK(lasers[0].isFired());
 }
-// TEST_CASE("Player Runs Out of Fuel, Descends, and Game Ends")
-// {
-//     // Create a game object
-//     Game game; // Adjust this constructor if needed
+TEST_CASE("Player Runs Out of Fuel, Descends, and Game Ends")
+{
+    // Create a game object and player
+    Game game; // Adjust this constructor if needed
+    Player player;
 
-//     // Replace the player's fuel with a small value for testing
-//     Player &player = game.getPlayer();
-//     player.resetCurrentFuel();
-//     REQUIRE(player.hasFuel());
+    // Replace the player's fuel with a small value for testing
+    player.resetCurrentFuel();
+    REQUIRE(player.hasFuel());
 
-//     // Simulate consuming fuel until it runs out
-//     float deltaTime = 0.1f; // Replace with an appropriate time interval
+    // Simulate consuming fuel until it runs out
+    float deltaTime = 0.1f; // Replace with an appropriate time interval
 
-//     // Simulate fuel consumption until it runs out
-//     while (player.hasFuel())
-//     {
-//         game.update(deltaTime);
-//     }
+    // Simulate fuel consumption until it runs out
+    while (player.hasFuel())
+    {
+        player.consumeFuel(deltaTime); // Simulate fuel consumption
+    }
 
-//     // Ensure the player is out of fuel
-//     REQUIRE_FALSE(player.hasFuel());
+    // Ensure the player is out of fuel
+    REQUIRE_FALSE(player.hasFuel());
 
-//     // Simulate player's descent
-//     game.update(deltaTime);
+    // Simulate player's descent
+    // You may have a function like `player.descend()` or something similar,
+    // depending on how your game handles the descent of the player when they run out of fuel.
+    player.move(0.0f, 4.0f);
 
-//     // Check if the game is marked as over
-//     REQUIRE(game.isGameOver());
-// }
+    // Check if the game is marked as over
+    bool isGameOver = game.gameOverStatus(); // Replace with your actual method
+    REQUIRE(isGameOver);
+}

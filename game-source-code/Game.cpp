@@ -462,3 +462,8 @@ void Game::displayScreen(sf::RenderWindow &window, sf::Font &font, bool gameStar
 
     window.draw(screen);
 }
+
+bool Game::gameOverStatus()
+{
+    return isGameOver;
+}
