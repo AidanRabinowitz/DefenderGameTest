@@ -18,21 +18,91 @@
 class Game : public GameEntity
 {
 public:
+
+    /**
+     * @brief Construct a new Game object
+     * 
+     */
     Game();
+
+    /**
+     * @brief A function to run the game logic, including handling input, updating game state, and rendering.
+     * 
+     * @param window A reference to the SFML RenderWindow.
+     */
     void run(sf::RenderWindow &window);
+
+    /**
+     * @brief A function to spawn Landers in the game.
+     * 
+     */
     void spawnLanders();
-    // Function to display a text object
+
+    /**
+     * @brief  A function to draw a text object to the SFML window.
+     * 
+     * @param window A reference to the SFML RenderWindow.
+     * @param text The SFML Text object to be drawn.
+     */
     void drawText(sf::RenderWindow &window, const sf::Text &text);
+
+    /**
+     * @brief A function to display the current game level.
+     * 
+     * @param window A reference to the SFML RenderWindow.
+     * @param font The font used for rendering the text.
+     * @param level The current game level to display.
+     */
     void displayLevel(sf::RenderWindow &window, sf::Font &font, int level);
 
-    // Function to display the score and high score
+    /**
+     * @brief A function to display the current game score and high score.
+     * 
+     * @param window A reference to the SFML RenderWindow.
+     * @param font The font used for rendering the text.
+     * @param score The current game score.
+     * @param highScore The high score achieved in the game.
+     */
     void displayScore(sf::RenderWindow &window, sf::Font &font, int score, int highScore);
+
+    /**
+     * @brief A function to load textures for various game elements, such as screens.
+     * 
+     */
     void loadScreenTextures();
 
-    // Function to display different screens
+    /**
+     * @brief A function to display the different screens based on the game state.
+     * 
+     * @param window A reference to the SFML RenderWindow.
+     * @param font The font used for rendering the text.
+     * @param gameStarted Indicates if the game is started.
+     * @param isPauseScreenVisible Indicates if the pause screen is visible
+     * @param isGameOver Indicates if the game over screen is visible.
+     * @param isWinScreenVisible Indicates if the win screen is visible.
+     * @param level The current game level.
+     */
     void displayScreen(sf::RenderWindow &window, sf::Font &font, bool gameStarted, bool isPauseScreenVisible, bool isGameOver, bool isWinScreenVisible, int level);
+
+    /**
+     * @brief Create Humanoid objects
+     * 
+     */
     void createHumanoids();
-    int humansKilled = 0; // Initialize the number of humans killed in the start to 0
+
+    /**
+     * @brief Initialize the number of humans killed in the start to 0
+     * 
+     */
+    int humansKilled = 0; 
+
+    /**
+     * @brief Display the count of humans killed on the game screen.
+     * 
+     * @param window A reference to the SFML RenderWindow.
+     * @param font The font used for rendering the text.
+     * @param humansKilled The number of humans killed.
+     */
     void displayHumansKilled(sf::RenderWindow &window, sf::Font &font, int humansKilled);
 
 private:
@@ -68,8 +138,31 @@ private:
     sf::Clock fuelSpawnTimer;
     ScreenManager screenManager;
     sf::Font font;
+
+    /**
+     * @brief A function to reset the game to its initial state.
+     * 
+     */
     void resetGame();
+
+    /**
+     * @brief A function to handle user input for the game.
+     * 
+     * @param window A reference to the SFML RenderWindow.
+     */
     void handleInput(sf::RenderWindow &window);
+
+    /**
+     * @brief A function to update the game state, including the positions of game objects and collisions.
+     * 
+     * @param window A reference to the SFML RenderWindow.
+     */
     void update(sf::RenderWindow &window);
+
+    /**
+     * @brief A function to render the game, including game objects, text, and screens.
+     * 
+     * @param window A reference to the SFML RenderWindow.
+     */
     void render(sf::RenderWindow &window);
 };

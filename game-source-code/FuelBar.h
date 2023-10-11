@@ -5,20 +5,46 @@
 class FuelBar
 {
 public:
-    // Constructor with explicit parameters
+    /**
+     * @brief Construct a new Fuel Bar object with parameters.
+     * 
+     * @param maxWidth The maximum width of the fuel bar.
+     * @param height The height of the fuel bar.
+     * @param initialFuel The initial fuel capacity of the bar.
+     */
     FuelBar(float maxWidth, float height, float initialFuel);
 
-    // Reset the fuel bar to its initial state
+    /**
+     * @brief A function to reset the fuel bar to its initial state, restoring the initial fuel capacity.
+     * 
+     */
     void reset();
 
-    // Set the current fuel level and update the bar
+    /**
+     * @brief A function to set the current fuel level and update the visual representation of the bar.
+     * 
+     * @param currentFuel The current fuel level to set.
+     */
     void setFuel(float currentFuel);
 
-    // Get the maximum width of the fuel bar
+    /**
+     * @brief A function to get the maximum width of the fuel bar.
+     * 
+     * @return float; the maximum width of the fuel bar.
+     */
     float getMaxWidth() const;
 
-    // Render the fuel bar to the given window
+    /**
+     * @brief A function to render the fuel bar to the given SFML window.
+     * 
+     * @param window A reference to the SFML RenderWindow where the fuel bar should be rendered.
+     */
     void render(sf::RenderWindow &window) const;
+    /**
+     * @brief A function to get the current fuel level of the bar.
+     * 
+     * @return float; the current fuel level.
+     */
     float getCurrentFuel() const;
 
 private:
@@ -27,6 +53,11 @@ private:
     float initialFuel;      // The initial total fuel capacity
     float currentFuel;      // The current fuel level
 
-    // Update the size of the fuel bar based on the current fuel level
+    /**
+     * @brief A function to update the size of the fuel bar based on the current fuel level.
+     * i.e. calculates the percentage of current fuel relative to the initial capacity
+     * and updates the size of the visual bar accordingly.
+     * 
+     */
     void updateBarSize();
 };
