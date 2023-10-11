@@ -24,7 +24,7 @@ public:
     // Function to display a text object
     void drawText(sf::RenderWindow &window, const sf::Text &text);
     void displayLevel(sf::RenderWindow &window, sf::Font &font, int level);
-
+    void handleFuelDepletion(Player &player);
     // Function to display the score and high score
     void displayScore(sf::RenderWindow &window, sf::Font &font, int score, int highScore);
     void loadScreenTextures();

@@ -208,7 +208,17 @@ void Game::spawnLanders()
         nextLanderId++; // Increment the id for the next Lander
     }
 }
-
+void Game::handleFuelDepletion(Player &player)
+{
+    if (player.getCurrentFuel() <= 0)
+    {
+        player.move(0.0f, 4.0f);
+        if (player.getPosition().y > WINDOW_HEIGHT - 60)
+        {
+            isGameOver = true;
+        }
+    }
+}
 void Game::update(sf::RenderWindow &window)
 {
     if (gameStarted && !isPauseScreenVisible && !isGameOver)
@@ -261,13 +271,7 @@ void Game::update(sf::RenderWindow &window)
         // fuelBar.update();
         float deltaTime = frameClock.restart().asSeconds();
         player.consumeFuel(deltaTime);
-        if (player.getCurrentFuel() <= 0)
-        {
-            player.move(0.0f, 4.0f);
-            if (player.getPosition().y > WINDOW_HEIGHT - 60)
-                isGameOver = true;
-        }
-
+        handleFuelDepletion(player); // Handle player movement when fuel depletes
         // Fire Missiles from Landers towards the player's ship after the desired interval
         for (size_t i = 0; i < landers.size(); i++)
         {
