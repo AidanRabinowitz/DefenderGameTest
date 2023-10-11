@@ -61,6 +61,10 @@ void Player::resetCurrentFuel()
 {
     currentFuel = 100.0f;
 }
+void Player::setCurrentFuel(float fuelValue)
+{
+    currentFuel = fuelValue;
+}
 bool Player::hasFuel() const
 {
     return currentFuel > 0;

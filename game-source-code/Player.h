@@ -20,6 +20,7 @@ public:
     bool hasFuel() const; // Add this function to check if there is fuel
     void resetCurrentFuel();
     void handleMovement(sf::RenderWindow &window);
+    void setCurrentFuel(float fuelValue);
 
 private:
     bool descending;           // Flag to indicate whether the player is descending

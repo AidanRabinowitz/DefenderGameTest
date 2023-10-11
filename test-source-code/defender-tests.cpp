@@ -626,26 +626,33 @@ TEST_CASE("Scoring when Laser hits Lander")
     // Perform additional checks for the Laser's fired state and position
     CHECK(lasers[0].isFired());
 }
+
 TEST_CASE("Player Runs Out of Fuel, Descends, and Game Ends")
 {
     // Create a game object and player
     Game game; // Adjust this constructor if needed
     Player player;
 
+    // Get the initial position of the player
+    sf::Vector2f initialPosition = player.getPosition();
+
     // Replace the player's fuel with a small value for testing
     player.resetCurrentFuel();
-    REQUIRE(player.hasFuel());
-
-    // Consume all the fuel immediately
-    player.consumeFuel(110.0f);
-
-    // Ensure the player is out of fuel
-    REQUIRE_FALSE(player.getCurrentFuel() > 0.0f);
+    player.setCurrentFuel(0.0f); // Set the player's fuel to 0
+    REQUIRE(player.getCurrentFuel() == 0.0f);
 
     // Call the function to handle fuel depletion and player movement
     game.handleFuelDepletion(player);
 
+    // Get the final position of the player
+    sf::Vector2f finalPosition = player.getPosition();
+
     // Check if the game is marked as over
     bool isGameOver = game.gameOverStatus(); // Replace with your actual method
+
+    // Verify that the player has moved
+    REQUIRE_FALSE(initialPosition == finalPosition);
+
+    // Verify that the game is marked as over, since the player should have hit the ground
     REQUIRE(isGameOver);
 }
