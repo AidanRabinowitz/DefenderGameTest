@@ -4,7 +4,8 @@
 Humanoid::Humanoid()
 {
     // Initialize 'destroyed' to false
-
+    texture.loadFromFile("resources/humanoid.png");
+    sprite.setTexture(texture);
     sprite.setScale(sf::Vector2f(0.1f, 0.1f));
     destroyed = false;
     freeFall = false;
@@ -148,5 +149,4 @@ void Humanoid::setCarried(bool carriedStatus)
 void Humanoid::setFreeFall(bool fallStatus)
 {
     freeFall = fallStatus;
-    std::cout << "falling" << std::endl;
 }

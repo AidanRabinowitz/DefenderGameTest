@@ -14,7 +14,6 @@
 #include "Fuels.h"
 #include "Humanoid.h"
 #include "CollisionHandler.h"
-#include "ScreenManager.h"
 class Game : public GameEntity
 {
 public:
@@ -31,12 +30,19 @@ public:
      * @param window A reference to the SFML RenderWindow.
      */
     void run(sf::RenderWindow &window);
-
+    
     /**
      * @brief A function to spawn Landers in the game.
      * 
      */
     void spawnLanders();
+    
+    /**
+     * @brief A function to check if the game is over.
+     * 
+     * @return true if the game is over, false otherwise.
+     */
+    bool gameOverStatus();
 
     /**
      * @brief  A function to draw a text object to the SFML window.
@@ -54,6 +60,13 @@ public:
      * @param level The current game level to display.
      */
     void displayLevel(sf::RenderWindow &window, sf::Font &font, int level);
+    
+    /**
+     * @brief A function to handle fuel depletion for the player.
+     * 
+     * @param player A reference to the Player object.
+     */
+    void handleFuelDepletion(Player &player);
 
     /**
      * @brief A function to display the current game score and high score.
@@ -70,6 +83,13 @@ public:
      * 
      */
     void loadScreenTextures();
+    
+    /**
+     * @brief A function to update the game state, including the positions of game objects and collisions.
+     * 
+     * @param window A reference to the SFML RenderWindow.
+     */
+    void update(sf::RenderWindow &window);
 
     /**
      * @brief A function to display the different screens based on the game state.
@@ -85,19 +105,19 @@ public:
     void displayScreen(sf::RenderWindow &window, sf::Font &font, bool gameStarted, bool isPauseScreenVisible, bool isGameOver, bool isWinScreenVisible, int level);
 
     /**
-     * @brief Create Humanoid objects
+     * @brief A function to create Humanoid objects.
      * 
      */
     void createHumanoids();
 
     /**
-     * @brief Initialize the number of humans killed in the start to 0
+     * @brief Initialize the number of humans killed in the start to 0.
      * 
      */
     int humansKilled = 0; 
 
     /**
-     * @brief Display the count of humans killed on the game screen.
+     * @brief A function to display the count of humans killed on the game screen.
      * 
      * @param window A reference to the SFML RenderWindow.
      * @param font The font used for rendering the text.
@@ -136,7 +156,6 @@ private:
     sf::Clock missileTimer;
     sf::Clock frameClock;
     sf::Clock fuelSpawnTimer;
-    ScreenManager screenManager;
     sf::Font font;
 
     /**
@@ -151,13 +170,6 @@ private:
      * @param window A reference to the SFML RenderWindow.
      */
     void handleInput(sf::RenderWindow &window);
-
-    /**
-     * @brief A function to update the game state, including the positions of game objects and collisions.
-     * 
-     * @param window A reference to the SFML RenderWindow.
-     */
-    void update(sf::RenderWindow &window);
 
     /**
      * @brief A function to render the game, including game objects, text, and screens.

@@ -1,4 +1,4 @@
-#include "game.h"
+#include "Game.h"
 #include "GameEntity.h"
 #include <iostream>
 Game::Game()
@@ -208,7 +208,17 @@ void Game::spawnLanders()
         nextLanderId++; // Increment the id for the next Lander
     }
 }
-
+void Game::handleFuelDepletion(Player &player)
+ {
+     if (player.getCurrentFuel() <= 0)
+     {
+         player.move(0.0f, 4.0f);
+         if (player.getPosition().y > WINDOW_HEIGHT - 60)
+         {
+             isGameOver = true;
+         }
+     }
+ }
 void Game::update(sf::RenderWindow &window)
 {
     if (gameStarted && !isPauseScreenVisible && !isGameOver)
@@ -317,7 +327,6 @@ void Game::update(sf::RenderWindow &window)
 void Game::render(sf::RenderWindow &window) // Rendering the game shapes and sprites
 {
     window.clear();
-    screenManager.drawCurrentScreen(window);
     window.draw(backgroundSprite);
     player.render(window);
 
@@ -462,4 +471,9 @@ void Game::displayScreen(sf::RenderWindow &window, sf::Font &font, bool gameStar
     screen.setScale(scaleX, scaleY);
 
     window.draw(screen);
+}
+
+bool Game::gameOverStatus()
+{
+    return isGameOver;
 }

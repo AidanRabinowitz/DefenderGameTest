@@ -9,7 +9,7 @@ class Missile : public GameEntity
 public:
 
     /**
-     * @brief Construct a new Missile object
+     * @brief Construct a new Missile object.
      * 
      * @param initialPosition The initial position of the missile.
      * @param targetPosition The position of the missile's target.

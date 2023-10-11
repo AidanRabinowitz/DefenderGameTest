@@ -7,7 +7,7 @@ class Player : public sf::Sprite
 public:
 
     /**
-     * @brief Construct a new Player object
+     * @brief Construct a new Player object.
      * 
      */
     Player();
@@ -106,10 +106,20 @@ public:
 
     /**
      * @brief A function to handle player movement based on user input.
+     * i.e.  processes keyboard input to move the player character.
+     * It checks the status of W, A, S, D keys and moves the player accordingly.
+     * The movement is constrained by the window boundaries.
      * 
      * @param window The SFML RenderWindow for handling input.
      */
     void handleMovement(sf::RenderWindow &window);
+    
+    /**
+     * @brief A function to set the current fuel level.
+     * 
+     * @param fuelValue The new fuel level to set.
+     */
+    void setCurrentFuel(float fuelValue);
 
 private:
     bool descending;           // Flag to indicate whether the player is descending

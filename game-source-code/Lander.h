@@ -10,7 +10,7 @@ class Lander : public GameEntity
 public:
 
     /**
-     * @brief Construct a new Lander object
+     * @brief Construct a new Lander object.
      * 
      * @param id The identifier for the lander.
      * @param humanoids Reference to a vector of humanoid objects.

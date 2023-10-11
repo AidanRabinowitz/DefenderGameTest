@@ -60,7 +60,7 @@ public:
     /**
      * @brief A function to get the current position of the entity.
      * 
-     * @return sf::Vector2f The position of the entity.
+     * @return sf::Vector2f; The position of the entity.
      */
     virtual sf::Vector2f getPosition() const;
 

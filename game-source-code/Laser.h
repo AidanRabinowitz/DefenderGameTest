@@ -10,7 +10,7 @@ class Laser : public GameEntity
 public:
 
     /**
-     * @brief Construct a new Laser object
+     * @brief Construct a new Laser object.
      * 
      */
     Laser();

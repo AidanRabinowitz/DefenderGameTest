@@ -10,7 +10,7 @@ class Fuels : public GameEntity
 {
 public:
     /**
-     * @brief Construct a new Fuels object
+     * @brief Construct a new Fuels object.
      * 
      */
     Fuels();

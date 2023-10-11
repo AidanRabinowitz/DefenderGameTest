@@ -9,6 +9,7 @@
 #include "GameEntity.h"
 #include "Humanoid.h"
 #include "CollisionHandler.h"
+#include "Game.h"
 
 TEST_CASE("Player movement")
 {
@@ -570,4 +571,88 @@ TEST_CASE("CollisionHandler Player-Missile Collisions")
     // Initially, no collisions should have occurred
     bool collision = collisionHandler.handlePlayerMissileCollisions(player, missiles);
     CHECK_FALSE(collision);
+}
+
+TEST_CASE("Scoring when Laser hits Lander")
+{
+    // Create a vector of lasers
+    std::vector<Laser> lasers;
+
+    // Create a vector of landers
+    std::vector<Lander> landers;
+
+    // Initialize the score
+    int score = 0;
+
+    // Add a Laser and a Lander to the vectors
+    Laser laser;
+    std::vector<Humanoid> humanoids; // Create a vector to hold humanoids
+    Lander lander(1, humanoids);     // Pass an id and the humanoids container
+
+    // Set positions for laser and lander
+    sf::Vector2f laserPosition(100, 100);  
+    sf::Vector2f landerPosition(100, 100); 
+    laser.sprite.setPosition(laserPosition);
+    lander.sprite.setPosition(landerPosition);
+
+    lasers.push_back(laser);
+    landers.push_back(lander);
+
+    // Ensure the Lander is not destroyed
+    CHECK_FALSE(landers[0].isDestroyed());
+
+    // Fire the Laser and set its position to collide with the Lander
+    sf::Vector2f playerPosition(100, 100); 
+    lasers[0].fire(playerPosition, laserPosition);
+
+    // Create a collision handler and perform collision handling (this should increase the score)
+    CollisionHandler handler;
+    handler.handleLaserLanderCollisions(lasers, landers, score);
+
+    // Check if the Laser is marked as fired
+    CHECK(lasers[0].isFired());
+
+    // Ensure the Lander is marked as destroyed
+    CHECK(landers[0].isDestroyed());
+
+    // Check if the score increased by 10
+    CHECK(score == 10);
+
+    // Perform additional checks for the destroyed state of Lander
+    CHECK_FALSE(landers[0].isMovingUp());
+    CHECK_FALSE(landers[0].isCarryingHumanoid());
+    
+
+    // Perform additional checks for the Laser's fired state and position
+    CHECK(lasers[0].isFired());
+}
+
+TEST_CASE("Player Runs Out of Fuel, Descends, and Game Ends")
+{
+    // Create a game object and player
+    Game game; // Adjust this constructor if needed
+    Player player;
+
+    // Get the initial position of the player
+    sf::Vector2f initialPosition = player.getPosition();
+
+    // Replace the player's fuel with a small value for testing
+    player.resetCurrentFuel();
+    player.setCurrentFuel(0.0f); // Set the player's fuel to 0
+    REQUIRE(player.getCurrentFuel() == 0.0f);
+
+    // Call the function to handle fuel depletion and player movement
+    game.handleFuelDepletion(player);
+
+    // Get the final position of the player
+    sf::Vector2f finalPosition = player.getPosition();
+
+    // Check if the game is marked as over
+    bool isGameOver = game.gameOverStatus(); 
+
+    // Verify that the player has moved
+    REQUIRE_FALSE(initialPosition == finalPosition);
+
+    // Verify that the game is marked as over, since the player should have hit the ground
+    REQUIRE(isGameOver);
 }

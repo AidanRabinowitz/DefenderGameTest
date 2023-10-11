@@ -10,7 +10,7 @@ class CollisionHandler
 {
 public:
     /**
-     * @brief Construct a new Collision Handler object
+     * @brief Construct a new Collision Handler object.
      * 
      */
     CollisionHandler() = default;
@@ -40,8 +40,6 @@ public:
     /**
      * @brief A function that handles collisions between the player and landers.
      * i.e. checks for collisions between the player's spaceship and landers.
-     * It returns true if a collision is detected, indicating that the player has collided
-     * with a lander.
      * 
      * @param player A constant reference to the Player object representing the player's spaceship.
      * @param landers A constant reference to the vector of Lander objects representing enemy landers.
@@ -52,7 +50,6 @@ public:
     /**
      * @brief A function that handles collisions between the player and missiles.
      * i.e. checks for collisions between the player's spaceship and lander missiles.
-     * It returns true if a collision is detected, indicating that the player has been hit by a missile.
      * 
      * @param player A constant reference to the Player object representing the player's spaceship.
      * @param missiles A constant reference to the vector of Missile objects representing lander missiles.

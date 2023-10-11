@@ -9,7 +9,7 @@ class Humanoid : public GameEntity
 public:
 
     /**
-     * @brief Construct a new Humanoid object
+     * @brief Construct a new Humanoid object.
      * 
      */
     Humanoid();
