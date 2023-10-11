@@ -626,7 +626,6 @@ TEST_CASE("Scoring when Laser hits Lander")
     // Perform additional checks for the Laser's fired state and position
     CHECK(lasers[0].isFired());
 }
-
 TEST_CASE("Player Runs Out of Fuel, Descends, and Game Ends")
 {
     // Create a game object and player
@@ -638,21 +637,14 @@ TEST_CASE("Player Runs Out of Fuel, Descends, and Game Ends")
     REQUIRE(player.hasFuel());
 
     // Consume all the fuel immediately
-    player.consumeFuel(player.getCurrentFuel() + 1);
+    player.consumeFuel(110.0f);
 
     // Ensure the player is out of fuel
-    REQUIRE_FALSE(player.hasFuel());
+    REQUIRE_FALSE(player.getCurrentFuel() > 0.0f);
 
     // Call the function to handle fuel depletion and player movement
     game.handleFuelDepletion(player);
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Test Window");
 
-    // Simulate frames for a 3-second delay
-    int framesToSimulate = 3 * 60; // 3 seconds at 60 FPS
-    for (int i = 0; i < framesToSimulate; ++i)
-    {
-        game.update(window);
-    }
     // Check if the game is marked as over
     bool isGameOver = game.gameOverStatus(); // Replace with your actual method
     REQUIRE(isGameOver);

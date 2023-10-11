@@ -149,5 +149,4 @@ void Humanoid::setCarried(bool carriedStatus)
 void Humanoid::setFreeFall(bool fallStatus)
 {
     freeFall = fallStatus;
-    std::cout << "falling" << std::endl;
 }

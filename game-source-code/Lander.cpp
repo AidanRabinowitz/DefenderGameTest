@@ -52,7 +52,6 @@ void Lander::update()
                         carriedHumanoid->destroy();
                     }
                     carriedHumanoid = nullptr; // Reset the carried humanoid
-                    std::cout << "out of bounds" << std::endl;
                 }
             }
         }
