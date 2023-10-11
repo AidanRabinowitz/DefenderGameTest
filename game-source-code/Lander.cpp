@@ -3,7 +3,8 @@
 Lander::Lander(int id, std::vector<Humanoid> &humanoids)
     : id(id), humanoids(humanoids), destroyed(false), carryingHumanoid(false), onWayToTop(false), destroyedByLaser(false), spawnTimer(spawnTimer)
 {
-
+    texture.loadFromFile("resources/landerShip.png");
+    sprite.setTexture(texture);
     sprite.setScale(sf::Vector2f(0.1f, 0.1f));
     velocity = sf::Vector2f(0.0f, 0.0f);
 }

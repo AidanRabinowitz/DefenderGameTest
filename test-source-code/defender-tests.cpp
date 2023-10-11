@@ -571,3 +571,57 @@ TEST_CASE("CollisionHandler Player-Missile Collisions")
     bool collision = collisionHandler.handlePlayerMissileCollisions(player, missiles);
     CHECK_FALSE(collision);
 }
+
+TEST_CASE("Scoring when Laser hits Lander")
+{
+    // Create a vector of lasers
+    std::vector<Laser> lasers;
+
+    // Create a vector of landers
+    std::vector<Lander> landers;
+
+    // Initialize the score
+    int score = 0;
+
+    // Add a Laser and a Lander to the vectors
+    Laser laser;
+    std::vector<Humanoid> humanoids; // Create a vector to hold humanoids
+    Lander lander(1, humanoids);     // Pass an id and the humanoids container
+
+    // Set positions for laser and lander
+    sf::Vector2f laserPosition(100, 100);  // Replace with actual positions
+    sf::Vector2f landerPosition(100, 100); // Replace with actual positions
+    laser.sprite.setPosition(laserPosition);
+    lander.sprite.setPosition(landerPosition);
+
+    lasers.push_back(laser);
+    landers.push_back(lander);
+
+    // Ensure the Lander is not destroyed
+    CHECK_FALSE(landers[0].isDestroyed());
+
+    // Fire the Laser and set its position to collide with the Lander
+    sf::Vector2f playerPosition(100, 100); // Replace with actual positions
+    lasers[0].fire(playerPosition, laserPosition);
+
+    // Create a collision handler and perform collision handling (this should increase the score)
+    CollisionHandler handler;
+    handler.handleLaserLanderCollisions(lasers, landers, score);
+
+    // Check if the Laser is marked as fired
+    CHECK(lasers[0].isFired());
+
+    // Ensure the Lander is marked as destroyed
+    CHECK(landers[0].isDestroyed());
+
+    // Check if the score increased by 10
+    CHECK(score == 10);
+
+    // Perform additional checks for the destroyed state of Lander
+    CHECK_FALSE(landers[0].isMovingUp());
+    CHECK_FALSE(landers[0].isCarryingHumanoid());
+    // Add more checks as needed
+
+    // Perform additional checks for the Laser's fired state and position
+    CHECK(lasers[0].isFired());
+}
