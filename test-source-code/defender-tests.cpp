@@ -9,6 +9,7 @@
 #include "GameEntity.h"
 #include "Humanoid.h"
 #include "CollisionHandler.h"
+#include "Game.h"
 
 TEST_CASE("Player movement")
 {
@@ -625,3 +626,31 @@ TEST_CASE("Scoring when Laser hits Lander")
     // Perform additional checks for the Laser's fired state and position
     CHECK(lasers[0].isFired());
 }
+// TEST_CASE("Player Runs Out of Fuel, Descends, and Game Ends")
+// {
+//     // Create a game object
+//     Game game; // Adjust this constructor if needed
+
+//     // Replace the player's fuel with a small value for testing
+//     Player &player = game.getPlayer();
+//     player.resetCurrentFuel();
+//     REQUIRE(player.hasFuel());
+
+//     // Simulate consuming fuel until it runs out
+//     float deltaTime = 0.1f; // Replace with an appropriate time interval
+
+//     // Simulate fuel consumption until it runs out
+//     while (player.hasFuel())
+//     {
+//         game.update(deltaTime);
+//     }
+
+//     // Ensure the player is out of fuel
+//     REQUIRE_FALSE(player.hasFuel());
+
+//     // Simulate player's descent
+//     game.update(deltaTime);
+
+//     // Check if the game is marked as over
+//     REQUIRE(game.isGameOver());
+// }

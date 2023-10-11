@@ -14,7 +14,6 @@
 #include "Fuels.h"
 #include "Humanoid.h"
 #include "CollisionHandler.h"
-#include "ScreenManager.h"
 class Game : public GameEntity
 {
 public:
@@ -30,6 +29,8 @@ public:
     void loadScreenTextures();
 
     // Function to display different screens
+    void update(sf::RenderWindow &window);
+
     void displayScreen(sf::RenderWindow &window, sf::Font &font, bool gameStarted, bool isPauseScreenVisible, bool isGameOver, bool isWinScreenVisible, int level);
     void createHumanoids();
     int humansKilled = 0; // Initialize the number of humans killed in the start to 0
@@ -66,10 +67,8 @@ private:
     sf::Clock missileTimer;
     sf::Clock frameClock;
     sf::Clock fuelSpawnTimer;
-    ScreenManager screenManager;
     sf::Font font;
     void resetGame();
     void handleInput(sf::RenderWindow &window);
-    void update(sf::RenderWindow &window);
     void render(sf::RenderWindow &window);
 };

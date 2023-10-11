@@ -317,7 +317,6 @@ void Game::update(sf::RenderWindow &window)
 void Game::render(sf::RenderWindow &window) // Rendering the game shapes and sprites
 {
     window.clear();
-    screenManager.drawCurrentScreen(window);
     window.draw(backgroundSprite);
     player.render(window);
 
