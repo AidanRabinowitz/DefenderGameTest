@@ -158,23 +158,7 @@ private:
     sf::Clock fuelSpawnTimer;
     sf::Font font;
 
-    /**
-     * @brief A function to reset the game to its initial state.
-     * 
-     */
     void resetGame();
-
-    /**
-     * @brief A function to handle user input for the game.
-     * 
-     * @param window A reference to the SFML RenderWindow.
-     */
     void handleInput(sf::RenderWindow &window);
-
-    /**
-     * @brief A function to render the game, including game objects, text, and screens.
-     * 
-     * @param window A reference to the SFML RenderWindow.
-     */
     void render(sf::RenderWindow &window);
 };

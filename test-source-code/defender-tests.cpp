@@ -55,52 +55,35 @@ TEST_CASE("Player movement")
     }
 }
 
-TEST_CASE("Laser Default Constructor")
+TEST_CASE("Laser")
 {
-    Laser laser;
-
-    CHECK_FALSE(laser.isFired());
-}
-
-TEST_CASE("Laser Fire")
-{
-    Laser laser;
-    sf::Vector2f playerPosition(100.0f, 200.0f);
-    sf::Vector2f mousePosition(300.0f, 200.0f);
-
-    laser.fire(playerPosition, mousePosition);
-
-    CHECK(laser.isFired());
-    CHECK(laser.getPosition().x == playerPosition.x + 42);
-    CHECK(laser.getPosition() == sf::Vector2f(playerPosition.x + 42, playerPosition.y));
-}
-
-TEST_CASE("Laser Move")
-{
-    Laser laser;
-    sf::Vector2f initialPosition = laser.getPosition();
-
-    laser.fire(sf::Vector2f(100.0f, 200.0f), sf::Vector2f(300.0f, 200.0f));
-    laser.move();
-
-    CHECK(laser.getPosition() != initialPosition);
-}
-
-TEST_CASE("Laser Set Fired")
-{
-    Laser laser;
-
-    laser.setFired(true);
-
-    CHECK(laser.isFired());
-}
-
-TEST_CASE("Laser firing")
-{
-    Laser laser;
-
-    SUBCASE("Mouse click fires laser")
+    SUBCASE("Laser Constructor Test") // Laser must not fire unless called upon
     {
+        Laser laser;
+        CHECK_FALSE(laser.isFired());
+    }
+
+    SUBCASE("Laser Set Fired")
+    {
+        Laser laser;
+        laser.setFired(true);
+        CHECK(laser.isFired());
+    }
+    SUBCASE("Laser Firing Changes Laser Position")
+    {
+        Laser laser;
+        sf::Vector2f playerPosition(100.0f, 200.0f);
+        sf::Vector2f mousePosition(300.0f, 200.0f);
+
+        laser.fire(playerPosition, mousePosition);
+
+        CHECK(laser.isFired());
+        CHECK(laser.getPosition().x == playerPosition.x + 42);
+        CHECK(laser.getPosition() == sf::Vector2f(playerPosition.x + 42, playerPosition.y));
+    }
+    SUBCASE("Laser Firing With Mouse Sets isFired") // Laser should fire if called upon
+    {
+        Laser laser;
         sf::Vector2f startPosition(100, 100);
         sf::Event event;
         event.type = sf::Event::MouseButtonPressed;
@@ -109,6 +92,15 @@ TEST_CASE("Laser firing")
         laser.fire(startPosition, mousePosition);
         laser.move();
         CHECK(laser.isFired() == true);
+    }
+
+    SUBCASE("Laser Move")
+    {
+        Laser laser;
+        sf::Vector2f initialPosition = laser.getPosition();
+        laser.fire(sf::Vector2f(100.0f, 200.0f), sf::Vector2f(300.0f, 200.0f));
+        laser.move();
+        CHECK(laser.getPosition() != initialPosition);
     }
 }
 
@@ -140,12 +132,9 @@ TEST_CASE("Lander Constructor and Reset")
 {
     std::vector<Humanoid> humanoids;
     Lander lander(1, humanoids);
-
     CHECK_FALSE(lander.isDestroyed());
     CHECK_FALSE(lander.isCarryingHumanoid());
-
     lander.reset();
-
     CHECK_FALSE(lander.isDestroyed());
     CHECK_FALSE(lander.isCarryingHumanoid());
 }
@@ -427,7 +416,6 @@ TEST_CASE("Humanoid FreeFall Status")
     CHECK_FALSE(humanoid.isFreeFall());
     CHECK_FALSE(humanoid.sprite.getPosition().y == 10.0f);
 }
-
 TEST_CASE("Lander-Humanoid Collision")
 {
     // Create a vector of Humanoids and add one Humanoid to it
@@ -456,35 +444,26 @@ TEST_CASE("Humanoid FreeFall and Player Interaction")
 {
     // Create a window for testing (you can adjust the window size)
     sf::RenderWindow window(sf::VideoMode(800, 600), "Test Window");
-
     // Create a Humanoid and a Player
     Humanoid humanoid;
     Player player;
-
     // Set up positions for the humanoid and player to touch
     humanoid.setPosition(100, 100);
     player.setPosition(100, 100);
-
     // Enable free fall for the humanoid
     humanoid.setFreeFall(true);
-
     // Simulate the player's position and check interaction
     sf::Vector2f playerPosition(100, 100); // Set the player's position to touch the humanoid
     humanoid.update(playerPosition, player, window);
-
     // Check if the humanoid is touching the player
     CHECK(humanoid.isTouchingPlayer());
-
     // Check if the humanoid is at the same position as the player
     CHECK(humanoid.getPosition() == player.getPosition());
-
     // Now, simulate the player's movement
     player.handleMovement(window);
-
     // Update the humanoid with the player's new position
     playerPosition = player.getPosition();
     humanoid.update(playerPosition, player, window);
-
     // Check if the humanoid still follows the player's position
     CHECK(humanoid.getPosition() == player.getPosition());
 }
@@ -493,36 +472,27 @@ TEST_CASE("Humanoid Reset on Touching Bottom")
 {
     // Create a window for testing (you can adjust the window size)
     sf::RenderWindow window(sf::VideoMode(800, 600), "Test Window");
-
     // Create a Humanoid and a Player
     Humanoid humanoid;
     Player player;
-
     // Set up positions for the humanoid and player to touch
     humanoid.setOriginalPosition(100, 100);
     player.setPosition(100, 100);
-
     // Enable free fall for the humanoid
     humanoid.setFreeFall(true);
-
     // Simulate the player's position and check interaction
     sf::Vector2f playerPosition(100, 100); // Set the player's position to touch the humanoid
     humanoid.update(playerPosition, player, window);
-
     // Check if the humanoid is touching the player
     CHECK(humanoid.isTouchingPlayer());
-
     // Simulate the player touching the bottom of the window
     player.setPosition(100, window.getSize().y - 10);
     playerPosition = player.getPosition();
     humanoid.update(playerPosition, player, window);
-
     // Check if the humanoid is no longer touching the player
     CHECK_FALSE(humanoid.isTouchingPlayer());
-
     // Check if the humanoid's reset function is called
     humanoid.update(playerPosition, player, window);
-
     // Check if the humanoid is reset to its original position
     CHECK(humanoid.getPosition().x == 100);
 }
@@ -532,18 +502,15 @@ TEST_CASE("CollisionHandler Laser-Humanoid Collisions")
     CollisionHandler collisionHandler;
     std::vector<Laser> lasers;
     std::vector<Humanoid> humanoids;
-
     // Create Laser and Humanoid objects for testing
     Laser laser;
     Humanoid humanoid;
     laser.fire(sf::Vector2f(10.0f, 10.0f), sf::Vector2f(20.0f, 20.0f));
     humanoids.push_back(humanoid);
-
     // Initially, no collisions should have occurred
     collisionHandler.handleLaserHumanoidCollisions(lasers, humanoids);
     CHECK(lasers.size() == 0);
     CHECK(humanoids.size() == 1);
-
     // Test collision handling
     collisionHandler.handleLaserHumanoidCollisions(lasers, humanoids);
     CHECK(lasers.empty()); // Laser should have been removed
@@ -563,11 +530,9 @@ TEST_CASE("CollisionHandler Player-Missile Collisions")
     CollisionHandler collisionHandler;
     Player player;
     std::vector<Missile> missiles;
-
     // Create a Missile object for testing
     Missile missile(sf::Vector2f(10.0f, 10.0f), sf::Vector2f(20.0f, 20.0f));
     missiles.push_back(missile);
-
     // Initially, no collisions should have occurred
     bool collision = collisionHandler.handlePlayerMissileCollisions(player, missiles);
     CHECK_FALSE(collision);
@@ -577,60 +542,45 @@ TEST_CASE("Scoring when Laser hits Lander")
 {
     // Create a vector of lasers
     std::vector<Laser> lasers;
-
     // Create a vector of landers
     std::vector<Lander> landers;
-
     // Initialize the score
     int score = 0;
-
     // Add a Laser and a Lander to the vectors
     Laser laser;
     std::vector<Humanoid> humanoids; // Create a vector to hold humanoids
     Lander lander(1, humanoids);     // Pass an id and the humanoids container
-
     // Set positions for laser and lander
-    sf::Vector2f laserPosition(100, 100);  
-    sf::Vector2f landerPosition(100, 100); 
+    sf::Vector2f laserPosition(100, 100);  // Replace with actual positions
+    sf::Vector2f landerPosition(100, 100); // Replace with actual positions
     laser.sprite.setPosition(laserPosition);
     lander.sprite.setPosition(landerPosition);
-
     lasers.push_back(laser);
     landers.push_back(lander);
-
     // Ensure the Lander is not destroyed
     CHECK_FALSE(landers[0].isDestroyed());
-
     // Fire the Laser and set its position to collide with the Lander
-    sf::Vector2f playerPosition(100, 100); 
+    sf::Vector2f playerPosition(100, 100); // Replace with actual positions
     lasers[0].fire(playerPosition, laserPosition);
-
     // Create a collision handler and perform collision handling (this should increase the score)
     CollisionHandler handler;
     handler.handleLaserLanderCollisions(lasers, landers, score);
-
     // Check if the Laser is marked as fired
     CHECK(lasers[0].isFired());
-
     // Ensure the Lander is marked as destroyed
     CHECK(landers[0].isDestroyed());
-
     // Check if the score increased by 10
     CHECK(score == 10);
-
     // Perform additional checks for the destroyed state of Lander
     CHECK_FALSE(landers[0].isMovingUp());
     CHECK_FALSE(landers[0].isCarryingHumanoid());
-    
-
     // Perform additional checks for the Laser's fired state and position
     CHECK(lasers[0].isFired());
 }
-
 TEST_CASE("Player Runs Out of Fuel, Descends, and Game Ends")
 {
     // Create a game object and player
-    Game game; // Adjust this constructor if needed
+    Game game;
     Player player;
 
     // Get the initial position of the player
@@ -648,7 +598,7 @@ TEST_CASE("Player Runs Out of Fuel, Descends, and Game Ends")
     sf::Vector2f finalPosition = player.getPosition();
 
     // Check if the game is marked as over
-    bool isGameOver = game.gameOverStatus(); 
+    bool isGameOver = game.gameOverStatus();
 
     // Verify that the player has moved
     REQUIRE_FALSE(initialPosition == finalPosition);

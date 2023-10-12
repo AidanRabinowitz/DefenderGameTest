@@ -52,12 +52,5 @@ private:
     float maxWidth;         // The maximum width of the fuel bar
     float initialFuel;      // The initial total fuel capacity
     float currentFuel;      // The current fuel level
-
-    /**
-     * @brief A function to update the size of the fuel bar based on the current fuel level.
-     * i.e. calculates the percentage of current fuel relative to the initial capacity
-     * and updates the size of the visual bar accordingly.
-     * 
-     */
     void updateBarSize();
 };

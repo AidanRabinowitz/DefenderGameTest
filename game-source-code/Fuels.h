@@ -67,13 +67,6 @@ public:
 private:
     sf::Vector2f position; // The position of the fuel canister
     bool destroyed; // Indicates whether the fuel canister is destroyed
-
-    /**
-     * @brief A function to check for collisions with a bounding box (e.g., player bounds).
-     * 
-     * @param playerBounds The bounding box to check for collisions with.
-     * @return true if a collision is detected, false otherwise.
-     */
     bool checkCollision(const sf::FloatRect &playerBounds);
 };
 
